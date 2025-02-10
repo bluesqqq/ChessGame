@@ -137,12 +137,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="tile.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="ChessGame.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\Chess\Raylib-CPP-Starter-Template-for-VSCODE\resources\Tiles.png" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
