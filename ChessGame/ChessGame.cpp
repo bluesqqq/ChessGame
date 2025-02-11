@@ -1,8 +1,8 @@
-#include "raylib.h"
 #include <iostream>
 #include <cmath>
 #include "board.h"
 #include "isometric.h"
+#include "include/raylib-cpp.hpp"
 
 using namespace std;
 
@@ -16,12 +16,13 @@ void UpdateDrawFrame(Camera2D camera, Board board)
 
     ClearBackground(RAYWHITE);
 
-    board.draw();
-
     float time = GetTime(); // Get elapsed time
-    Vector2 cursorPosition = GetMousePosition();
+    raylib::Vector2 cursorPosition = GetMousePosition();
 
-    Vector2 cursorIsoPosition = ScreenToISO(cursorPosition);
+    raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
+
+
+    board.draw((int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
 
     EndMode2D();
 
@@ -41,8 +42,8 @@ int main()
     Board board = Board(&atlas);
 
     Camera2D camera = { 0 };
-    camera.target = Vector2{ 0.0f, 0.0f };
-    camera.offset = Vector2{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 8.0f };
+    camera.target = raylib::Vector2{ 0.0f, 0.0f };
+    camera.offset = raylib::Vector2{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 8.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 

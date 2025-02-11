@@ -2,102 +2,85 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include "raylib.h"
+#include <vector>
+#include <utility>
+
+
+#include "include/raylib-cpp.hpp"
 #include "config.h"
 #include "isometric.h"
 
+class Board;
+
+using namespace std;
+
 class Piece
 {
-protected:
-    Texture2D* atlas; // Pointer to the texture atlas
-    int player; // Player identifier (1 or 2)
+    protected:
+        Texture2D* atlas; // Pointer to the texture atlas
+        int player; // Player identifier (1 or 2)
+        int moves = 0;
+        float opacity = 1.0f;
 
-public:
-    Piece(Texture2D* texture, int player) : atlas(texture), player(player) {}
-    virtual ~Piece() {}
-    virtual void draw(int x, int y, float z) {} // Base draw method
+    public:
+        Piece(Texture2D* texture, int player);
+        virtual ~Piece();
 
-    Color getColor() const {
-        return (player == 1) ? WHITE : GRAY;
-    }
+        virtual void draw(int x, int y, float z, bool hidden = false); // Base draw method
+        virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
+
+        Color getColor() const;
+        int getPlayer();
 };
 
 class Pawn : public Piece
 {
-public:
-    Pawn(Texture2D* texture, int player) : Piece(texture, player) {}
+    private:
 
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 4 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-        Vector2 position = IsoToScreen(x, y, z + 1);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    public:
+        Pawn(Texture2D* texture, int player);
+        void draw(int x, int y, float z, bool hidden = false) override;
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class Knight : public Piece
 {
-public:
-    Knight(Texture2D* texture, int player) : Piece(texture, player) {}
-
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 4 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-        Vector2 position = IsoToScreen(x, y, z + 1);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    public:
+        Knight(Texture2D* texture, int player);
+        void draw(int x, int y, float z, bool hidden = false) override;
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class Bishop : public Piece
 {
 public:
-    Bishop(Texture2D* texture, int player) : Piece(texture, player) {}
-
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 5 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-        Vector2 position = IsoToScreen(x, y, z + 1);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    Bishop(Texture2D* texture, int player);
+    void draw(int x, int y, float z, bool hidden = false) override;
+    vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class Rook : public Piece
 {
-public:
-    Rook(Texture2D* texture, int player) : Piece(texture, player) {}
-
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 5 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-        Vector2 position = IsoToScreen(x, y, z + 1);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    public:
+        Rook(Texture2D* texture, int player);
+        void draw(int x, int y, float z, bool hidden = false) override;
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class Queen : public Piece
 {
-public:
-    Queen(Texture2D* texture, int player) : Piece(texture, player) {}
-
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 6 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 };
-        Vector2 position = IsoToScreen(x, y, z + 3);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    public:
+        Queen(Texture2D* texture, int player);
+        void draw(int x, int y, float z, bool hidden = false) override;
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class King : public Piece
 {
-public:
-    King(Texture2D* texture, int player) : Piece(texture, player) {}
-
-    void draw(int x, int y, float z) override
-    {
-        Rectangle source = { 7 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 };
-        Vector2 position = IsoToScreen(x, y, z + 3);
-        DrawTextureRec(*atlas, source, position, getColor());
-    }
+    public:
+        King(Texture2D* texture, int player);
+        void draw(int x, int y, float z, bool hidden = false) override;
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 #endif
