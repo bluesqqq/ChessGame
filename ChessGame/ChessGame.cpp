@@ -45,7 +45,7 @@ int main()
     camera.target = raylib::Vector2{ 0.0f, 0.0f };
     camera.offset = raylib::Vector2{ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 8.0f };
     camera.rotation = 0.0f;
-    camera.zoom = 2.0f;
+    camera.zoom = 1.0f;
 
     while (WindowShouldClose() == false)
     {
