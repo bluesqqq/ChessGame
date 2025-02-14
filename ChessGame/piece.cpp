@@ -5,7 +5,23 @@ Piece::Piece(Texture2D* texture, int player) : atlas(texture), player(player) {}
 Piece::~Piece() {}
 
 void Piece::draw(int x, int y, float z, bool hidden) {}
+
 vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return {}; }
+
+bool Piece::isValidMove(int x, int y, Board& board, int moveX, int moveY)
+{
+    vector<pair<int, int>> validMove = getValidMoves(x, y, board);
+
+    std::pair<int, int> current_pair = { moveX, moveY };
+    auto it = std::find(validMove.begin(), validMove.end(), current_pair);
+
+    if (it != validMove.end())
+    {
+        return true;
+    }
+
+    return false;
+}
 
 Color Piece::getColor() const {
     return (player == 1) ? WHITE : GRAY;

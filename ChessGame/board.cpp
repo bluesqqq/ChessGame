@@ -116,17 +116,20 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
     {
         if (startTile->hasPiece())
         {
-
-            if (endTile->hasPiece())
+            if (startTile->getPiece()->isValidMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
             {
-                endTile->removePiece();
+
+                if (endTile->hasPiece())
+                {
+                    endTile->removePiece();
+                }
+
+                Piece* targetPiece = startTile->removePiece();
+
+                endTile->setPiece(targetPiece);
+
+                return true;
             }
-
-            Piece* targetPiece = startTile->removePiece();
-
-            endTile->setPiece(targetPiece);
-
-            return true;
         }
     }
 

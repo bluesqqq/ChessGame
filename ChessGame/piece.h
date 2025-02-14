@@ -28,6 +28,7 @@ class Piece
 
         virtual void draw(int x, int y, float z, bool hidden = false); // Base draw method
         virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
+        bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
 
         Color getColor() const;
         int getPlayer();
