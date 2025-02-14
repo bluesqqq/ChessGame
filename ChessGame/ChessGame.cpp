@@ -29,6 +29,8 @@ void UpdateDrawFrame(Camera2D camera, Board board)
     EndDrawing();
 }
 
+Vector2 targetX;
+
 int main()
 {
     const int SCREEN_WIDTH = 640;
@@ -49,6 +51,21 @@ int main()
 
     while (WindowShouldClose() == false)
     {
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 position = CursorToISO(camera);
+
+            targetX = position;
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {
+            Vector2 position = CursorToISO(camera);
+
+            board.MovePiece(targetX.x, targetX.y, position.x, position.y);
+        }
+
         UpdateDrawFrame(camera, board);
     }
 

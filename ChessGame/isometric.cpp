@@ -16,3 +16,12 @@ Vector2 ScreenToISO(Vector2 screenPosition)
     isoPos.y = floor((screenPosition.y / (TILE_HEIGHT / 2.0f) - screenPosition.x / (TILE_WIDTH / 2.0f)) / 2.0f);
     return isoPos;
 }
+
+Vector2 CursorToISO(Camera2D camera)
+{
+    raylib::Vector2 cursorPosition = GetMousePosition();
+
+    raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
+
+    return cursorIsoPosition;
+}

@@ -105,3 +105,35 @@ Tile* Board::GetTile(int row, int col)
 
     return nullptr;
 }
+
+bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol)
+{
+    Tile* startTile = GetTile(pieceRow, pieceCol);
+    Tile* endTile   = GetTile(destinationRow, destinationCol);
+
+    // Check if both tiles are valid tiles, and the start tile has a piece to move
+    if (startTile && endTile)
+    {
+        if (startTile->hasPiece())
+        {
+
+            if (endTile->hasPiece())
+            {
+                endTile->removePiece();
+            }
+
+            Piece* targetPiece = startTile->removePiece();
+
+            endTile->setPiece(targetPiece);
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Board::GetPlayerTurn()
+{
+    return currentTurn % 2;
+}
