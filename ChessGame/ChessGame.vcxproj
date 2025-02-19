@@ -131,6 +131,7 @@
     <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="isometric.cpp" />
     <ClCompile Include="piece.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="tile.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="isometric.h" />
     <ClInclude Include="piece.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="tile.h" />
   </ItemGroup>

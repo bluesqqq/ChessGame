@@ -57,9 +57,14 @@ void Board::draw(int x, int y)
     // If piece is selected, hide the other pieces
     if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece())
     {
-        hide = true;
-        highlightTiles = tiles[x][y]->getPiece()->getValidMoves(x, y, *this);
-        hide = true;
+        int player = GetPlayerTurn();
+
+        if (tiles[x][y]->getPiece()->getPlayer() == player)
+        {
+            hide = true;
+            highlightTiles = tiles[x][y]->getPiece()->getValidMoves(x, y, *this);
+            hide = true;
+        }
     }
 
     float time = GetTime(); // Get elapsed time
@@ -76,15 +81,15 @@ void Board::draw(int x, int y)
             // Apply sine wave for a wavy effect
             float waveOffset = std::max(sin(time + (row + col) * 0.4f) * 0.1f, 0.0f);
 
-            if (x == row && y == col)
+            if (x == row && y == col) // Mouse is hovered
             {
                 tile->draw(row, col, waveOffset, true, false);
             }
-            else if (it != highlightTiles.end())
+            else if (it != highlightTiles.end()) // Possible moves on hovered piece
             {
                 tile->draw(row, col, waveOffset, true, false);
             }
-            else
+            else // Normal rendering
             {
                 tile->draw(row, col, waveOffset, false, hide);
             }
@@ -111,26 +116,32 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
     Tile* startTile = GetTile(pieceRow, pieceCol);
     Tile* endTile   = GetTile(destinationRow, destinationCol);
 
+    int player = GetPlayerTurn();
+
     // Check if both tiles are valid tiles, and the start tile has a piece to move
     if (startTile && endTile)
     {
         if (startTile->hasPiece())
         {
-            if (startTile->getPiece()->isValidMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
+            if (startTile->getPiece()->getPlayer() == player)
             {
-
-                if (endTile->hasPiece())
+                if (startTile->getPiece()->isValidMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
                 {
-                    endTile->removePiece();
+
+                    if (endTile->hasPiece())
+                    {
+                        endTile->removePiece();
+                    }
+
+                    Piece* targetPiece = startTile->removePiece();
+
+                    targetPiece->move();
+                    currentTurn++;
+
+                    endTile->setPiece(targetPiece);
+
+                    return true;
                 }
-
-                Piece* targetPiece = startTile->removePiece();
-
-                targetPiece->move();
-
-                endTile->setPiece(targetPiece);
-
-                return true;
             }
         }
     }
@@ -140,5 +151,5 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
 
 int Board::GetPlayerTurn()
 {
-    return currentTurn % 2;
+    return (currentTurn % 2) + 1;
 }
