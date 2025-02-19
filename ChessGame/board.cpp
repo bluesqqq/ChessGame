@@ -126,6 +126,8 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
 
                 Piece* targetPiece = startTile->removePiece();
 
+                targetPiece->move();
+
                 endTile->setPiece(targetPiece);
 
                 return true;

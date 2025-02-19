@@ -31,6 +31,10 @@ int Piece::getPlayer() {
     return player;
 }
 
+void Piece::move() {
+    moves++;
+}
+
 Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player) {}
 
 void Pawn::draw(int x, int y, float z, bool hidden) {
@@ -50,7 +54,7 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
         moves.emplace_back(x, y + direction);
 
     // Can move two squares on the first move
-    if (this->moves == 0 && board.GetTile(x, y + direction * 2) && !board.GetTile(x, y + direction * 2)->hasPiece())
+    if (this->moves == 0 && board.GetTile(x, y + direction * 2) && !board.GetTile(x, y + direction * 2)->hasPiece() && !board.GetTile(x, y + direction)->hasPiece())
         moves.emplace_back(x, y + direction * 2);
 
     if (board.GetTile(x - 1, y + direction) && board.GetTile(x - 1, y + direction)->hasPiece() && board.GetTile(x - 1, y + direction)->getPiece()->getPlayer() != player)

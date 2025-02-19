@@ -30,6 +30,8 @@ class Piece
         virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
         bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
 
+        void move();
+
         Color getColor() const;
         int getPlayer();
 };
