@@ -1,12 +1,28 @@
 #include "piece.h"
 #include "board.h"
 
-Piece::Piece(Texture2D* texture, int player) : atlas(texture), player(player) {}
+Piece::Piece(Texture2D* texture, int player, string name, Rectangle source) : atlas(texture), player(player), name(name), source(source) {}
 Piece::~Piece() {}
 
-void Piece::draw(int x, int y, float z, bool hidden) {}
+void Piece::draw(int x, int y, float z, bool hidden) {
+    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
+    else opacity = Lerp(opacity, 1.0f, 0.25f);
+
+    Vector2 position = IsoToScreen(x, y, z - 1 + (source.height / TILE_HEIGHT));
+    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
+}
+
+void Piece::drawIcon(int x, int y) {
+    Vector2 position = { x, y };
+    DrawTextureRec(*atlas, source, position, getColor());
+}
 
 vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return {}; }
+
+
+
+
+
 
 bool Piece::isValidMove(int x, int y, Board& board, int moveX, int moveY)
 {
@@ -35,16 +51,7 @@ void Piece::move() {
     moves++;
 }
 
-Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void Pawn::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 4 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-    Vector2 position = IsoToScreen(x, y, z + 1);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn", { 4 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
 
 vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -66,16 +73,7 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Knight::Knight(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void Knight::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 4 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-    Vector2 position = IsoToScreen(x, y, z + 1);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+Knight::Knight(Texture2D* texture, int player) : Piece(texture, player, "Knight", { 4 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
 
 vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -95,16 +93,7 @@ vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Bishop::Bishop(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void Bishop::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 5 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-    Vector2 position = IsoToScreen(x, y, z + 1);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+Bishop::Bishop(Texture2D* texture, int player) : Piece(texture, player, "Bishop", { 5 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
 
 vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -117,24 +106,20 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
             _y += direction.second;
 
             Piece* piece = board.GetTile(_x, _y)->getPiece();
-            if (!piece || piece->getPlayer() != player)
+            if (!piece) {
                 moves.emplace_back(_x, _y);
+            }
+            else if (piece->getPlayer() != player) {
+                moves.emplace_back(_x, _y);
+                break;
+            }
             else break;
         }
     }
     return moves;
 }
 
-Rook::Rook(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void Rook::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 5 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-    Vector2 position = IsoToScreen(x, y, z + 1);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+Rook::Rook(Texture2D* texture, int player) : Piece(texture, player, "Rook", { 5 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
 
 vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -147,24 +132,20 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
             _y += direction.second;
 
             Piece* piece = board.GetTile(_x, _y)->getPiece();
-            if (!piece || piece->getPlayer() != player)
+            if (!piece) {
                 moves.emplace_back(_x, _y);
+            }
+            else if (piece->getPlayer() != player) {
+                moves.emplace_back(_x, _y);
+                break;
+            }
             else break;
         }
     }
     return moves;
 }
 
-Queen::Queen(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void Queen::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 6 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 };
-    Vector2 position = IsoToScreen(x, y, z + 3);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+Queen::Queen(Texture2D* texture, int player) : Piece(texture, player, "Queen", { 6 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 }) {}
 
 vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -177,24 +158,20 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
             _y += direction.second;
 
             Piece* piece = board.GetTile(_x, _y)->getPiece();
-            if (!piece || piece->getPlayer() != player)
+            if (!piece) {
                 moves.emplace_back(_x, _y);
+            }
+            else if (piece->getPlayer() != player) {
+                moves.emplace_back(_x, _y);
+                break;
+            }
             else break;
         }
     }
     return moves;
 }
 
-King::King(Texture2D* texture, int player) : Piece(texture, player) {}
-
-void King::draw(int x, int y, float z, bool hidden) {
-    if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
-    else opacity = Lerp(opacity, 1.0f, 0.25f);
-
-    Rectangle source = { 7 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 };
-    Vector2 position = IsoToScreen(x, y, z + 3);
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-}
+King::King(Texture2D* texture, int player) : Piece(texture, player, "King", { 7 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 }) {}
 
 vector<pair<int, int>> King::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;

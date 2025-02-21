@@ -2,7 +2,7 @@
 #include <cmath>
 #include <algorithm>
 
-Board::Board(Texture2D* texture) : atlas(texture)
+Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), players(players)
 {
     // Populate with generic tiles
     for (int row = 0; row < 8; row++)
@@ -130,7 +130,9 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
 
                     if (endTile->hasPiece())
                     {
-                        endTile->removePiece();
+                        Piece* discardedPiece = endTile->removePiece();
+
+                        players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
                     }
 
                     Piece* targetPiece = startTile->removePiece();

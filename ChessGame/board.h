@@ -6,6 +6,7 @@
 
 #include "tile.h"
 #include "piece.h"
+#include "player.h"
 #include "include/raylib-cpp.hpp"
 
 class Board
@@ -13,10 +14,12 @@ class Board
 private:
     Tile* tiles[8][8];
     Texture2D* atlas;
+
+    vector<Player>& players;
     int currentTurn = 0;
 
 public:
-    Board(Texture2D* texture);
+    Board(Texture2D* texture, vector<Player>& players);
 
     void draw(int x, int y);
 

@@ -18,15 +18,22 @@ class Piece
 {
     protected:
         Texture2D* atlas; // Pointer to the texture atlas
+        Rectangle source;
+
         int player; // Player identifier (1 or 2)
         int moves = 0;
         float opacity = 1.0f;
 
+        string name;
+
     public:
-        Piece(Texture2D* texture, int player);
+        Piece(Texture2D* texture, int player, string name, Rectangle source);
         virtual ~Piece();
 
-        virtual void draw(int x, int y, float z, bool hidden = false); // Base draw method
+        void draw(int x, int y, float z, bool hidden = false); // Base draw method
+
+        void drawIcon(int x, int y);
+
         virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
         bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
 
@@ -42,7 +49,6 @@ class Pawn : public Piece
 
     public:
         Pawn(Texture2D* texture, int player);
-        void draw(int x, int y, float z, bool hidden = false) override;
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
@@ -50,7 +56,6 @@ class Knight : public Piece
 {
     public:
         Knight(Texture2D* texture, int player);
-        void draw(int x, int y, float z, bool hidden = false) override;
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
@@ -58,7 +63,6 @@ class Bishop : public Piece
 {
 public:
     Bishop(Texture2D* texture, int player);
-    void draw(int x, int y, float z, bool hidden = false) override;
     vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
@@ -66,7 +70,6 @@ class Rook : public Piece
 {
     public:
         Rook(Texture2D* texture, int player);
-        void draw(int x, int y, float z, bool hidden = false) override;
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
@@ -74,7 +77,6 @@ class Queen : public Piece
 {
     public:
         Queen(Texture2D* texture, int player);
-        void draw(int x, int y, float z, bool hidden = false) override;
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
@@ -82,7 +84,6 @@ class King : public Piece
 {
     public:
         King(Texture2D* texture, int player);
-        void draw(int x, int y, float z, bool hidden = false) override;
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
