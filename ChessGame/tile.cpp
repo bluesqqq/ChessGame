@@ -47,6 +47,8 @@ bool Tile::isSelectable()
     return true; // Base tile is always selectable
 }
 
+
+
 BasicTile::BasicTile(Texture2D* texture) : atlas(texture) {}
 
 void BasicTile::draw(int x, int y, float z, bool selected, bool hide)

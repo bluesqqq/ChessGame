@@ -79,7 +79,7 @@ void Board::draw(int x, int y)
             Tile* tile = tiles[row][col];
 
             // Apply sine wave for a wavy effect
-            float waveOffset = std::max(sin(time + (row + col) * 0.4f) * 0.1f, 0.0f);
+            float waveOffset = std::max(sin(time + (row + col) * 0.4f) * 0.2f, 0.0f);
 
             if (x == row && y == col) // Mouse is hovered
             {

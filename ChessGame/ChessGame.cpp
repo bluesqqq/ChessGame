@@ -18,7 +18,8 @@ void UpdateDrawFrame(Camera2D camera, Board board, vector<Player> players)
 
     BeginMode2D(camera);
 
-    ClearBackground(RAYWHITE);
+    ClearBackground(Color{ 204, 230, 255, 255 });
+
 
     float time = GetTime(); // Get elapsed time
     raylib::Vector2 cursorPosition = GetMousePosition();
@@ -29,14 +30,14 @@ void UpdateDrawFrame(Camera2D camera, Board board, vector<Player> players)
 
     EndMode2D();
 
-    DrawText(players[0].getName().c_str(), 0, 30, 20, BLACK);
+    DrawText(players[0].getName().c_str(), 10, 30, 20, BLACK);
 
     vector<Piece*> p1DiscardedPieces = players[0].getDiscardedPieces();
     for (int i = 0; i < p1DiscardedPieces.size(); i++) {
         p1DiscardedPieces[i]->drawIcon(0 + (i % 2) * 32, 50 + (16 * i));
     }
 
-    DrawText(players[1].getName().c_str(), 640 - MeasureText(players[1].getName().c_str(), 20), 30, 20, BLACK);
+    DrawText(players[1].getName().c_str(), 640 - MeasureText(players[1].getName().c_str() - 10, 20), 30, 20, BLACK);
 
     vector<Piece*> p2DiscardedPieces = players[1].getDiscardedPieces();
     for (int i = 0; i < p2DiscardedPieces.size(); i++) {
