@@ -57,17 +57,17 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
     int direction = (player == 1 ? 1 : -1);
 
-    if (board.GetTile(x, y + direction) && !board.GetTile(x, y + direction)->hasPiece())
+    if (board.getTile(x, y + direction) && !board.getTile(x, y + direction)->hasPiece())
         moves.emplace_back(x, y + direction);
 
     // Can move two squares on the first move
-    if (this->moves == 0 && board.GetTile(x, y + direction * 2) && !board.GetTile(x, y + direction * 2)->hasPiece() && !board.GetTile(x, y + direction)->hasPiece())
+    if (this->moves == 0 && board.getTile(x, y + direction * 2) && !board.getTile(x, y + direction * 2)->hasPiece() && !board.getTile(x, y + direction)->hasPiece())
         moves.emplace_back(x, y + direction * 2);
 
-    if (board.GetTile(x - 1, y + direction) && board.GetTile(x - 1, y + direction)->hasPiece() && board.GetTile(x - 1, y + direction)->getPiece()->getPlayer() != player)
+    if (board.getTile(x - 1, y + direction) && board.getTile(x - 1, y + direction)->hasPiece() && board.getTile(x - 1, y + direction)->getPiece()->getPlayer() != player)
         moves.emplace_back(x - 1, y + direction);
 
-    if (board.GetTile(x + 1, y + direction) && board.GetTile(x + 1, y + direction)->hasPiece() && board.GetTile(x + 1, y + direction)->getPiece()->getPlayer() != player)
+    if (board.getTile(x + 1, y + direction) && board.getTile(x + 1, y + direction)->hasPiece() && board.getTile(x + 1, y + direction)->getPiece()->getPlayer() != player)
         moves.emplace_back(x + 1, y + direction);
 
     return moves;
@@ -83,8 +83,8 @@ vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
         int _x = x + offset.first;
         int _y = y + offset.second;
 
-        if (board.GetTile(_x, _y)) {
-            Piece* piece = board.GetTile(_x, _y)->getPiece();
+        if (board.getTile(_x, _y)) {
+            Piece* piece = board.getTile(_x, _y)->getPiece();
             if (!piece || piece->getPlayer() != player) {
                 moves.emplace_back(_x, _y);
             }
@@ -101,11 +101,11 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
 
     for (auto direction : directions) {
         int _x = x, _y = y;
-        while (board.GetTile(_x + direction.first, _y + direction.second)) {
+        while (board.getTile(_x + direction.first, _y + direction.second)) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.GetTile(_x, _y)->getPiece();
+            Piece* piece = board.getTile(_x, _y)->getPiece();
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
@@ -127,11 +127,11 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
 
     for (auto direction : directions) {
         int _x = x, _y = y;
-        while (board.GetTile(_x + direction.first, _y + direction.second)) {
+        while (board.getTile(_x + direction.first, _y + direction.second)) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.GetTile(_x, _y)->getPiece();
+            Piece* piece = board.getTile(_x, _y)->getPiece();
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
@@ -153,11 +153,11 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
 
     for (auto direction : directions) {
         int _x = x, _y = y;
-        while (board.GetTile(_x + direction.first, _y + direction.second)) {
+        while (board.getTile(_x + direction.first, _y + direction.second)) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.GetTile(_x, _y)->getPiece();
+            Piece* piece = board.getTile(_x, _y)->getPiece();
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
@@ -182,7 +182,7 @@ vector<pair<int, int>> King::getValidMoves(int x, int y, Board& board) {
         for (int _y = max(y - 1, 0); _y <= min(y + 1, 7); _y++)
         {
             // Get the tile at the current location
-            Tile* tile = board.GetTile(_x, _y);
+            Tile* tile = board.getTile(_x, _y);
 
             // Get the piece on the current tile
             Piece* piece = tile->getPiece();

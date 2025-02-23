@@ -48,7 +48,7 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
 }
 
-void Board::draw(int x, int y)
+void Board::draw(int player, int x, int y)
 {
     bool hide = false;
 
@@ -57,8 +57,6 @@ void Board::draw(int x, int y)
     // If piece is selected, hide the other pieces
     if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece())
     {
-        int player = GetPlayerTurn();
-
         if (tiles[x][y]->getPiece()->getPlayer() == player)
         {
             hide = true;
@@ -97,12 +95,12 @@ void Board::draw(int x, int y)
     }
 }
 
-void Board::SetTile(int row, int col, Tile* newTile)
+void Board::setTile(int row, int col, Tile* newTile)
 {
     tiles[row][col] = newTile;
 }
 
-Tile* Board::GetTile(int row, int col)
+Tile* Board::getTile(int row, int col)
 {
     // If out of bounds, return a nullptr
     if (row >= 0 && row < 8 && col >= 0 && col < 8)
@@ -111,12 +109,10 @@ Tile* Board::GetTile(int row, int col)
     return nullptr;
 }
 
-bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol)
+bool Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol)
 {
-    Tile* startTile = GetTile(pieceRow, pieceCol);
-    Tile* endTile   = GetTile(destinationRow, destinationCol);
-
-    int player = GetPlayerTurn();
+    Tile* startTile = getTile(pieceRow, pieceCol);
+    Tile* endTile   = getTile(destinationRow, destinationCol);
 
     // Check if both tiles are valid tiles, and the start tile has a piece to move
     if (startTile && endTile)
@@ -132,13 +128,20 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
                     {
                         Piece* discardedPiece = endTile->removePiece();
 
+                        if (discardedPiece->getPlayer() == 1) {
+                            Sound fxPiecetaken = LoadSound("resources/piecetaken.wav");
+                            PlaySound(fxPiecetaken);
+                        } else {
+                            Sound fxPiecelost = LoadSound("resources/piecelost.wav");
+                            PlaySound(fxPiecelost);
+                        }
+
                         players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
                     }
 
                     Piece* targetPiece = startTile->removePiece();
 
                     targetPiece->move();
-                    currentTurn++;
 
                     endTile->setPiece(targetPiece);
 
@@ -149,9 +152,4 @@ bool Board::MovePiece(int pieceRow, int pieceCol, int destinationRow, int destin
     }
 
     return false;
-}
-
-int Board::GetPlayerTurn()
-{
-    return (currentTurn % 2) + 1;
 }

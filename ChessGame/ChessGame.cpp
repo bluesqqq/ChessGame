@@ -4,6 +4,7 @@
 #include "isometric.h"
 #include "include/raylib-cpp.hpp"
 #include "player.h"
+#include "game.h"
 
 using namespace std;
 
@@ -12,7 +13,7 @@ const int SCREEN_HEIGHT = 360;
 
 Texture2D atlas;
 
-void UpdateDrawFrame(Camera2D camera, Board board, vector<Player> players)
+void UpdateDrawFrame(Camera2D camera, Game game)
 {
     BeginDrawing();
 
@@ -26,20 +27,20 @@ void UpdateDrawFrame(Camera2D camera, Board board, vector<Player> players)
 
     raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
 
-    board.draw((int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
+    game.getBoard().draw(game.getPlayerTurn(), (int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
 
     EndMode2D();
 
-    DrawText(players[0].getName().c_str(), 10, 30, 20, BLACK);
+    DrawText(game.getPlayer(1).getName().c_str(), 10, 30, 20, BLACK);
 
-    vector<Piece*> p1DiscardedPieces = players[0].getDiscardedPieces();
+    vector<Piece*> p1DiscardedPieces = game.getPlayer(1).getDiscardedPieces();
     for (int i = 0; i < p1DiscardedPieces.size(); i++) {
         p1DiscardedPieces[i]->drawIcon(0 + (i % 2) * 32, 50 + (16 * i));
     }
 
-    DrawText(players[1].getName().c_str(), 640 - MeasureText(players[1].getName().c_str() - 10, 20), 30, 20, BLACK);
+    DrawText(game.getPlayer(2).getName().c_str(), 640 - MeasureText(game.getPlayer(2).getName().c_str() - 10, 20), 30, 20, BLACK);
 
-    vector<Piece*> p2DiscardedPieces = players[1].getDiscardedPieces();
+    vector<Piece*> p2DiscardedPieces = game.getPlayer(2).getDiscardedPieces();
     for (int i = 0; i < p2DiscardedPieces.size(); i++) {
         p2DiscardedPieces[i]->drawIcon(SCREEN_WIDTH - 64 + (i % 2) * 32 - 32, 50 + (16 * i));
     }
@@ -47,7 +48,7 @@ void UpdateDrawFrame(Camera2D camera, Board board, vector<Player> players)
     EndDrawing();
 }
 
-Vector2 targetX;
+Vector2 target;
 
 int main()
 {
@@ -66,12 +67,8 @@ int main()
     PlayMusicStream(music);
 
     atlas = LoadTexture("resources/Tiles.png");
-    vector<Player> players;
 
-    players.push_back(Player("Player 1"));
-    players.push_back(Player("Player 2"));
-
-    Board board = Board(&atlas, players);
+    Game game = Game(&atlas);
 
     Camera2D camera = { 0 };
     camera.target = raylib::Vector2{ 0.0f, 0.0f };
@@ -89,7 +86,7 @@ int main()
 
             Vector2 position = CursorToISO(camera);
 
-            targetX = position;
+            target = position;
         }
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
@@ -98,10 +95,10 @@ int main()
 
             Vector2 position = CursorToISO(camera);
 
-            board.MovePiece(targetX.x, targetX.y, position.x, position.y);
+            game.movePiece(target.x, target.y, position.x, position.y);
         }
 
-        UpdateDrawFrame(camera, board, players);
+        UpdateDrawFrame(camera, game);
     }
 
     CloseWindow();

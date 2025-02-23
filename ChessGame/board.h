@@ -16,19 +16,16 @@ private:
     Texture2D* atlas;
 
     vector<Player>& players;
-    int currentTurn = 0;
 
 public:
     Board(Texture2D* texture, vector<Player>& players);
 
-    void draw(int x, int y);
+    void draw(int player, int x, int y);
 
-    void SetTile(int row, int col, Tile* newTile);
-    Tile* GetTile(int row, int col);
+    void setTile(int row, int col, Tile* newTile);
+    Tile* getTile(int row, int col);
 
-    bool MovePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol);
-
-    int GetPlayerTurn();
+    bool movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
 };
 
 #endif // BOARD_H
