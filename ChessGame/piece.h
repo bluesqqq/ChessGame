@@ -39,6 +39,7 @@ class Piece
         vector<pair<int, int>> getLegalMoves(int x, int y, Board& board);
 
         bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
+        bool isLegalMove(int x, int y, Board& board, int moveX, int moveY);
 
         void move();
 

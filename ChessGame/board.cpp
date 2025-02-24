@@ -121,7 +121,7 @@ bool Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow
         {
             if (startTile->getPiece()->getPlayer() == player)
             {
-                if (startTile->getPiece()->isValidMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
+                if (startTile->getPiece()->isLegalMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
                 {
 
                     if (endTile->hasPiece())

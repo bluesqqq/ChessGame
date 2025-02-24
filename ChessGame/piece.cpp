@@ -49,18 +49,26 @@ vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
     return legalMoves;
 }
 
-
-
-
 bool Piece::isValidMove(int x, int y, Board& board, int moveX, int moveY)
 {
     vector<pair<int, int>> validMove = getValidMoves(x, y, board);
 
     std::pair<int, int> current_pair = { moveX, moveY };
-    auto it = std::find(validMove.begin(), validMove.end(), current_pair);
 
-    if (it != validMove.end())
-    {
+    if (std::find(validMove.begin(), validMove.end(), current_pair) != validMove.end()) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Piece::isLegalMove(int x, int y, Board& board, int moveX, int moveY)
+{
+    vector<pair<int, int>> validMove = getLegalMoves(x, y, board);
+
+    std::pair<int, int> current_pair = { moveX, moveY };
+
+    if (std::find(validMove.begin(), validMove.end(), current_pair) != validMove.end()) {
         return true;
     }
 
@@ -211,6 +219,8 @@ vector<pair<int, int>> King::getValidMoves(int x, int y, Board& board) {
         {
             // Get the tile at the current location
             Tile* tile = board.getTile(_x, _y);
+
+            if (!tile) continue; // Without this line everyting crashes fatally
 
             // Get the piece on the current tile
             Piece* piece = tile->getPiece();
