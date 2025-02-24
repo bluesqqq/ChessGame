@@ -34,7 +34,10 @@ class Piece
 
         void drawIcon(int x, int y);
 
+        
         virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
+        vector<pair<int, int>> getLegalMoves(int x, int y, Board& board);
+
         bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
 
         void move();

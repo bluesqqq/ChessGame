@@ -19,7 +19,35 @@ void Piece::drawIcon(int x, int y) {
 
 vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return {}; }
 
+vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
+    vector<pair<int, int>> validMoves = getValidMoves(x, y, board);
+    vector<pair<int, int>> legalMoves;
 
+    for (pair<int, int> move : validMoves) {
+        // This works, is it the best solution? probably not, but it works
+
+        // Save current state
+        Tile* originalTile = board.getTile(move.first, move.second);
+        Piece* capturedPiece = originalTile->getPiece(); // Store if a piece is there
+
+        // Move the piece temporarily
+        board.setTile(move.first, move.second, board.getTile(x, y));
+        board.setTile(x, y, nullptr);
+
+        // Check if the player's king is in check
+        if (!board.isInCheck(player)) {
+            legalMoves.push_back(move);
+        }
+
+        // Undo the move
+        board.setTile(x, y, board.getTile(move.first, move.second)); // Move piece back
+        board.setTile(move.first, move.second, originalTile); // Restore original tile
+        originalTile->setPiece(capturedPiece); // Restore captured piece if any
+    }
+
+
+    return legalMoves;
+}
 
 
 

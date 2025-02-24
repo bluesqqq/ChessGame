@@ -21,6 +21,5 @@ class Game
 		int getPlayerTurn();
 
 		void movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol);
-
 };
 

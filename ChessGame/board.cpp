@@ -50,7 +50,7 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
 void Board::draw(int player, int x, int y)
 {
-    bool hide = false;
+    bool hide = false; 
 
     std::vector<std::pair<int, int>> highlightTiles;
 
@@ -60,7 +60,7 @@ void Board::draw(int player, int x, int y)
         if (tiles[x][y]->getPiece()->getPlayer() == player)
         {
             hide = true;
-            highlightTiles = tiles[x][y]->getPiece()->getValidMoves(x, y, *this);
+            highlightTiles = tiles[x][y]->getPiece()->getLegalMoves(x, y, *this);
             hide = true;
         }
     }
@@ -152,4 +152,107 @@ bool Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow
     }
 
     return false;
+}
+vector<pair<int, int>> Board::getPlayersPieces(int player)
+{
+    vector<pair<int, int>> locations;
+
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Tile* tile = getTile(row, col);
+
+            if (tile) {
+                if (tile->hasPiece()) {
+                    Piece* piece = tile->getPiece();
+
+                    if (piece->getPlayer() == player) {
+                        locations.push_back({ row, col });
+                    }
+                }
+            }
+        }
+    }
+
+    return locations;
+}
+
+template <typename T>
+vector<pair<int, int>> Board::getPlayersPiecesOfType(int player)
+{
+    vector<pair<int, int>> locations;
+
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Tile* tile = getTile(row, col);
+
+            if (tile) {
+                if (tile->hasPiece()) {
+                    Piece* piece = tile->getPiece();
+
+                    if (piece->getPlayer() == player) {
+                        // Check if the piece is the type that the function is looking for
+                        if (dynamic_cast<T*>(piece) != nullptr) {
+                            locations.push_back({row, col});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return locations;
+}
+
+bool Board::isInCheck(int player) {
+    // Find the position of the player's king
+    vector<pair<int, int>> kings = getPlayersPiecesOfType<King>(player);
+
+    if (kings.empty()) return false; // Should not happen in a normal game
+
+    pair<int, int> kingsPosition = kings[0];
+
+    // Get all the possible moves of the opposing player's pieces
+    vector<pair<int, int>> opponentPiecesLocations = getPlayersPieces((player % 2) + 1);
+
+    for (pair<int, int> location : opponentPiecesLocations) {
+        Tile* tile = getTile(location.first, location.second);
+
+        Piece* piece = tile->getPiece();
+
+        vector<pair<int, int>> validMoves = piece->getValidMoves(location.first, location.second, *this);
+
+        for (pair<int, int> validMove : validMoves) {
+            if (validMove == kingsPosition) return true;
+        }
+    }
+
+    return false;
+}
+
+bool Board::noPossibleMoves(int player) {
+    vector<pair<int, int>> playerPieceLocations = getPlayersPieces(player);
+
+    for (pair<int, int> location : playerPieceLocations) {
+        Tile* tile = getTile(location.first, location.second);
+
+        Piece* piece = tile->getPiece();
+
+        if (!piece->getLegalMoves(location.first, location.second, *this).empty()) {
+            return false; // Found a legal move, not a checkmate
+        }
+    }
+
+    return true;
+}
+
+bool Board::isInCheckmate(int player) {
+    if (!isInCheck(player)) return false; // Cannot be in checkmate if not in check
+
+    return noPossibleMoves(player);
+}
+
+bool Board::isInStalemate(int player) {
+    if (isInCheck(player)) return false; // Cannot be in checkmate if not in check
+
+    return noPossibleMoves(player);
 }
