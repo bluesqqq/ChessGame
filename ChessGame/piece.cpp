@@ -10,6 +10,8 @@ void Piece::draw(int x, int y, float z, bool hidden) {
 
     Vector2 position = IsoToScreen(x, y, z - 1 + (source.height / TILE_HEIGHT));
     DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
+
+    DrawText(std::to_string(moves).c_str(), position.x, position.y, 10, BLACK);
 }
 
 void Piece::drawIcon(int x, int y) {
@@ -23,26 +25,30 @@ vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
     vector<pair<int, int>> validMoves = getValidMoves(x, y, board);
     vector<pair<int, int>> legalMoves;
 
+    Tile* originalTile = board.getTile(x, y);
+
     for (pair<int, int> move : validMoves) {
-        // This works, is it the best solution? probably not, but it works
-
         // Save current state
-        Tile* originalTile = board.getTile(move.first, move.second);
-        Piece* capturedPiece = originalTile->getPiece(); // Store if a piece is there
+        Tile* moveToTile     = board.getTile(move.first, move.second);
 
-        // Move the piece temporarily
-        board.setTile(move.first, move.second, board.getTile(x, y));
-        board.setTile(x, y, nullptr);
+        // remove the captured piece from the tile
+        Piece* capturedPiece = moveToTile->removePiece();
 
-        // Check if the player's king is in check
+        // Set the move to tile's piece to the original tile's piece
+        moveToTile->setPiece(originalTile->removePiece());
+
+        // Check if the player's king is in check after making this move
         if (!board.isInCheck(player)) {
             legalMoves.push_back(move);
         }
 
         // Undo the move
-        board.setTile(x, y, board.getTile(move.first, move.second)); // Move piece back
-        board.setTile(move.first, move.second, originalTile); // Restore original tile
-        originalTile->setPiece(capturedPiece); // Restore captured piece if any
+        originalTile->setPiece(moveToTile->removePiece());
+
+        // If there was a piece captured in the process, place it back
+        if (capturedPiece) {
+            moveToTile->setPiece(capturedPiece);
+        }
     }
 
     return legalMoves;
@@ -63,11 +69,13 @@ bool Piece::isValidMove(int x, int y, Board& board, int moveX, int moveY)
 
 bool Piece::isLegalMove(int x, int y, Board& board, int moveX, int moveY)
 {
-    vector<pair<int, int>> validMove = getLegalMoves(x, y, board);
+    vector<pair<int, int>> validMoves = getLegalMoves(x, y, board);
+
+    if (validMoves.empty()) return false;
 
     std::pair<int, int> current_pair = { moveX, moveY };
 
-    if (std::find(validMove.begin(), validMove.end(), current_pair) != validMove.end()) {
+    if (std::find(validMoves.begin(), validMoves.end(), current_pair) != validMoves.end()) {
         return true;
     }
 

@@ -17,6 +17,10 @@ bool Game::getGameEnd() {
 	return gameEnd;
 }
 
+bool Game::playerIsInCheck(int player) {
+	return board.isInCheck(player);
+}
+
 Player& Game::getPlayer(int player) {
 	if (player <= 0 || player > players.size()) {
 		throw std::runtime_error("Player index out of bounds");
@@ -33,7 +37,15 @@ int Game::getPlayerTurn() {
 }
 
 void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol) {
-	if (board.movePiece(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol)) {
+	if (board.isLegalMove(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol)) {
+
+		Piece* discardedPiece = board.movePiece(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol);
+
+		// Add the discarded piece to that player's list of discarded pieces
+		if (discardedPiece) {
+			players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
+		}
+
 		currentTurn++;
 	}
 }

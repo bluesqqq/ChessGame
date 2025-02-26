@@ -109,50 +109,53 @@ Tile* Board::getTile(int row, int col)
     return nullptr;
 }
 
-bool Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol)
+Piece* Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol)
 {
     Tile* startTile = getTile(pieceRow, pieceCol);
-    Tile* endTile   = getTile(destinationRow, destinationCol);
+    Tile* endTile = getTile(destinationRow, destinationCol);
 
-    // Check if both tiles are valid tiles, and the start tile has a piece to move
-    if (startTile && endTile)
+    Piece* targetPiece = startTile->removePiece();
+
+    if (!targetPiece) return nullptr;
+
+    Piece* discardedPiece = nullptr;
+
+    // if the destination tile has a piece, remove it and store it as the discarded piece
+    if (endTile->hasPiece())
     {
-        if (startTile->hasPiece())
-        {
-            if (startTile->getPiece()->getPlayer() == player)
-            {
-                if (startTile->getPiece()->isLegalMove(pieceRow, pieceCol, *this, destinationRow, destinationCol))
-                {
-
-                    if (endTile->hasPiece())
-                    {
-                        Piece* discardedPiece = endTile->removePiece();
-
-                        if (discardedPiece->getPlayer() == 1) {
-                            Sound fxPiecetaken = LoadSound("resources/piecetaken.wav");
-                            PlaySound(fxPiecetaken);
-                        } else {
-                            Sound fxPiecelost = LoadSound("resources/piecelost.wav");
-                            PlaySound(fxPiecelost);
-                        }
-
-                        players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
-                    }
-
-                    Piece* targetPiece = startTile->removePiece();
-
-                    targetPiece->move();
-
-                    endTile->setPiece(targetPiece);
-
-                    return true;
-                }
-            }
-        }
+        Piece* discardedPiece = endTile->removePiece();
     }
 
-    return false;
+    targetPiece->move();
+
+    endTile->setPiece(targetPiece);
+
+    return discardedPiece;
 }
+
+
+bool Board::isLegalMove(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol) {
+    // Get the start and end tiles for this move
+    Tile* startTile = getTile(pieceRow, pieceCol);
+    Tile* endTile = getTile(destinationRow, destinationCol);
+
+    // Check if both tiles exist
+    if (!startTile || !endTile) return false;
+
+    // Check if the start tile has a piece
+    if (!startTile->hasPiece()) return false;
+
+    Piece* movePiece = startTile->getPiece();
+
+    // Check if the piece is owned by the player making this move
+    if (movePiece->getPlayer() != player) return false;
+
+    // Check if this move is in the list of legal moves for the selected piece
+    if (!movePiece->isLegalMove(pieceRow, pieceCol, *this, destinationRow, destinationCol)) return false;
+
+    return true;
+}
+
 vector<pair<int, int>> Board::getPlayersPieces(int player)
 {
     vector<pair<int, int>> locations;

@@ -25,7 +25,27 @@ public:
     void setTile(int row, int col, Tile* newTile);
     Tile* getTile(int row, int col);
 
-    bool movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+    /// <summary>
+    /// Moves a player's piece from one tile to another. Does not check if the move is valid before
+    /// </summary>
+    /// <param name="player">The player who is making this move</param>
+    /// <param name="pieceRow">The row of the piece to move</param>
+    /// <param name="pieceCol">The column of the piece to move</param>
+    /// <param name="destinationRow">The row of the tile to move the piece to</param>
+    /// <param name="destinationCol">The column of the tile to move the piece to</param>
+    /// <returns>A pointer to the piece removed if this move results in taking a piece, nullptr if not</returns>
+    Piece* movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+
+    /// <summary>
+    /// Checks if the given move is valid based on a set of rules
+    /// </summary>
+    /// <param name="player">The player who is making this move</param>
+    /// <param name="pieceRow">The row of the piece to move</param>
+    /// <param name="pieceCol">The column of the piece to move</param>
+    /// <param name="destinationRow">The row of the tile to move the piece to</param>
+    /// <param name="destinationCol">The column of the tile to move the piece to</param>
+    /// <returns>true if it is a valid move, false if not</returns>
+    bool isLegalMove(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
 
     vector<pair<int, int>> getPlayersPieces(int player);
 

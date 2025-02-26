@@ -20,6 +20,8 @@ class Game
 
 		bool getGameEnd();
 
+		bool playerIsInCheck(int player);
+
 		Player& getPlayer(int player);
 
 		Board& getBoard();
