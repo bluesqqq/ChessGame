@@ -13,6 +13,8 @@ const int SCREEN_HEIGHT = 360;
 
 Texture2D atlas;
 
+Vector2* target = nullptr;
+
 void UpdateDrawFrame(Camera2D camera, Game game)
 {
     BeginDrawing();
@@ -26,6 +28,8 @@ void UpdateDrawFrame(Camera2D camera, Game game)
     raylib::Vector2 cursorPosition = GetMousePosition();
 
     raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
+
+    if (target) cursorIsoPosition = *target;
 
     game.getBoard().draw(game.getPlayerTurn(), (int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
 
@@ -51,8 +55,6 @@ void UpdateDrawFrame(Camera2D camera, Game game)
 
     EndDrawing();
 }
-
-Vector2 target;
 
 int main()
 {
@@ -86,22 +88,45 @@ int main()
     {
         UpdateMusicStream(music);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            PlaySound(fxPickup);
-
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             Vector2 position = CursorToISO(camera);
 
-            target = position;
-        }
+            if (target == nullptr) { // No target selected
+                Tile* targetTile = game.getBoard().getTile(position.x, position.y);
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-        {
-            PlaySound(fxPutdown);
+                if (targetTile) {
+                    if (targetTile->hasPiece()) {
+                        if (targetTile->getPiece()->getPlayer() == game.getPlayerTurn()) {
+                            target = new Vector2(position);
 
-            Vector2 position = CursorToISO(camera);
+                            PlaySound(fxPickup);
+                        }
+                    }
+                }
+            } else {
+                Tile* targetTile = game.getBoard().getTile(position.x, position.y);
 
-            game.movePiece(target.x, target.y, position.x, position.y);
+                if (targetTile) {
+                    if (targetTile->hasPiece()) {
+                        if (targetTile->getPiece()->getPlayer() == game.getPlayerTurn()) {
+                            PlaySound(fxPickup);
+                            target = new Vector2(position);
+                        } else {
+                            PlaySound(fxPutdown);
+                            game.movePiece(target->x, target->y, position.x, position.y);
+                            target = nullptr;
+                        }
+                    } else {
+                        PlaySound(fxPutdown);
+                        game.movePiece(target->x, target->y, position.x, position.y);
+                        target = nullptr;
+                    }
+                }
+                else {
+                    PlaySound(fxPutdown);
+                    target = nullptr;
+                }
+            }
         }
 
         UpdateDrawFrame(camera, game);

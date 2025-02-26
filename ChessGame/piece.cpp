@@ -10,8 +10,6 @@ void Piece::draw(int x, int y, float z, bool hidden) {
 
     Vector2 position = IsoToScreen(x, y, z - 1 + (source.height / TILE_HEIGHT));
     DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
-
-    DrawText(std::to_string(moves).c_str(), position.x, position.y, 10, BLACK);
 }
 
 void Piece::drawIcon(int x, int y) {
