@@ -76,7 +76,9 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    while (WindowShouldClose() == false)
+    bool exitWindow = false;
+
+    while (!exitWindow && !WindowShouldClose())
     {
         UpdateMusicStream(music);
 
@@ -99,6 +101,10 @@ int main()
         }
 
         UpdateDrawFrame(camera, game);
+
+        game.update();
+
+        exitWindow = game.getGameEnd();
     }
 
     CloseWindow();

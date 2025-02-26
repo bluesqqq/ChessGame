@@ -11,8 +11,14 @@ class Game
 
 		int currentTurn = 0;
 
+		int gameEnd = false;
+
 	public:
 		Game(Texture2D* texture);
+
+		void update();
+
+		bool getGameEnd();
 
 		Player& getPlayer(int player);
 

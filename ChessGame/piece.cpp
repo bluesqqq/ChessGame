@@ -45,7 +45,6 @@ vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
         originalTile->setPiece(capturedPiece); // Restore captured piece if any
     }
 
-
     return legalMoves;
 }
 

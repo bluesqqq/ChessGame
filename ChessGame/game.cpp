@@ -6,6 +6,17 @@ Game::Game(Texture2D* texture) : board(texture, players)
 	players.push_back(Player("Player 2"));
 }
 
+void Game::update() {
+	int currentPlayer = getPlayerTurn();
+	if (board.isInCheckmate(currentPlayer) || board.isInStalemate(currentPlayer)) {
+		gameEnd = true;
+	}
+}
+
+bool Game::getGameEnd() {
+	return gameEnd;
+}
+
 Player& Game::getPlayer(int player) {
 	if (player <= 0 || player > players.size()) {
 		throw std::runtime_error("Player index out of bounds");

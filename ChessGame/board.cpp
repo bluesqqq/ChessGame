@@ -39,12 +39,12 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
     tiles[5][7]->setPiece(new Bishop(atlas, 2));
 
     // Place Queens
-    tiles[3][0]->setPiece(new Queen(atlas, 1));  // Black Queen
-    tiles[3][7]->setPiece(new Queen(atlas, 2));   // White Queen
+    tiles[4][0]->setPiece(new Queen(atlas, 1));  // Black Queen
+    tiles[4][7]->setPiece(new Queen(atlas, 2));   // White Queen
 
     // Place Kings
-    tiles[4][0]->setPiece(new King(atlas, 1));  // Black King
-    tiles[4][7]->setPiece(new King(atlas, 2));   // White King
+    tiles[3][0]->setPiece(new King(atlas, 1));  // Black King
+    tiles[3][7]->setPiece(new King(atlas, 2));   // White King
 
 }
 
@@ -252,7 +252,7 @@ bool Board::isInCheckmate(int player) {
 }
 
 bool Board::isInStalemate(int player) {
-    if (isInCheck(player)) return false; // Cannot be in checkmate if not in check
+    if (isInCheck(player)) return false; // Cannot be in stalemate if in check
 
     return noPossibleMoves(player);
 }
