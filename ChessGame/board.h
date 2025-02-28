@@ -22,6 +22,8 @@ public:
 
     void draw(int player, int x, int y);
 
+    void update();
+
     void setTile(int row, int col, Tile* newTile);
     Tile* getTile(int row, int col);
 

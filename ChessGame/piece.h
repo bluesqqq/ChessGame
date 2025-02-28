@@ -24,6 +24,8 @@ class Piece
         int moves = 0;
         float opacity = 1.0f;
 
+        bool immobile = false;
+
         string name;
 
     public:
@@ -34,23 +36,42 @@ class Piece
 
         void drawIcon(int x, int y);
 
+        /// <summary>
+        /// Updates the piece, called after every move
+        /// </summary>
+        void update();
         
+        /// <summary>
+        /// Returns a list of valid moves based on this piece's ruleset. Note that this function does not account for
+        /// any of the games rules like king-checking, and all the other various rules that might be implemented.
+        /// </summary>
+        /// <param name="x">X position on the board of this piece</param>
+        /// <param name="y">Y position on the board of this piece</param>
+        /// <param name="board">Reference to the board object</param>
+        /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
         virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
+
+        /// <summary>
+        /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
+        /// </summary>
+        /// <param name="x">X position on the board of this piece</param>
+        /// <param name="y">Y position on the board of this piece</param>
+        /// <param name="board">Reference to the board object</param>
+        /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
         vector<pair<int, int>> getLegalMoves(int x, int y, Board& board);
 
-        bool isValidMove(int x, int y, Board& board, int moveX, int moveY);
         bool isLegalMove(int x, int y, Board& board, int moveX, int moveY);
 
         void move();
 
         Color getColor() const;
         int getPlayer();
+
+        void setImmobile(bool state);
 };
 
 class Pawn : public Piece
 {
-    private:
-
     public:
         Pawn(Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
@@ -65,9 +86,9 @@ class Knight : public Piece
 
 class Bishop : public Piece
 {
-public:
-    Bishop(Texture2D* texture, int player);
-    vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+    public:
+        Bishop(Texture2D* texture, int player);
+        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
 class Rook : public Piece

@@ -7,10 +7,14 @@ Game::Game(Texture2D* texture) : board(texture, players)
 }
 
 void Game::update() {
+	// Check if the game ended
 	int currentPlayer = getPlayerTurn();
 	if (board.isInCheckmate(currentPlayer) || board.isInStalemate(currentPlayer)) {
 		gameEnd = true;
+		return;
 	}
+
+	board.update();
 }
 
 bool Game::getGameEnd() {
@@ -47,5 +51,6 @@ void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destina
 		}
 
 		currentTurn++;
+		update();
 	}
 }

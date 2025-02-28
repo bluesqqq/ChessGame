@@ -17,14 +17,14 @@ Vector2* target = nullptr;
 
 void UpdateDrawFrame(Camera2D camera, Game game)
 {
+    float time = GetTime(); // Get elapsed time
+
     BeginDrawing();
 
     BeginMode2D(camera);
 
     ClearBackground(Color{ 204, 230, 255, 255 });
 
-
-    float time = GetTime(); // Get elapsed time
     raylib::Vector2 cursorPosition = GetMousePosition();
 
     raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
@@ -36,8 +36,6 @@ void UpdateDrawFrame(Camera2D camera, Game game)
     EndMode2D();
 
     DrawText(game.getPlayer(1).getName().c_str(), 10, 30, 20, BLACK);
-    std::string p1check = game.playerIsInCheck(1) ? "true" : "false";
-    DrawText(p1check.c_str(), 100, 10, 20, BLACK);
 
     vector<Piece*> p1DiscardedPieces = game.getPlayer(1).getDiscardedPieces();
     for (int i = 0; i < p1DiscardedPieces.size(); i++) {
@@ -45,8 +43,6 @@ void UpdateDrawFrame(Camera2D camera, Game game)
     }
 
     DrawText(game.getPlayer(2).getName().c_str(), 640 - MeasureText(game.getPlayer(2).getName().c_str() - 10, 20), 30, 20, BLACK);
-    std::string p2check = game.playerIsInCheck(2) ? "true" : "false";
-    DrawText(p2check.c_str(), 200, 10, 20, BLACK);
 
     vector<Piece*> p2DiscardedPieces = game.getPlayer(2).getDiscardedPieces();
     for (int i = 0; i < p2DiscardedPieces.size(); i++) {
@@ -130,8 +126,6 @@ int main()
         }
 
         UpdateDrawFrame(camera, game);
-
-        game.update();
 
         exitWindow = game.getGameEnd();
     }

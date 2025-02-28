@@ -13,6 +13,9 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
         }
     }
 
+    tiles[4][4] = new IceTile(atlas);
+    tiles[7][5] = new IceTile(atlas);
+
     // Place Pawns
     for (int row = 0; row < 8; row++)
     {
@@ -91,6 +94,15 @@ void Board::draw(int player, int x, int y)
             {
                 tile->draw(row, col, waveOffset, false, hide);
             }
+        }
+    }
+}
+
+void Board::update() {
+    // Update every tile
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            tiles[row][col]->update();
         }
     }
 }

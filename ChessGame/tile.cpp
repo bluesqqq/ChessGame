@@ -15,9 +15,8 @@ sTile tileData[] = {
     {3, 2}  // TILE_NE_CORNER
 };
 
-void Tile::draw(int x, int y, float z, bool selected, bool hide)
-{
-    // Empty base class function to be overridden
+int Tile::getLifetime() {
+    return lifetime;
 }
 
 void Tile::setPiece(Piece* piece)
@@ -72,7 +71,52 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
+void BasicTile::update() {
+    // Update the piece on this tile
+    if (hasPiece()) {
+        currentPiece->setImmobile(false);
+        currentPiece->update();
+    }
+}
+
 bool BasicTile::isSelectable()
+{
+    return true; // Basic tile will always be selectable
+}
+
+
+IceTile::IceTile(Texture2D* texture) : atlas(texture) {}
+
+void IceTile::draw(int x, int y, float z, bool selected, bool hide)
+{
+    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+
+    sTile tile = tileData[tileType];
+
+    Rectangle source = {
+        tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE,
+        TILE_SIZE, TILE_SIZE
+    };
+
+    Vector2 position = IsoToScreen(x, y, z);
+
+    DrawTextureRec(*atlas, source, position, selected ? RED : BLUE);
+
+    if (currentPiece != nullptr)
+    {
+        currentPiece->draw(x, y, z, hide);
+    }
+}
+
+void IceTile::update() {
+    // Update the piece on this tile
+    if (hasPiece()) {
+        currentPiece->setImmobile(true);
+        currentPiece->update();
+    }
+}
+
+bool IceTile::isSelectable()
 {
     return true; // Basic tile will always be selectable
 }

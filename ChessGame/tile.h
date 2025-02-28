@@ -31,12 +31,20 @@ class Tile
 {
     protected:
         Piece* currentPiece = nullptr;
+        int lifetime = -1;
 
     public:
         Tile() {}
         virtual ~Tile() {}
 
-        virtual void draw(int x, int y, float z, bool selected, bool hide);
+        virtual void draw(int x, int y, float z, bool selected, bool hide) = 0;
+
+        /// <summary>
+        /// Updates the tile, called after every move
+        /// </summary>
+        virtual void update() = 0;
+
+        int getLifetime();
 
         void setPiece(Piece* piece);
         Piece* removePiece();
@@ -54,6 +62,22 @@ class BasicTile : public Tile
         BasicTile(Texture2D* texture);
 
         void draw(int x, int y, float z, bool selected, bool hide) override;
+
+        void update() override;
+        bool isSelectable() override;
+};
+
+class IceTile : public Tile
+{
+    private:
+        Texture2D* atlas;
+
+    public:
+        IceTile(Texture2D* texture);
+
+        void draw(int x, int y, float z, bool selected, bool hide) override;
+
+        void update() override;
         bool isSelectable() override;
 };
 

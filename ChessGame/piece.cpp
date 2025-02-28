@@ -17,9 +17,16 @@ void Piece::drawIcon(int x, int y) {
     DrawTextureRec(*atlas, source, position, getColor());
 }
 
+void Piece::update() {
+
+}
+
 vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return {}; }
 
 vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
+
+    if (immobile) return {}; // If the piece is immobile, return an empty list
+
     vector<pair<int, int>> validMoves = getValidMoves(x, y, board);
     vector<pair<int, int>> legalMoves;
 
@@ -52,19 +59,6 @@ vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
     return legalMoves;
 }
 
-bool Piece::isValidMove(int x, int y, Board& board, int moveX, int moveY)
-{
-    vector<pair<int, int>> validMove = getValidMoves(x, y, board);
-
-    std::pair<int, int> current_pair = { moveX, moveY };
-
-    if (std::find(validMove.begin(), validMove.end(), current_pair) != validMove.end()) {
-        return true;
-    }
-
-    return false;
-}
-
 bool Piece::isLegalMove(int x, int y, Board& board, int moveX, int moveY)
 {
     vector<pair<int, int>> validMoves = getLegalMoves(x, y, board);
@@ -90,6 +84,10 @@ int Piece::getPlayer() {
 
 void Piece::move() {
     moves++;
+}
+
+void Piece::setImmobile(bool state) {
+    immobile = state;
 }
 
 Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn", { 4 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
@@ -146,7 +144,12 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.getTile(_x, _y)->getPiece();
+            Tile* tile = board.getTile(_x, _y);
+
+            if (!tile) break; // If theres no tile, piece cannot traverse farther
+
+            Piece* piece = tile->getPiece();
+
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
@@ -172,7 +175,12 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.getTile(_x, _y)->getPiece();
+            Tile* tile = board.getTile(_x, _y);
+
+            if (!tile) break; // If theres no tile, piece cannot traverse farther
+
+            Piece* piece = tile->getPiece();
+
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
@@ -198,7 +206,12 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
             _x += direction.first;
             _y += direction.second;
 
-            Piece* piece = board.getTile(_x, _y)->getPiece();
+            Tile* tile = board.getTile(_x, _y);
+
+            if (!tile) break; // If theres no tile, piece cannot traverse farther
+
+            Piece* piece = tile->getPiece();
+
             if (!piece) {
                 moves.emplace_back(_x, _y);
             }
