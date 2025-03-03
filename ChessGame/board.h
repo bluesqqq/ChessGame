@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "tile.h"
+#include "customtiles.h"
 #include "piece.h"
 #include "player.h"
 #include "include/raylib-cpp.hpp"

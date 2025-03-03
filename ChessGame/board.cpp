@@ -15,6 +15,8 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
     tiles[4][4] = new IceTile(atlas);
     tiles[7][5] = new IceTile(atlas);
+    tiles[5][7] = new BreakingTile(atlas);
+    tiles[5][5] = new BreakingTile(atlas);
 
     // Place Pawns
     for (int row = 0; row < 8; row++)

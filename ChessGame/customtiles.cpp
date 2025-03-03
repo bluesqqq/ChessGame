@@ -87,3 +87,46 @@ bool IceTile::isSelectable()
 {
     return true; // Basic tile will always be selectable
 }
+
+BreakingTile::BreakingTile(Texture2D* texture) : Tile(6), atlas(texture) {}
+
+void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
+{
+    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+
+    sTile tile = tileData[tileType];
+
+    Rectangle source = {
+        tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE,
+        TILE_SIZE, TILE_SIZE
+    };
+
+    Vector2 position = IsoToScreen(x, y, z);
+
+    DrawTextureRec(*atlas, source, position, selected ? RED : BLUE);
+
+    if (currentPiece != nullptr)
+    {
+        currentPiece->draw(x, y, z, hide);
+    }
+}
+
+void BreakingTile::update() {
+    // Update the piece on this tile
+    if (hasPiece()) {
+        lifetime--;
+        if (!lifetime) {
+            removePiece();
+        }
+    }
+}
+
+bool BreakingTile::isSelectable()
+{
+    if (lifetime) {
+        return true; // Basic tile will always be selectable
+    }
+    else {
+        return false;
+    }
+}
