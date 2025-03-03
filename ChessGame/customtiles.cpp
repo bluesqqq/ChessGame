@@ -103,7 +103,7 @@ void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
 
     Vector2 position = IsoToScreen(x, y, z);
 
-    DrawTextureRec(*atlas, source, position, selected ? RED : BLUE);
+    DrawTextureRec(*atlas, source, position, selected ? RED : BROWN);
 
     if (currentPiece != nullptr)
     {
