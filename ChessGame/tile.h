@@ -34,7 +34,7 @@ class Tile
         int lifetime = -1;
 
     public:
-        Tile() {}
+        Tile(int lifetime = -1);
         virtual ~Tile() {}
 
         virtual void draw(int x, int y, float z, bool selected, bool hide) = 0;
@@ -51,34 +51,6 @@ class Tile
         bool hasPiece();
         Piece* getPiece();
         virtual bool isSelectable();
-};
-
-class BasicTile : public Tile
-{
-    private:
-        Texture2D* atlas;
-
-    public:
-        BasicTile(Texture2D* texture);
-
-        void draw(int x, int y, float z, bool selected, bool hide) override;
-
-        void update() override;
-        bool isSelectable() override;
-};
-
-class IceTile : public Tile
-{
-    private:
-        Texture2D* atlas;
-
-    public:
-        IceTile(Texture2D* texture);
-
-        void draw(int x, int y, float z, bool selected, bool hide) override;
-
-        void update() override;
-        bool isSelectable() override;
 };
 
 #endif

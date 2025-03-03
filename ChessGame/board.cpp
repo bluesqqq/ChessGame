@@ -99,6 +99,17 @@ void Board::draw(int player, int x, int y)
 }
 
 void Board::update() {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Tile* tile = tiles[row][col];
+            if (tile->getLifetime() == 0) {
+                Piece* removedPiece = tile->removePiece();
+                tiles[row][col] = new BasicTile(atlas);
+                tiles[row][col]->setPiece(removedPiece);
+            }
+        }
+    }
+
     // Update every tile
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
