@@ -7,26 +7,6 @@
 
 class Piece;
 
-typedef struct {
-    int tileX; // Column in tileset
-    int tileY; // Row in tileset
-} sTile;
-
-typedef enum {
-    TILE_WHITE_CUBE,
-    TILE_BLACK_CUBE,
-    TILE_RED_CUBE,
-    TILE_EAST_WALL,
-    TILE_SOUTH_WALL,
-    TILE_NW_CORNER,
-    TILE_SW_CORNER,
-    TILE_NORTH_WALL,
-    TILE_WEST_WALL,
-    TILE_SE_CORNER,
-    TILE_NE_CORNER,
-    TILE_COUNT // Total number of tiles
-} TileType;
-
 class Tile
 {
     protected:

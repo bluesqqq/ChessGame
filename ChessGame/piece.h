@@ -18,18 +18,19 @@ class Piece
 {
     protected:
         Texture2D* atlas; // Pointer to the texture atlas
-        Rectangle source;
+        Rectangle spriteRect;
+        Rectangle frozenSpriteRect;
 
         int player; // Player identifier (1 or 2)
         int moves = 0;
         float opacity = 1.0f;
 
-        bool immobile = false;
+        bool frozen = false;
 
         string name;
 
     public:
-        Piece(Texture2D* texture, int player, string name, Rectangle source);
+        Piece(Texture2D* texture, int player, string name);
         virtual ~Piece();
 
         void draw(int x, int y, float z, bool hidden = false); // Base draw method
@@ -67,7 +68,8 @@ class Piece
         Color getColor() const;
         int getPlayer();
 
-        void setImmobile(bool state);
+        void setFrozen(bool state);
+        bool getImmobile();
 };
 
 class Pawn : public Piece

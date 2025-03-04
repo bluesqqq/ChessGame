@@ -1,20 +1,29 @@
 #include "piece.h"
 #include "board.h"
+#include "textures.h"
 
-Piece::Piece(Texture2D* texture, int player, string name, Rectangle source) : atlas(texture), player(player), name(name), source(source) {}
+Piece::Piece(Texture2D* texture, int player, string name) : atlas(texture), player(player), name(name) {
+
+}
+
 Piece::~Piece() {}
 
 void Piece::draw(int x, int y, float z, bool hidden) {
     if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 
-    Vector2 position = IsoToScreen(x, y, z - 1 + (source.height / TILE_HEIGHT));
-    DrawTextureRec(*atlas, source, position, Fade(getColor(), opacity));
+    if (frozen) {
+        Vector2 position = IsoToScreen(x, y, z + (frozenSpriteRect.height / TILE_HEIGHT) - 1);
+        DrawTextureRec(*atlas, frozenSpriteRect, position, Fade(WHITE, opacity));
+    } else {
+        Vector2 position = IsoToScreen(x, y, z + (spriteRect.height / TILE_HEIGHT) - 1);
+        DrawTextureRec(*atlas, spriteRect, position, Fade(getColor(), opacity));
+    }
 }
 
 void Piece::drawIcon(int x, int y) {
     Vector2 position = { x, y };
-    DrawTextureRec(*atlas, source, position, getColor());
+    DrawTextureRec(*atlas, spriteRect, position, getColor());
 }
 
 void Piece::update() {
@@ -25,7 +34,7 @@ vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return
 
 vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
 
-    if (immobile) return {}; // If the piece is immobile, return an empty list
+    if (getImmobile()) return {}; // If the piece is immobile, return an empty list
 
     vector<pair<int, int>> validMoves = getValidMoves(x, y, board);
     vector<pair<int, int>> legalMoves;
@@ -86,11 +95,21 @@ void Piece::move() {
     moves++;
 }
 
-void Piece::setImmobile(bool state) {
-    immobile = state;
+void Piece::setFrozen(bool state) {
+    frozen = state;
 }
 
-Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn", { 4 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
+bool Piece::getImmobile() {
+    return frozen;
+}
+
+
+
+
+Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn") {
+    spriteRect = pieceSprites[SPRITE_PAWN].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_PAWN_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -112,7 +131,10 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Knight::Knight(Texture2D* texture, int player) : Piece(texture, player, "Knight", { 4 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
+Knight::Knight(Texture2D* texture, int player) : Piece(texture, player, "Knight") {
+    spriteRect = pieceSprites[SPRITE_KNIGHT].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_KNIGHT_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -132,7 +154,10 @@ vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Bishop::Bishop(Texture2D* texture, int player) : Piece(texture, player, "Bishop", { 5 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
+Bishop::Bishop(Texture2D* texture, int player) : Piece(texture, player, "Bishop") {
+    spriteRect = pieceSprites[SPRITE_BISHOP].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_BISHOP_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -163,7 +188,10 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Rook::Rook(Texture2D* texture, int player) : Piece(texture, player, "Rook", { 5 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE }) {}
+Rook::Rook(Texture2D* texture, int player) : Piece(texture, player, "Rook") {
+    spriteRect = pieceSprites[SPRITE_ROOK].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -194,7 +222,10 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Queen::Queen(Texture2D* texture, int player) : Piece(texture, player, "Queen", { 6 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 }) {}
+Queen::Queen(Texture2D* texture, int player) : Piece(texture, player, "Queen") {
+    spriteRect = pieceSprites[SPRITE_QUEEN].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
@@ -225,7 +256,10 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-King::King(Texture2D* texture, int player) : Piece(texture, player, "King", { 7 * TILE_SIZE, 0 * TILE_SIZE, TILE_SIZE, TILE_SIZE * 2 }) {}
+King::King(Texture2D* texture, int player) : Piece(texture, player, "King") {
+    spriteRect = pieceSprites[SPRITE_KING].toSpriteRect();
+    frozenSpriteRect = pieceSprites[SPRITE_KING_FROZEN].toSpriteRect();
+}
 
 vector<pair<int, int>> King::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
