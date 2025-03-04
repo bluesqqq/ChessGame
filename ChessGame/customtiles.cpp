@@ -107,10 +107,7 @@ void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
 
     TilePosition tile = tileData[tileType];
 
-    Rectangle source = {
-        tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE,
-        TILE_SIZE, TILE_SIZE
-    };
+    Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
     Vector2 position = IsoToScreen(x, y, z);
 

@@ -2,13 +2,17 @@
 #include <cmath>
 #include <algorithm>
 
-Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), players(players)
-{
+void Board::drawTile(int row, int col, TileType type) {
+    TilePosition tile = tileData[type];
+    Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+    Vector2 position = IsoToScreen(row, col, 0);
+    DrawTextureRec(*atlas, source, position, WHITE);
+}
+
+Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), players(players) {
     // Populate with generic tiles
-    for (int row = 0; row < 8; row++)
-    {
-        for (int col = 0; col < 8; col++)
-        {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
             tiles[row][col] = new BasicTile(atlas);
         }
     }
@@ -19,8 +23,7 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
     tiles[5][5] = new BreakingTile(atlas);
 
     // Place Pawns
-    for (int row = 0; row < 8; row++)
-    {
+    for (int row = 0; row < 8; row++) {
         tiles[row][1]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
         tiles[row][6]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
     }
@@ -53,17 +56,14 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
 }
 
-void Board::draw(int player, int x, int y)
-{
+void Board::draw(int player, int x, int y) {
     bool hide = false; 
 
     std::vector<std::pair<int, int>> highlightTiles;
 
     // If piece is selected, hide the other pieces
-    if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece())
-    {
-        if (tiles[x][y]->getPiece()->getPlayer() == player)
-        {
+    if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece()) {
+        if (tiles[x][y]->getPiece()->getPlayer() == player) {
             hide = true;
             highlightTiles = tiles[x][y]->getPiece()->getLegalMoves(x, y, *this);
             hide = true;
@@ -72,10 +72,9 @@ void Board::draw(int player, int x, int y)
 
     float time = GetTime(); // Get elapsed time
 
-    for (int row = 0; row < 8; row++)
-    {
-        for (int col = 0; col < 8; col++)
-        {
+    /*
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
             std::pair<int, int> current_pair = { row, col };
             auto it = std::find(highlightTiles.begin(), highlightTiles.end(), current_pair);
 
@@ -98,6 +97,66 @@ void Board::draw(int player, int x, int y)
             }
         }
     }
+    */
+
+    for (int row = -1; row <= 8; row++) {
+        for (int col = -1; col <= 8; col++) {
+            if (row == -1 && col == -1) {
+                drawTile(row, col, TILE_SE_CORNER);
+                continue;
+            }
+            else if (row == -1 && col == 8) {
+                drawTile(row, col, TILE_NE_CORNER);
+                continue;
+            }
+            else if (row == 8 && col == -1) {
+                drawTile(row, col, TILE_SW_CORNER);
+                continue;
+            }
+            else if (row == 8 && col == 8) {
+                drawTile(row, col, TILE_NW_CORNER);
+                continue;
+            }
+            else if (row == -1) {
+                drawTile(row, col, TILE_EAST_WALL);
+                continue;
+            }
+            else if (row == 8) {
+                drawTile(row, col, TILE_WEST_WALL);
+                continue;
+            }
+            else if (col == -1) {
+                drawTile(row, col, TILE_SOUTH_WALL);
+                continue;
+            }
+            else if (col == 8) {
+                drawTile(row, col, TILE_NORTH_WALL);
+                continue;
+            }
+
+            std::pair<int, int> current_pair = { row, col };
+            auto it = std::find(highlightTiles.begin(), highlightTiles.end(), current_pair);
+
+            Tile* tile = tiles[row][col];
+
+            // Apply sine wave for a wavy effect
+            float waveOffset = std::max(sin(time + (row + col) * 0.4f) * 0.2f, 0.0f);
+
+            if (x == row && y == col) // Mouse is hovered
+            {
+                tile->draw(row, col, waveOffset, true, false);
+            }
+            else if (it != highlightTiles.end()) // Possible moves on hovered piece
+            {
+                tile->draw(row, col, waveOffset, true, false);
+            }
+            else // Normal rendering
+            {
+                tile->draw(row, col, waveOffset, false, hide);
+            }
+        }
+    }
+
 }
 
 void Board::update() {
