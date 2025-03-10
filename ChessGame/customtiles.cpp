@@ -28,7 +28,6 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide)
 void BasicTile::update() {
     // Update the piece on this tile
     if (hasPiece()) {
-        currentPiece->setFrozen(false);
         currentPiece->update();
     }
 }
@@ -38,7 +37,7 @@ bool BasicTile::isSelectable()
     return true; // Basic tile will always be selectable
 }
 
-IceTile::IceTile(Texture2D* texture) : Tile(6), atlas(texture) {}
+IceTile::IceTile(Texture2D* texture) : Tile(1), atlas(texture) {}
 
 void IceTile::draw(int x, int y, float z, bool selected, bool hide)
 {
@@ -88,8 +87,9 @@ void IceTile::update() {
             }
         }
 
-        currentPiece->setFrozen(true);
+        currentPiece->setFrozen(6);
         currentPiece->update();
+
         lifetime--;
     }
 }

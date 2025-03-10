@@ -12,7 +12,7 @@ void Piece::draw(int x, int y, float z, bool hidden) {
     if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 
-    if (frozen) {
+    if (frozen > 0) {
         Vector2 position = IsoToScreen(x, y, z + (frozenSpriteRect.height / TILE_HEIGHT) - 1);
         DrawTextureRec(*atlas, frozenSpriteRect, position, Fade(WHITE, opacity));
     } else {
@@ -27,7 +27,7 @@ void Piece::drawIcon(int x, int y) {
 }
 
 void Piece::update() {
-
+    if (frozen > 0) frozen--;
 }
 
 vector<pair<int, int>> Piece::getValidMoves(int x, int y, Board& board) { return {}; }
@@ -95,12 +95,12 @@ void Piece::move() {
     moves++;
 }
 
-void Piece::setFrozen(bool state) {
-    frozen = state;
+void Piece::setFrozen(int frozenTurns) {
+    frozen = frozenTurns;
 }
 
 bool Piece::getImmobile() {
-    return frozen;
+    return frozen > 0;
 }
 
 

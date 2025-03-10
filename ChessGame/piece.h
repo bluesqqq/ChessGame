@@ -25,7 +25,7 @@ class Piece
         int moves = 0;
         float opacity = 1.0f;
 
-        bool frozen = false;
+        int frozen = 0;
 
         string name;
 
@@ -68,7 +68,7 @@ class Piece
         Color getColor() const;
         int getPlayer();
 
-        void setFrozen(bool state);
+        void setFrozen(int frozenTurns);
         bool getImmobile();
 };
 
