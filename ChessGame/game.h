@@ -2,12 +2,13 @@
 
 #include "player.h"
 #include "board.h"
+#include "event.h"
 
-class Game
-{
+class Game {
 	private:
 		vector<Player> players;
 		Board board;
+		vector<Event*> activeEvents;
 
 		int currentTurn = 0;
 

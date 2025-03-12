@@ -1,4 +1,5 @@
 #include "game.h"
+#include <iostream>
 
 Game::Game(Texture2D* texture) : board(texture, players)
 {
@@ -15,6 +16,19 @@ void Game::update() {
 	}
 
 	board.update();
+
+	if (currentTurn == 5) activeEvents.push_back(new GravityEvent());
+
+	for (auto& event : activeEvents) {
+		event->updateEvent(board);
+	}
+
+	activeEvents.erase(
+		remove_if(activeEvents.begin(), activeEvents.end(), [](Event* event) {
+			return event->getLifetime() <= 0;
+			}),
+		activeEvents.end()
+	);
 }
 
 bool Game::getGameEnd() {
