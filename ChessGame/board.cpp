@@ -19,8 +19,6 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
     tiles[4][4] = new IceTile(atlas);
     tiles[7][5] = new IceTile(atlas);
-    tiles[5][7] = new BreakingTile(atlas);
-    tiles[5][5] = new BreakingTile(atlas);
 
     // Place Pawns
     for (int row = 0; row < 8; row++) {
@@ -191,6 +189,18 @@ Tile* Board::getTile(int row, int col)
         return tiles[row][col];
 
     return nullptr;
+}
+
+raylib::Vector2 Board::getTilePosition(Tile* tile) {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            if (tiles[row][col] == tile) {
+                return raylib::Vector2(row, col);
+            }
+        }
+    }
+
+    return { -1.0f, -1.0f }; // Return an invalid position if the tile isn't found
 }
 
 Piece* Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol)

@@ -8,7 +8,7 @@ Piece::Piece(Texture2D* texture, int player, string name) : atlas(texture), play
 
 Piece::~Piece() {}
 
-void Piece::draw(int x, int y, float z, bool hidden) {
+void Piece::draw(float x, float y, float z, bool hidden) {
     if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 

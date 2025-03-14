@@ -33,7 +33,7 @@ class Piece
         Piece(Texture2D* texture, int player, string name);
         virtual ~Piece();
 
-        void draw(int x, int y, float z, bool hidden = false); // Base draw method
+        void draw(float x, float y, float z, bool hidden = false); // Base draw method
 
         void drawIcon(int x, int y);
 

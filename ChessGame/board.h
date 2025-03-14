@@ -31,6 +31,8 @@ class Board
         void setTile(int row, int col, Tile* newTile);
         Tile* getTile(int row, int col);
 
+        raylib::Vector2 getTilePosition(Tile* tile);
+
         /// <summary>
         /// Moves a player's piece from one tile to another. Does not check if the move is valid before
         /// </summary>
