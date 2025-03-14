@@ -17,9 +17,6 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
         }
     }
 
-    tiles[4][4] = new IceTile(atlas);
-    tiles[7][5] = new IceTile(atlas);
-
     // Place Pawns
     for (int row = 0; row < 8; row++) {
         tiles[row][1]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
@@ -158,13 +155,13 @@ void Board::draw(int player, int x, int y) {
 }
 
 void Board::update() {
+
+    // Set any expired tiles back to BasicTiles
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             Tile* tile = tiles[row][col];
             if (tile->getLifetime() == 0) {
-                Piece* removedPiece = tile->removePiece();
-                tiles[row][col] = new BasicTile(atlas);
-                tiles[row][col]->setPiece(removedPiece);
+                changeTile(row, col, new BasicTile(atlas));
             }
         }
     }
@@ -172,14 +169,40 @@ void Board::update() {
     // Update every tile
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            tiles[row][col]->update();
+            tiles[row][col]->update(*this);
         }
+    }
+
+    // Rudimentary random spawning tiles system
+    int randSpawn = rand() % 10;
+
+    switch (randSpawn) {
+        case 0:
+            spawnRandomTiles(TileSpawnType::CONVEYOR_ROW_SPAWN);
+            break;
+        case 1:
+            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            break;
     }
 }
 
-void Board::setTile(int row, int col, Tile* newTile)
+Tile* Board::setTile(int row, int col, Tile* newTile)
 {
+    Tile* oldTile = tiles[row][col];
     tiles[row][col] = newTile;
+
+    return oldTile;
+}
+
+Tile* Board::changeTile(int row, int col, Tile* newTile) {
+    Tile* oldTile = tiles[row][col];
+    tiles[row][col] = newTile;
+
+    if (oldTile) {
+        newTile->setPiece(oldTile->removePiece());
+    }
+
+    return oldTile;
 }
 
 Tile* Board::getTile(int row, int col)
@@ -352,4 +375,23 @@ bool Board::isInStalemate(int player) {
     if (isInCheck(player)) return false; // Cannot be in stalemate if in check
 
     return noPossibleMoves(player);
+}
+
+void Board::spawnRandomTiles(TileSpawnType type) {
+    switch (type) {
+
+        case TileSpawnType::ICE_SPAWN: {
+            raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
+            changeTile(spawnPosition.x, spawnPosition.y, new IceTile(atlas));
+            break;
+        }
+
+        case TileSpawnType::CONVEYOR_ROW_SPAWN: {
+            int row = rand() % 4 + 2; // can only spawn on rows 3 - 6
+            for (int i = 0; i < 8; i++) {
+                changeTile(i, row, new ConveyorTile(atlas, LEFT));
+            }
+            break;
+        }
+    }
 }

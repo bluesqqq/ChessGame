@@ -31,5 +31,7 @@ TilePosition tileData[] = {
     {0, 2}, // TILE_NORTH_WALL
     {1, 2}, // TILE_WEST_WALL
     {2, 2}, // TILE_SE_CORNER
-    {3, 2}  // TILE_NE_CORNER
+    {3, 2},  // TILE_NE_CORNER
+    {4, 2},  // TILE_HORIZONTAL_CONVEYOR
+    {4, 2}  // TILE_VERTICAL_CONVEYOR
 };

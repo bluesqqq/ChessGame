@@ -31,6 +31,8 @@ typedef enum {
     TILE_WEST_WALL,
     TILE_SE_CORNER,
     TILE_NE_CORNER,
+    TILE_HORIZONTAL_CONVEYOR,
+    TILE_VERTICAL_CONVEYOR,
     TILE_COUNT // Total number of tiles
 } TileType;
 

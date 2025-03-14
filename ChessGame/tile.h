@@ -5,6 +5,7 @@
 #include "include/raylib-cpp.hpp"
 #include "isometric.h"
 
+class Board;
 class Piece;
 
 class Tile
@@ -22,7 +23,7 @@ class Tile
         /// <summary>
         /// Updates the tile, called after every move
         /// </summary>
-        virtual void update() = 0;
+        virtual void update(Board& board) = 0;
 
         int getLifetime();
 

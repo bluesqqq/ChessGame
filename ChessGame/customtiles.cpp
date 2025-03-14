@@ -1,6 +1,7 @@
 #include "customtiles.h"
 #include "piece.h"
 #include "textures.h"
+#include "board.h"
 
 BasicTile::BasicTile(Texture2D* texture) : Tile(), atlas(texture) {}
 
@@ -25,7 +26,7 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
-void BasicTile::update() {
+void BasicTile::update(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
         currentPiece->update();
@@ -60,7 +61,7 @@ void IceTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
-void IceTile::update() {
+void IceTile::update(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
 
@@ -99,6 +100,8 @@ bool IceTile::isSelectable()
     return true; // Basic tile will always be selectable
 }
 
+
+
 BreakingTile::BreakingTile(Texture2D* texture) : Tile(6), atlas(texture) {}
 
 void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
@@ -119,7 +122,7 @@ void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
-void BreakingTile::update() {
+void BreakingTile::update(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
         lifetime--;
@@ -137,4 +140,61 @@ bool BreakingTile::isSelectable()
     else {
         return false;
     }
+}
+
+
+
+ConveyorTile::ConveyorTile(Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
+
+void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide)
+{
+    TileType tileType = TILE_HORIZONTAL_CONVEYOR;
+
+    TilePosition tile = tileData[tileType];
+
+    Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+
+    Vector2 position = IsoToScreen(x, y, z);
+
+    DrawTextureRec(*atlas, source, position, selected ? RED : BROWN);
+
+    if (currentPiece != nullptr)
+    {
+        currentPiece->draw(x, y, z, hide);
+    }
+}
+
+void ConveyorTile::update(Board& board) {
+    // This needs to be fixed, if the updates are called in a specific order
+    // Pieces can tend to "glide" all the way to the end of a conveyor belt row
+    if (hasPiece()) {
+        raylib::Vector2 tilePosition = board.getTilePosition(this);
+
+        switch (direction) {
+            case UP:
+                tilePosition += { 0, 1 };
+                break;
+            case DOWN:
+                tilePosition += { 0, -1 };
+                break;
+            case LEFT:
+                tilePosition += { -1, 0 };
+                break;
+            case RIGHT:
+                tilePosition += { 1, 0 };
+                break;
+        }
+
+        Tile* destinationTile = board.getTile(tilePosition.x, tilePosition.y);
+
+        if (destinationTile && !destinationTile->hasPiece()) {
+            destinationTile->setPiece(removePiece());
+        }
+    }
+
+    lifetime--;
+}
+
+bool ConveyorTile::isSelectable() {
+    return true;
 }

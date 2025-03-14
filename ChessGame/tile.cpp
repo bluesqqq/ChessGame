@@ -1,5 +1,6 @@
 #include "tile.h"
 #include "piece.h"
+#include "board.h"
 
 Tile::Tile(int lifetime) : lifetime(lifetime) { }
 

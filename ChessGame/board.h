@@ -11,6 +11,11 @@
 #include "include/raylib-cpp.hpp"
 #include "textures.h"
 
+enum class TileSpawnType {
+    ICE_SPAWN,
+    CONVEYOR_ROW_SPAWN
+};
+
 class Board
 {
     private:
@@ -28,7 +33,10 @@ class Board
 
         void update();
 
-        void setTile(int row, int col, Tile* newTile);
+        Tile* setTile(int row, int col, Tile* newTile);
+
+        Tile* changeTile(int row, int col, Tile* newTile);
+
         Tile* getTile(int row, int col);
 
         raylib::Vector2 getTilePosition(Tile* tile);
@@ -68,6 +76,7 @@ class Board
 
         bool isInStalemate(int player);
 
+        void spawnRandomTiles(TileSpawnType type);
 };
 
 #endif // BOARD_H
