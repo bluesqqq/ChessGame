@@ -19,7 +19,7 @@ raylib::Vector3 interpolatedCursorIsoPositionFloat = { 0.0f, 0.0f, 0.0f };
 Tile* selectedTile = nullptr;
 Piece* selectedPiece = nullptr;
 
-void UpdateDrawFrame(Camera2D camera, Game game)
+void UpdateDrawFrame(Camera2D camera, Game& game)
 {
     float time = GetTime(); // Get elapsed time
 
@@ -73,11 +73,6 @@ int main()
 
     SetTargetFPS(60);
 
-    Music music = LoadMusicStream("resources/music.wav");
-
-    SetMusicVolume(music, 0.1f);
-    PlayMusicStream(music);
-
     atlas = LoadTexture("resources/Tiles.png");
 
     Game game = Game(&atlas);
@@ -92,7 +87,7 @@ int main()
 
     while (!exitWindow && !WindowShouldClose())
     {
-        UpdateMusicStream(music);
+        game.updateMusicStreams();
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             raylib::Vector2 position = CursorToISO(camera);

@@ -5,11 +5,28 @@ Game::Game(Texture2D* texture) : board(texture, players)
 {
 	players.push_back(Player("Player 1"));
 	players.push_back(Player("Player 2"));
+
+	// Load all the music streams
+	musicNormal   = LoadMusicStream("resources/theme1_normal.wav");
+	musicIce      = LoadMusicStream("resources/theme1_ice.wav");
+	musicBreak    = LoadMusicStream("resources/theme1_break.wav");
+	musicConveyor = LoadMusicStream("resources/theme1_conveyor.wav");
+
+	SetMusicVolume(musicNormal, 1.0f);
+	SetMusicVolume(musicIce, 0.0f);
+	SetMusicVolume(musicBreak, 0.0f);
+	SetMusicVolume(musicConveyor, 0.0f);
+
+	PlayMusicStream(musicNormal);
+	PlayMusicStream(musicIce);
+	PlayMusicStream(musicBreak);
+	PlayMusicStream(musicConveyor);
 }
 
 void Game::update() {
 	// Check if the game ended
 	int currentPlayer = getPlayerTurn();
+
 	if (board.isInCheckmate(currentPlayer) || board.isInStalemate(currentPlayer)) {
 		gameEnd = true;
 		return;
@@ -29,6 +46,26 @@ void Game::update() {
 			}),
 		activeEvents.end()
 	);
+}
+
+void Game::updateMusicStreams() {
+
+	int numberOfIceTiles = board.getTileCount<IceTile>();
+	int numberOfConveyorTiles = board.getTileCount<ConveyorTile>();
+	int numberOfBreakTiles = board.getTileCount<BreakingTile>();
+
+	float iceVolume      = Clamp((float)numberOfIceTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 5 ice tiles
+	float conveyorVolume = Clamp((float)numberOfConveyorTiles / 8.0f, 0.0f, 1.0f); // Reaches max volume at 8 conveyor tiles
+	float breakVolume = Clamp((float)numberOfBreakTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 5 break tiles
+
+	SetMusicVolume(musicIce, iceVolume);
+	SetMusicVolume(musicConveyor, conveyorVolume);
+	SetMusicVolume(musicBreak, breakVolume);
+
+	UpdateMusicStream(musicNormal);
+	UpdateMusicStream(musicIce);
+	UpdateMusicStream(musicBreak);
+	UpdateMusicStream(musicConveyor);
 }
 
 bool Game::getGameEnd() {

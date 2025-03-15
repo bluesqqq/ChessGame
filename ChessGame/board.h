@@ -13,7 +13,8 @@
 
 enum class TileSpawnType {
     ICE_SPAWN,
-    CONVEYOR_ROW_SPAWN
+    CONVEYOR_ROW_SPAWN,
+    BREAK_SPAWN
 };
 
 class Board
@@ -77,6 +78,9 @@ class Board
         bool isInStalemate(int player);
 
         void spawnRandomTiles(TileSpawnType type);
+
+        template <typename T>
+        int getTileCount();
 };
 
 #endif // BOARD_H

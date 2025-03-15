@@ -14,10 +14,17 @@ class Game {
 
 		int gameEnd = false;
 
+		raylib::Music musicNormal;
+		raylib::Music musicIce;
+		raylib::Music musicBreak;
+		raylib::Music musicConveyor;
+
 	public:
 		Game(Texture2D* texture);
 
 		void update();
+
+		void updateMusicStreams();
 
 		bool getGameEnd();
 

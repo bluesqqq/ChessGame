@@ -183,6 +183,9 @@ void Board::update() {
         case 1:
             spawnRandomTiles(TileSpawnType::ICE_SPAWN);
             break;
+        case 2:
+            spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
+            break;
     }
 }
 
@@ -386,6 +389,12 @@ void Board::spawnRandomTiles(TileSpawnType type) {
             break;
         }
 
+        case TileSpawnType::BREAK_SPAWN: {
+            raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
+            changeTile(spawnPosition.x, spawnPosition.y, new BreakingTile(atlas));
+            break;
+        }
+
         case TileSpawnType::CONVEYOR_ROW_SPAWN: {
             int row = rand() % 4 + 2; // can only spawn on rows 3 - 6
             for (int i = 0; i < 8; i++) {
@@ -395,3 +404,22 @@ void Board::spawnRandomTiles(TileSpawnType type) {
         }
     }
 }
+
+template <typename T>
+int Board::getTileCount() {
+    int count = 0;
+
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            if (dynamic_cast<T*>(tiles[row][col])) {
+                ++count;
+            }
+        }
+    }
+
+    return count;
+}
+
+template int Board::getTileCount<ConveyorTile>();
+template int Board::getTileCount<IceTile>();
+template int Board::getTileCount<BreakingTile>();
