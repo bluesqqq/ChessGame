@@ -384,14 +384,28 @@ void Board::spawnRandomTiles(TileSpawnType type) {
     switch (type) {
 
         case TileSpawnType::ICE_SPAWN: {
-            raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
-            changeTile(spawnPosition.x, spawnPosition.y, new IceTile(atlas));
+            while (true) {
+                raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
+
+                Tile* spawnTile = getTile(spawnPosition.x, spawnPosition.y);
+                if (dynamic_cast<BasicTile*>(spawnTile) != nullptr) {
+                    changeTile(spawnPosition.x, spawnPosition.y, new IceTile(atlas));
+                    return;
+                }
+            }
             break;
         }
 
         case TileSpawnType::BREAK_SPAWN: {
-            raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
-            changeTile(spawnPosition.x, spawnPosition.y, new BreakingTile(atlas));
+            while (true) {
+                raylib::Vector2 spawnPosition(rand() % 8, rand() % 8);
+
+                Tile* spawnTile = getTile(spawnPosition.x, spawnPosition.y);
+                if (dynamic_cast<BasicTile*>(spawnTile) != nullptr) {
+                    changeTile(spawnPosition.x, spawnPosition.y, new BreakingTile(atlas));
+                    return;
+                }
+            }
             break;
         }
 
