@@ -232,8 +232,7 @@ void Board::executeQueuedMoves() {
     queuedMoves.clear();
 }
 
-Tile* Board::setTile(int row, int col, Tile* newTile)
-{
+Tile* Board::setTile(int row, int col, Tile* newTile) {
     Tile* oldTile = tiles[row][col];
     tiles[row][col] = newTile;
 
@@ -241,9 +240,9 @@ Tile* Board::setTile(int row, int col, Tile* newTile)
 }
 
 Tile* Board::changeTile(int row, int col, Tile* newTile) {
-    Tile* oldTile = tiles[row][col];
-    tiles[row][col] = newTile;
+    Tile* oldTile = setTile(row, col, newTile);
 
+    // Set the new tile's piece to the old tile's piece
     if (oldTile) {
         newTile->setPiece(oldTile->removePiece());
     }
@@ -414,7 +413,7 @@ bool Board::isInCheck(int player) {
     return false;
 }
 
-bool Board::noPossibleMoves(int player) {
+bool Board::canMove(int player) {
     vector<pair<int, int>> playerPieceLocations = getPlayersPieces(player);
 
     for (pair<int, int> location : playerPieceLocations) {
@@ -423,23 +422,23 @@ bool Board::noPossibleMoves(int player) {
         Piece* piece = tile->getPiece();
 
         if (!piece->getLegalMoves(location.first, location.second, *this).empty()) {
-            return false; // Found a legal move, not a checkmate
+            return true; // Found a legal move
         }
     }
 
-    return true;
+    return false;
 }
 
 bool Board::isInCheckmate(int player) {
     if (!isInCheck(player)) return false; // Cannot be in checkmate if not in check
 
-    return noPossibleMoves(player);
+    return !canMove(player);
 }
 
 bool Board::isInStalemate(int player) {
     if (isInCheck(player)) return false; // Cannot be in stalemate if in check
 
-    return noPossibleMoves(player);
+    return !canMove(player);
 }
 
 void Board::spawnRandomTiles(TileSpawnType type) {

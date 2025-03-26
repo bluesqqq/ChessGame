@@ -26,14 +26,52 @@ class Tile
         /// </summary>
         virtual void update(Board& board) = 0;
 
+        /// <summary>
+        /// Gets the lifetime of the tile
+        /// </summary>
+        /// <returns>The lifetime of the piece</returns>
         int getLifetime();
 
+        /// <summary>
+        /// Sets the piece on the tile
+        /// </summary>
+        /// <param name="piece">The piece to set</param>
         void setPiece(Piece* piece);
+
+        /// <summary>
+        /// Queues a piece to be set onto the tile
+        /// </summary>
+        /// <param name="piece">The piece to queue</param>
         void queuePiece(Piece* piece);
+
+        /// <summary>
+        /// Sets the queued piece onto the tile
+        /// </summary>
+        /// <returns>A pointer to the piece that was removed if removed, nullptr if not</returns>
         Piece* dequeuePiece();
+
+        /// <summary>
+        /// Removes the piece on the tile
+        /// </summary>
+        /// <returns>A pointer to the piece that was removed</returns>
         Piece* removePiece();
+
+        /// <summary>
+        /// Determines if the tile has a piece on it
+        /// </summary>
+        /// <returns>true if the tile has a piece, false if not</returns>
         bool hasPiece();
+
+        /// <summary>
+        /// Gets the piece on the tile
+        /// </summary>
+        /// <returns>A pointer to the piece on the tile</returns>
         Piece* getPiece();
+
+        /// <summary>
+        /// Determines whether this tile is selectable
+        /// </summary>
+        /// <returns>true if the tile is selectable, false if not</returns>
         virtual bool isSelectable();
 };
 
