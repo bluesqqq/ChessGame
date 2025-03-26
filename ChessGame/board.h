@@ -69,6 +69,9 @@ class Board
         template <typename T>
         vector<pair<int, int>> getPlayersPiecesOfType(int player);
 
+        template <typename T>
+        vector<pair<int, int>> getTilesOfType();
+
         bool isInCheck(int player);
 
         bool noPossibleMoves(int player);

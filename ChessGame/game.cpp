@@ -34,8 +34,6 @@ void Game::update() {
 
 	board.update();
 
-	if (currentTurn == 5) activeEvents.push_back(new GravityEvent());
-
 	for (auto& event : activeEvents) {
 		event->updateEvent(board);
 	}

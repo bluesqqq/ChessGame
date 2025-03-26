@@ -173,6 +173,15 @@ void Board::update() {
         }
     }
 
+    getTilesOfType<ConveyorTile>();
+
+    // Dequeue all pieces
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            tiles[row][col]->dequeuePiece();
+        }
+    }
+
     // Rudimentary random spawning tiles system
     int randSpawn = rand() % 10;
 
@@ -318,6 +327,26 @@ vector<pair<int, int>> Board::getPlayersPiecesOfType(int player)
                             locations.push_back({row, col});
                         }
                     }
+                }
+            }
+        }
+    }
+
+    return locations;
+}
+
+template <typename T>
+vector<pair<int, int>> Board::getTilesOfType()
+{
+    vector<pair<int, int>> locations;
+
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Tile* tile = getTile(row, col);
+
+            if (tile) {
+                if (dynamic_cast<T*>(tile) != nullptr) {
+                    locations.push_back({ row, col });
                 }
             }
         }

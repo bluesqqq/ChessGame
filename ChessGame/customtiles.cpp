@@ -2,6 +2,7 @@
 #include "piece.h"
 #include "textures.h"
 #include "board.h"
+#include <iostream>
 
 BasicTile::BasicTile(Texture2D* texture) : Tile(), atlas(texture) {}
 
@@ -158,8 +159,7 @@ void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide)
 
     DrawTextureRec(*atlas, source, position, selected ? RED : BROWN);
 
-    if (currentPiece != nullptr)
-    {
+    if (currentPiece != nullptr) {
         currentPiece->draw(x, y, z, hide);
     }
 }
@@ -169,6 +169,8 @@ void ConveyorTile::update(Board& board) {
     // Pieces can tend to "glide" all the way to the end of a conveyor belt row
     if (hasPiece()) {
         raylib::Vector2 tilePosition = board.getTilePosition(this);
+
+        cout << "From: " << tilePosition.x + 1 << " " << tilePosition.y + 1 << endl;
 
         switch (direction) {
             case UP:
@@ -187,8 +189,13 @@ void ConveyorTile::update(Board& board) {
 
         Tile* destinationTile = board.getTile(tilePosition.x, tilePosition.y);
 
-        if (destinationTile && !destinationTile->hasPiece()) {
-            destinationTile->setPiece(removePiece());
+        cout << "To: " << tilePosition.x + 1 << " " << tilePosition.y + 1 << endl;
+
+        if (destinationTile) {
+            if (destinationTile->hasPiece()) {
+
+            }
+            destinationTile->queuePiece(removePiece());
         }
     }
 

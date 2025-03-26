@@ -12,6 +12,7 @@ class Tile
 {
     protected:
         Piece* currentPiece = nullptr;
+        Piece* queuedPiece = nullptr;
         int lifetime = -1;
 
     public:
@@ -28,6 +29,8 @@ class Tile
         int getLifetime();
 
         void setPiece(Piece* piece);
+        void queuePiece(Piece* piece);
+        Piece* dequeuePiece();
         Piece* removePiece();
         bool hasPiece();
         Piece* getPiece();

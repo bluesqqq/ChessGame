@@ -19,8 +19,7 @@ raylib::Vector3 interpolatedCursorIsoPositionFloat = { 0.0f, 0.0f, 0.0f };
 Tile* selectedTile = nullptr;
 Piece* selectedPiece = nullptr;
 
-void UpdateDrawFrame(Camera2D camera, Game& game)
-{
+void UpdateDrawFrame(Camera2D camera, Game& game) {
     float time = GetTime(); // Get elapsed time
 
     BeginDrawing();

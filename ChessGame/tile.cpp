@@ -8,9 +8,26 @@ int Tile::getLifetime() {
     return lifetime;
 }
 
-void Tile::setPiece(Piece* piece)
-{
+void Tile::setPiece(Piece* piece) {
     currentPiece = piece;
+}
+
+void Tile::queuePiece(Piece* piece) {
+    queuedPiece = piece;
+}
+
+Piece* Tile::dequeuePiece() {
+    
+    Piece* removedPiece = nullptr; 
+
+    if (queuedPiece) {
+        removedPiece = removePiece();
+
+        currentPiece = queuedPiece;
+        queuedPiece = nullptr;
+    }
+
+    return removedPiece;
 }
 
 Piece* Tile::removePiece()
@@ -34,3 +51,4 @@ bool Tile::isSelectable()
 {
     return true; // Base tile is always selectable
 }
+
