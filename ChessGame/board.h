@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility>
+#include <iostream>
 
 #include "tile.h"
 #include "customtiles.h"
@@ -17,13 +18,20 @@ enum class TileSpawnType {
     BREAK_SPAWN
 };
 
-class Board
-{
+struct Move {
+    Tile* to;
+    Tile* from;
+    bool canOvertake;
+};
+
+class Board {
     private:
         Tile* tiles[8][8];
         Texture2D* atlas;
 
         vector<Player>& players;
+
+        vector<Move> queuedMoves;
 
         void drawTile(int row, int col, TileType type);
 
@@ -33,6 +41,10 @@ class Board
         void draw(int player, int x, int y);
 
         void update();
+
+        void addQueuedMove(Move move);
+
+        void executeQueuedMoves();
 
         Tile* setTile(int row, int col, Tile* newTile);
 

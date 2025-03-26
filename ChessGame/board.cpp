@@ -155,7 +155,6 @@ void Board::draw(int player, int x, int y) {
 }
 
 void Board::update() {
-
     // Set any expired tiles back to BasicTiles
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -173,14 +172,7 @@ void Board::update() {
         }
     }
 
-    getTilesOfType<ConveyorTile>();
-
-    // Dequeue all pieces
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            tiles[row][col]->dequeuePiece();
-        }
-    }
+    executeQueuedMoves();
 
     // Rudimentary random spawning tiles system
     int randSpawn = rand() % 10;
@@ -196,6 +188,48 @@ void Board::update() {
             spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
             break;
     }
+}
+
+void Board::addQueuedMove(Move move) {
+    queuedMoves.push_back(move);
+}
+
+void Board::executeQueuedMoves() {
+    // Remove conflicting moves (moves with the same destination)
+    for (auto it = queuedMoves.begin(); it != queuedMoves.end(); ++it) {
+        for (auto jt = std::next(it); jt != queuedMoves.end();) {
+            if (jt->to == it->to) {
+                jt = queuedMoves.erase(jt); // Remove conflicting move
+            }
+            else {
+                ++jt;
+            }
+        }
+    }
+
+    for (auto& move : queuedMoves) {
+        if (move.canOvertake || !(move.to->hasPiece())) { // No piece or can overtake (always moves)
+            move.to->queuePiece(move.from->removePiece());
+        } else { // Can't overtake and destination tile has a piece
+            // Check if the piece is queued to move to a different tile
+            auto it = std::find_if(queuedMoves.begin(), queuedMoves.end(), [move](const Move& other) {
+                return (other.from == move.to) && (other.to != move.to);
+            });
+
+            if (it != queuedMoves.end()) {
+                move.to->queuePiece(move.from->removePiece());
+            }
+        }
+    }
+
+    // Dequeue all the pieces and complete the move
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            tiles[row][col]->dequeuePiece();
+        }
+    }
+
+    queuedMoves.clear();
 }
 
 Tile* Board::setTile(int row, int col, Tile* newTile)
@@ -217,8 +251,7 @@ Tile* Board::changeTile(int row, int col, Tile* newTile) {
     return oldTile;
 }
 
-Tile* Board::getTile(int row, int col)
-{
+Tile* Board::getTile(int row, int col) {
     // If out of bounds, return a nullptr
     if (row >= 0 && row < 8 && col >= 0 && col < 8)
         return tiles[row][col];
@@ -441,7 +474,7 @@ void Board::spawnRandomTiles(TileSpawnType type) {
         case TileSpawnType::CONVEYOR_ROW_SPAWN: {
             int row = rand() % 4 + 2; // can only spawn on rows 3 - 6
             for (int i = 0; i < 8; i++) {
-                changeTile(i, row, new ConveyorTile(atlas, LEFT));
+                changeTile(i, row, new ConveyorTile(atlas, RIGHT));
             }
             break;
         }

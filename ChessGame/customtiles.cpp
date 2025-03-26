@@ -170,8 +170,6 @@ void ConveyorTile::update(Board& board) {
     if (hasPiece()) {
         raylib::Vector2 tilePosition = board.getTilePosition(this);
 
-        cout << "From: " << tilePosition.x + 1 << " " << tilePosition.y + 1 << endl;
-
         switch (direction) {
             case UP:
                 tilePosition += { 0, 1 };
@@ -189,13 +187,9 @@ void ConveyorTile::update(Board& board) {
 
         Tile* destinationTile = board.getTile(tilePosition.x, tilePosition.y);
 
-        cout << "To: " << tilePosition.x + 1 << " " << tilePosition.y + 1 << endl;
-
         if (destinationTile) {
-            if (destinationTile->hasPiece()) {
-
-            }
-            destinationTile->queuePiece(removePiece());
+            // Queue a movement to the destination tile
+            board.addQueuedMove({ destinationTile, this, false });
         }
     }
 
