@@ -22,6 +22,9 @@ class Game {
 	public:
 		Game(Texture2D* texture);
 
+		int updateWaitFrames = 60;
+		bool queuedForUpdate = false;
+
 		void update();
 
 		void updateMusicStreams();

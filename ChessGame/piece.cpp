@@ -103,7 +103,9 @@ bool Piece::getImmobile() {
     return frozen > 0;
 }
 
-
+string Piece::getName() {
+    return name;
+}
 
 
 Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn") {

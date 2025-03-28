@@ -15,6 +15,7 @@
 enum class TileSpawnType {
     ICE_SPAWN,
     CONVEYOR_ROW_SPAWN,
+    CONVEYOR_LOOP_SPAWN,
     BREAK_SPAWN
 };
 

@@ -6,8 +6,7 @@
 
 BasicTile::BasicTile(Texture2D* texture) : Tile(), atlas(texture) {}
 
-void BasicTile::draw(int x, int y, float z, bool selected, bool hide)
-{
+void BasicTile::draw(int x, int y, float z, bool selected, bool hide) {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
     TilePosition tile = tileData[tileType];
@@ -21,8 +20,7 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide)
 
     DrawTextureRec(*atlas, source, position, selected ? RED : WHITE);
 
-    if (currentPiece != nullptr)
-    {
+    if (currentPiece != nullptr) {
         currentPiece->draw(x, y, z, hide);
     }
 }
@@ -147,9 +145,13 @@ bool BreakingTile::isSelectable()
 
 ConveyorTile::ConveyorTile(Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
 
-void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide)
-{
+void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide) {
+
     TileType tileType = TILE_HORIZONTAL_CONVEYOR;
+
+    if (direction == UP || direction == DOWN) {
+        tileType = TILE_VERTICAL_CONVEYOR;
+    }
 
     TilePosition tile = tileData[tileType];
 

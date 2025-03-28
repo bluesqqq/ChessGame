@@ -26,7 +26,12 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
 
     BeginMode2D(camera);
 
-    ClearBackground(Color{ 204, 230, 255, 255 });
+    if (game.queuedForUpdate) {
+        // Darker background
+        ClearBackground(Color{ 154, 187, 219, 255 });
+    } else {
+        ClearBackground(Color{ 204, 230, 255, 255 });
+    }
 
     raylib::Vector2 cursorPosition = GetMousePosition();
 
@@ -64,8 +69,7 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
     EndDrawing();
 }
 
-int main()
-{
+int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess");
     
     InitAudioDevice();
@@ -84,51 +88,60 @@ int main()
 
     bool exitWindow = false;
 
-    while (!exitWindow && !WindowShouldClose())
-    {
+    while (!exitWindow && !WindowShouldClose()) {
         game.updateMusicStreams();
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            raylib::Vector2 position = CursorToISO(camera);
-            Tile* targetTile = game.getBoard().getTile(position.x, position.y);
+        if (!game.queuedForUpdate) {
 
-            // Check if tile exists
-            if (targetTile) {
-                Piece* targetPiece = targetTile->getPiece();
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                raylib::Vector2 position = CursorToISO(camera);
+                Tile* targetTile = game.getBoard().getTile(position.x, position.y);
 
-                // Check if piece exists on tile and if it is the current player's
-                if (targetPiece && targetPiece->getPlayer() == game.getPlayerTurn()) {
-                    selectedTile = targetTile;
-                    selectedPiece = targetPiece;
+                // Check if tile exists
+                if (targetTile) {
+                    Piece* targetPiece = targetTile->getPiece();
 
-                    interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
+                    // Check if piece exists on tile and if it is the current player's
+                    if (targetPiece && targetPiece->getPlayer() == game.getPlayerTurn()) {
+                        selectedTile = targetTile;
+                        selectedPiece = targetPiece;
 
-                    Sound fxPickup = LoadSound("resources/pickup.wav");
-                    PlaySound(fxPickup);
+                        interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
+
+                        Sound fxPickup = LoadSound("resources/pickup.wav");
+                        PlaySound(fxPickup);
+                    }
                 }
             }
-        }
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-            raylib::Vector2 position = CursorToISO(camera);
-            Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
+                raylib::Vector2 position = CursorToISO(camera);
+                Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
 
-            // Check if tile exists
-            if (destinationTile) {
-                Vector2 selectedTilePosition    = game.getBoard().getTilePosition(selectedTile);
-                Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
+                // Check if tile exists
+                if (destinationTile) {
+                    Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
+                    Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
 
-                // Move target piece to destination tile
-                game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
+                    // Move target piece to destination tile
+                    game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
 
+                }
+
+                selectedTile = nullptr;
+                selectedPiece = nullptr;
+
+                Sound fxPutdown = LoadSound("resources/putdown.wav");
+
+                PlaySound(fxPutdown);
             }
-
-            selectedTile = nullptr;
-            selectedPiece = nullptr;
-
-            Sound fxPutdown = LoadSound("resources/putdown.wav");
-
-            PlaySound(fxPutdown);
+        } else {
+            if (game.updateWaitFrames == 0) {
+                game.update();
+            }
+            else {
+                game.updateWaitFrames--;
+            }
         }
 
         UpdateDrawFrame(camera, game);

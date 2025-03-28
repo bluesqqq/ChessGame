@@ -96,6 +96,8 @@ class Piece
         /// </summary>
         /// <returns>true if the piece is immobile, false if not</returns>
         bool getImmobile();
+
+        string getName();
 };
 
 class Pawn : public Piece

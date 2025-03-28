@@ -1,8 +1,7 @@
 #include "game.h"
 #include <iostream>
 
-Game::Game(Texture2D* texture) : board(texture, players)
-{
+Game::Game(Texture2D* texture) : board(texture, players) {
 	players.push_back(Player("Player 1"));
 	players.push_back(Player("Player 2"));
 
@@ -24,6 +23,8 @@ Game::Game(Texture2D* texture) : board(texture, players)
 }
 
 void Game::update() {
+	updateWaitFrames = 60;
+	queuedForUpdate = false;
 	// Check if the game ended
 	int currentPlayer = getPlayerTurn();
 
@@ -99,7 +100,8 @@ void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destina
 			players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
 		}
 
-		currentTurn++;
-		update();
+		currentTurn++; 
+		queuedForUpdate = true;
+		//update();
 	}
 }

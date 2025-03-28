@@ -182,9 +182,12 @@ void Board::update() {
             spawnRandomTiles(TileSpawnType::CONVEYOR_ROW_SPAWN);
             break;
         case 1:
-            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
             break;
         case 2:
+            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            break;
+        case 3:
             spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
             break;
     }
@@ -195,30 +198,57 @@ void Board::addQueuedMove(Move move) {
 }
 
 void Board::executeQueuedMoves() {
+    std::cout << "SEARCHING FOR DUPLICATE MOVES:" << endl << endl;
     // Remove conflicting moves (moves with the same destination)
     for (auto it = queuedMoves.begin(); it != queuedMoves.end(); ++it) {
         for (auto jt = std::next(it); jt != queuedMoves.end();) {
             if (jt->to == it->to) {
                 jt = queuedMoves.erase(jt); // Remove conflicting move
+                std::cout << "\tDUPLICATE FOUND, REMOVING..." << endl;
+                continue;
             }
-            else {
-                ++jt;
-            }
+            ++jt;
         }
     }
 
+    std::cout << "SEARCHING FOR BLOCKED MOVES:" << endl << endl;
+
+    // Remove non-overtaking moves that have a stationary piece in their destination
+    bool removedMove;
+    do {
+        removedMove = false;
+        for (auto it = queuedMoves.begin(); it != queuedMoves.end();) {
+            if (!it->canOvertake && it->to->hasPiece()) {
+                auto blockingMove = std::find_if(queuedMoves.begin(), queuedMoves.end(), [it](const Move& other) {
+                    return (other.from == it->to) && (other.to != it->to);
+                });
+
+                if (blockingMove == queuedMoves.end()) {
+                    std::cout << "\BLOCKED MOVE FOUND, REMOVING..." << std::endl;
+                    it = queuedMoves.erase(it);
+                    removedMove = true;
+                    continue;
+                }
+            }
+            ++it;
+        }
+    } while (removedMove);
+
+    std::cout << "EXECUTING MOVES:" << endl << endl;
+
     for (auto& move : queuedMoves) {
+        string from = move.from->getPiece() ? ((move.from->getPiece()->getPlayer() == 1) ? "white " : "black ") + move.from->getPiece()->getName() : "empty tile";
+        string to = move.to->getPiece() ? ((move.from->getPiece()->getPlayer() == 1) ? "white " : "black ") + move.to->getPiece()->getName() : "empty tile";
+
+        std::cout << "moving " << from << " at (" << getTilePosition(move.from).x << ", " << getTilePosition(move.from).y;
+        std::cout << ") to " << to << " at (" << getTilePosition(move.to).x << ", " << getTilePosition(move.to).y << ")";
+
         if (move.canOvertake || !(move.to->hasPiece())) { // No piece or can overtake (always moves)
+            std::cout << " (no piece in the way)" << endl;
             move.to->queuePiece(move.from->removePiece());
         } else { // Can't overtake and destination tile has a piece
-            // Check if the piece is queued to move to a different tile
-            auto it = std::find_if(queuedMoves.begin(), queuedMoves.end(), [move](const Move& other) {
-                return (other.from == move.to) && (other.to != move.to);
-            });
-
-            if (it != queuedMoves.end()) {
-                move.to->queuePiece(move.from->removePiece());
-            }
+            std::cout << " (moving piece in the way)" << endl;
+            move.to->queuePiece(move.from->removePiece());
         }
     }
 
@@ -475,6 +505,39 @@ void Board::spawnRandomTiles(TileSpawnType type) {
             for (int i = 0; i < 8; i++) {
                 changeTile(i, row, new ConveyorTile(atlas, RIGHT));
             }
+            break;
+        }
+
+        case TileSpawnType::CONVEYOR_LOOP_SPAWN: {
+            int width = rand() % 3 + 2;  // width of 2 - 4
+            int length = rand() % 3 + 2; // length of 2 - 4
+
+            int x = rand() % (8 - width);
+            int y = rand() % (8 - width);
+
+            bool clockwise = rand() % 2; // Random direction
+
+            int cw = clockwise ? 0 : 1;
+
+            // Top row
+            for (int i = cw; i < width - 1 + cw; i++) {
+                changeTile(x + i, y, new ConveyorTile(atlas, clockwise ? RIGHT : LEFT));
+            }
+
+            for (int i = cw; i < length - 1 + cw; i++) {
+                changeTile(x + width - 1, y + i, new ConveyorTile(atlas, clockwise ? UP : DOWN));
+            }
+
+            // Bottom row
+            for (int i = cw; i < width - 1 + cw; i++) {
+                changeTile(x + (width - 1) - i, y + (length - 1), new ConveyorTile(atlas, clockwise ? LEFT : RIGHT));
+            }
+
+            // Left column
+            for (int i = cw; i < length - 1 + cw; i++) {
+                changeTile(x, y + (length - 1) - i, new ConveyorTile(atlas, clockwise ? DOWN : UP));
+            }
+
             break;
         }
     }
