@@ -25,10 +25,10 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide) {
     }
 }
 
-void BasicTile::update(Board& board) {
+void BasicTile::updateState(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
-        currentPiece->update();
+        currentPiece->updateState();
     }
 }
 
@@ -60,7 +60,7 @@ void IceTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
-void IceTile::update(Board& board) {
+void IceTile::updateState(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
 
@@ -88,7 +88,7 @@ void IceTile::update(Board& board) {
         }
 
         currentPiece->setFrozen(6);
-        currentPiece->update();
+        currentPiece->updateState();
 
         lifetime--;
     }
@@ -121,7 +121,7 @@ void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
     }
 }
 
-void BreakingTile::update(Board& board) {
+void BreakingTile::updateState(Board& board) {
     // Update the piece on this tile
     if (hasPiece()) {
         lifetime--;
@@ -166,32 +166,38 @@ void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide) {
     }
 }
 
-void ConveyorTile::update(Board& board) {
+void ConveyorTile::updateState(Board& board) {
     // This needs to be fixed, if the updates are called in a specific order
     // Pieces can tend to "glide" all the way to the end of a conveyor belt row
     if (hasPiece()) {
-        raylib::Vector2 tilePosition = board.getTilePosition(this);
+        raylib::Vector2 tilePosition        = board.getTilePosition(this);
+        raylib::Vector2 destinationPosition = board.getTilePosition(this);
 
         switch (direction) {
             case UP:
-                tilePosition += { 0, 1 };
+                destinationPosition = tilePosition + raylib::Vector2(0, 1);
                 break;
             case DOWN:
-                tilePosition += { 0, -1 };
+                destinationPosition = tilePosition + raylib::Vector2(0, -1);
                 break;
             case LEFT:
-                tilePosition += { -1, 0 };
+                destinationPosition = tilePosition + raylib::Vector2(-1, 0);
                 break;
             case RIGHT:
-                tilePosition += { 1, 0 };
+                destinationPosition = tilePosition + raylib::Vector2(1, 0);
                 break;
         }
 
-        Tile* destinationTile = board.getTile(tilePosition.x, tilePosition.y);
+        Tile* destinationTile = board.getTile(destinationPosition.x, destinationPosition.y);
 
         if (destinationTile) {
             // Queue a movement to the destination tile
-            board.addQueuedMove({ destinationTile, this, false });
+            board.addQueuedMove({ 
+                destinationTile, 
+                this, 
+                false, 
+                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - tilePosition.x, destinationPosition.y - tilePosition.y, 0))
+            });
         }
     }
 

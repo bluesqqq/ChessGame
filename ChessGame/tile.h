@@ -22,9 +22,14 @@ class Tile
         virtual void draw(int x, int y, float z, bool selected, bool hide) = 0;
 
         /// <summary>
+        /// Update called every frame
+        /// </summary>
+        void update();
+
+        /// <summary>
         /// Updates the tile, called after every move
         /// </summary>
-        virtual void update(Board& board) = 0;
+        virtual void updateState(Board& board) = 0;
 
         /// <summary>
         /// Gets the lifetime of the tile

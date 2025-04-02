@@ -14,8 +14,7 @@ class Board;
 
 using namespace std;
 
-class Piece
-{
+class Piece {
     protected:
         Texture2D* atlas; // Pointer to the texture atlas
         Rectangle spriteRect;
@@ -24,6 +23,8 @@ class Piece
         int player; // Player identifier (1 or 2)
         int moves = 0;
         float opacity = 1.0f;
+
+		raylib::Vector3 offset = { 0.0f, 0.0f, 0.0f }; // For animation purposes
 
         int frozen = 0;
 
@@ -37,10 +38,17 @@ class Piece
 
         void drawIcon(int x, int y);
 
+		void setOffset(raylib::Vector3 offset);
+
+        /// <summary>
+        /// Update called every frame
+        /// </summary>
+        void update();
+
         /// <summary>
         /// Updates the piece, called after every move
         /// </summary>
-        void update();
+        void updateState();
         
         /// <summary>
         /// Returns a list of valid moves based on this piece's ruleset. Note that this function does not account for

@@ -127,9 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="animation.cpp" />
     <ClCompile Include="board.cpp" />
     <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="customtiles.cpp" />
+    <ClCompile Include="easing.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="isometric.cpp" />
@@ -139,9 +141,11 @@
     <ClCompile Include="tile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animation.h" />
     <ClInclude Include="board.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="customtiles.h" />
+    <ClInclude Include="easing.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="isometric.h" />

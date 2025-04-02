@@ -13,10 +13,10 @@ void Piece::draw(float x, float y, float z, bool hidden) {
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 
     if (frozen > 0) {
-        Vector2 position = IsoToScreen(x, y, z + (frozenSpriteRect.height / TILE_HEIGHT) - 1);
+        Vector2 position = IsoToScreen(raylib::Vector3(x, y, z + (frozenSpriteRect.height / TILE_HEIGHT) - 1) + offset);
         DrawTextureRec(*atlas, frozenSpriteRect, position, Fade(WHITE, opacity));
     } else {
-        Vector2 position = IsoToScreen(x, y, z + (spriteRect.height / TILE_HEIGHT) - 1);
+        Vector2 position = IsoToScreen(raylib::Vector3(x, y, z + (spriteRect.height / TILE_HEIGHT) - 1) + offset);
         DrawTextureRec(*atlas, spriteRect, position, Fade(getColor(), opacity));
     }
 }
@@ -26,7 +26,15 @@ void Piece::drawIcon(int x, int y) {
     DrawTextureRec(*atlas, spriteRect, position, getColor());
 }
 
+void Piece::setOffset(raylib::Vector3 offset) {
+	this->offset = offset;
+}
+
 void Piece::update() {
+
+}
+
+void Piece::updateState() {
     if (frozen > 0) frozen--;
 }
 

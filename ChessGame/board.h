@@ -11,6 +11,7 @@
 #include "player.h"
 #include "include/raylib-cpp.hpp"
 #include "textures.h"
+#include "animation.h"
 
 enum class TileSpawnType {
     ICE_SPAWN,
@@ -23,6 +24,7 @@ struct Move {
     Tile* to;
     Tile* from;
     bool canOvertake;
+    Animation animation;
 };
 
 class Board {
@@ -41,9 +43,18 @@ class Board {
 
         void draw(int player, int x, int y);
 
+        /// <summary>
+        /// Update called every frame
+        /// </summary>
         void update();
 
+        void updateState();
+
+        bool isPlayable();
+
         void addQueuedMove(Move move);
+
+        void removeConflictingMoves();
 
         void executeQueuedMoves();
 

@@ -67,33 +67,6 @@ void Board::draw(int player, int x, int y) {
 
     float time = GetTime(); // Get elapsed time
 
-    /*
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            std::pair<int, int> current_pair = { row, col };
-            auto it = std::find(highlightTiles.begin(), highlightTiles.end(), current_pair);
-
-            Tile* tile = tiles[row][col];
-
-            // Apply sine wave for a wavy effect
-            float waveOffset = std::max(sin(time + (row + col) * 0.4f) * 0.2f, 0.0f);
-
-            if (x == row && y == col) // Mouse is hovered
-            {
-                tile->draw(row, col, waveOffset, true, false);
-            }
-            else if (it != highlightTiles.end()) // Possible moves on hovered piece
-            {
-                tile->draw(row, col, waveOffset, true, false);
-            }
-            else // Normal rendering
-            {
-                tile->draw(row, col, waveOffset, false, hide);
-            }
-        }
-    }
-    */
-
     for (int row = -1; row <= 8; row++) {
         for (int col = -1; col <= 8; col++) {
             if (row == -1 && col == -1) {
@@ -155,6 +128,47 @@ void Board::draw(int player, int x, int y) {
 }
 
 void Board::update() {
+    // Update all tiles
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            tiles[row][col]->update();
+        }
+    }
+
+    double currentTime = GetTime();
+
+    // Check if there are any moves
+    if (!queuedMoves.empty()) {
+        bool unfinishedAnimations = false;
+
+        // Check if any moves have unfinished animations
+		for (auto& move : queuedMoves) {
+            if (!move.animation.ended()) { 
+                unfinishedAnimations = true;
+            }
+		}
+
+        if (unfinishedAnimations) {
+            for (auto& move : queuedMoves) {
+                move.animation.currentTime = currentTime;
+
+                Piece* animatingPiece = move.from->getPiece();
+
+				if (animatingPiece) {
+					raylib::Vector3 animationOffset = move.animation.getPosition();
+
+                    cout << move.animation.getPosition().x << ", " << move.animation.getPosition().y << ", " << move.animation.getPosition().z << endl;
+					animatingPiece->setOffset(animationOffset);
+				}
+            }
+        } else {
+			cout << "All animations finished!" << endl;
+			executeQueuedMoves();
+        }
+    }
+}
+
+void Board::updateState() {
     // Set any expired tiles back to BasicTiles
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -165,14 +179,20 @@ void Board::update() {
         }
     }
 
-    // Update every tile
+    // Update the state of every tile
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            tiles[row][col]->update(*this);
+            tiles[row][col]->updateState(*this);
         }
     }
 
-    executeQueuedMoves();
+	removeConflictingMoves();
+
+    for (auto& move : queuedMoves) {
+		move.animation.startAnimation();
+    }
+
+    //executeQueuedMoves();
 
     // Rudimentary random spawning tiles system
     int randSpawn = rand() % 10;
@@ -193,25 +213,25 @@ void Board::update() {
     }
 }
 
+bool Board::isPlayable() {
+    return (queuedMoves.empty());
+}
+
 void Board::addQueuedMove(Move move) {
     queuedMoves.push_back(move);
 }
 
-void Board::executeQueuedMoves() {
-    std::cout << "SEARCHING FOR DUPLICATE MOVES:" << endl << endl;
+void Board::removeConflictingMoves() {
     // Remove conflicting moves (moves with the same destination)
     for (auto it = queuedMoves.begin(); it != queuedMoves.end(); ++it) {
         for (auto jt = std::next(it); jt != queuedMoves.end();) {
             if (jt->to == it->to) {
                 jt = queuedMoves.erase(jt); // Remove conflicting move
-                std::cout << "\tDUPLICATE FOUND, REMOVING..." << endl;
                 continue;
             }
             ++jt;
         }
     }
-
-    std::cout << "SEARCHING FOR BLOCKED MOVES:" << endl << endl;
 
     // Remove non-overtaking moves that have a stationary piece in their destination
     bool removedMove;
@@ -221,10 +241,9 @@ void Board::executeQueuedMoves() {
             if (!it->canOvertake && it->to->hasPiece()) {
                 auto blockingMove = std::find_if(queuedMoves.begin(), queuedMoves.end(), [it](const Move& other) {
                     return (other.from == it->to) && (other.to != it->to);
-                });
+                    });
 
                 if (blockingMove == queuedMoves.end()) {
-                    std::cout << "\BLOCKED MOVE FOUND, REMOVING..." << std::endl;
                     it = queuedMoves.erase(it);
                     removedMove = true;
                     continue;
@@ -233,23 +252,15 @@ void Board::executeQueuedMoves() {
             ++it;
         }
     } while (removedMove);
+}
 
-    std::cout << "EXECUTING MOVES:" << endl << endl;
-
+void Board::executeQueuedMoves() {
     for (auto& move : queuedMoves) {
-        string from = move.from->getPiece() ? ((move.from->getPiece()->getPlayer() == 1) ? "white " : "black ") + move.from->getPiece()->getName() : "empty tile";
-        string to = move.to->getPiece() ? ((move.from->getPiece()->getPlayer() == 1) ? "white " : "black ") + move.to->getPiece()->getName() : "empty tile";
+        Piece* animatingPiece = move.from->getPiece();
 
-        std::cout << "moving " << from << " at (" << getTilePosition(move.from).x << ", " << getTilePosition(move.from).y;
-        std::cout << ") to " << to << " at (" << getTilePosition(move.to).x << ", " << getTilePosition(move.to).y << ")";
+        animatingPiece->setOffset({ 0.0, 0.0, 0.0 });
 
-        if (move.canOvertake || !(move.to->hasPiece())) { // No piece or can overtake (always moves)
-            std::cout << " (no piece in the way)" << endl;
-            move.to->queuePiece(move.from->removePiece());
-        } else { // Can't overtake and destination tile has a piece
-            std::cout << " (moving piece in the way)" << endl;
-            move.to->queuePiece(move.from->removePiece());
-        }
+        move.to->queuePiece(move.from->removePiece());
     }
 
     // Dequeue all the pieces and complete the move

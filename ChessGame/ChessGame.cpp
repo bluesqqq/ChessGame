@@ -93,56 +93,60 @@ int main() {
 
         if (!game.queuedForUpdate) {
 
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                raylib::Vector2 position = CursorToISO(camera);
-                Tile* targetTile = game.getBoard().getTile(position.x, position.y);
+            if (game.getBoard().isPlayable()) {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    raylib::Vector2 position = CursorToISO(camera);
+                    Tile* targetTile = game.getBoard().getTile(position.x, position.y);
 
-                // Check if tile exists
-                if (targetTile) {
-                    Piece* targetPiece = targetTile->getPiece();
+                    // Check if tile exists
+                    if (targetTile) {
+                        Piece* targetPiece = targetTile->getPiece();
 
-                    // Check if piece exists on tile and if it is the current player's
-                    if (targetPiece && targetPiece->getPlayer() == game.getPlayerTurn()) {
-                        selectedTile = targetTile;
-                        selectedPiece = targetPiece;
+                        // Check if piece exists on tile and if it is the current player's
+                        if (targetPiece && targetPiece->getPlayer() == game.getPlayerTurn()) {
+                            selectedTile = targetTile;
+                            selectedPiece = targetPiece;
 
-                        interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
+                            interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
 
-                        Sound fxPickup = LoadSound("resources/pickup.wav");
-                        PlaySound(fxPickup);
+                            Sound fxPickup = LoadSound("resources/pickup.wav");
+                            PlaySound(fxPickup);
+                        }
                     }
                 }
-            }
 
-            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-                raylib::Vector2 position = CursorToISO(camera);
-                Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
+                if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
+                    raylib::Vector2 position = CursorToISO(camera);
+                    Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
 
-                // Check if tile exists
-                if (destinationTile) {
-                    Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
-                    Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
+                    // Check if tile exists
+                    if (destinationTile) {
+                        Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
+                        Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
 
-                    // Move target piece to destination tile
-                    game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
+                        // Move target piece to destination tile
+                        game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
 
+                    }
+
+                    selectedTile = nullptr;
+                    selectedPiece = nullptr;
+
+                    Sound fxPutdown = LoadSound("resources/putdown.wav");
+
+                    PlaySound(fxPutdown);
                 }
-
-                selectedTile = nullptr;
-                selectedPiece = nullptr;
-
-                Sound fxPutdown = LoadSound("resources/putdown.wav");
-
-                PlaySound(fxPutdown);
             }
         } else {
             if (game.updateWaitFrames == 0) {
-                game.update();
+                game.updateState();
             }
             else {
                 game.updateWaitFrames--;
             }
         }
+
+        game.update();
 
         UpdateDrawFrame(camera, game);
 

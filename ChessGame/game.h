@@ -25,7 +25,12 @@ class Game {
 		int updateWaitFrames = 60;
 		bool queuedForUpdate = false;
 
+		/// <summary>
+		/// Update called every frame
+		/// </summary>
 		void update();
+
+		void updateState();
 
 		void updateMusicStreams();
 

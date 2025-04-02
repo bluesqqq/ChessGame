@@ -10,7 +10,7 @@ class BasicTile : public Tile {
 
         void draw(int x, int y, float z, bool selected, bool hide) override;
 
-        void update(Board& board) override;
+        void updateState(Board& board) override;
         bool isSelectable() override;
 };
 
@@ -23,7 +23,7 @@ class IceTile : public Tile {
 
         void draw(int x, int y, float z, bool selected, bool hide) override;
 
-        void update(Board& board) override;
+        void updateState(Board& board) override;
         bool isSelectable() override;
 };
 
@@ -36,7 +36,7 @@ class BreakingTile : public Tile {
 
         void draw(int x, int y, float z, bool selected, bool hide) override;
 
-        void update(Board& board) override;
+        void updateState(Board& board) override;
         bool isSelectable() override;
 };
 
@@ -57,6 +57,6 @@ class ConveyorTile : public Tile {
 
         void draw(int x, int y, float z, bool selected, bool hide) override;
 
-        void update(Board& board) override;
+        void updateState(Board& board) override;
         bool isSelectable() override;
 };

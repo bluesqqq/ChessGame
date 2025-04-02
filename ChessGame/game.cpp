@@ -23,6 +23,10 @@ Game::Game(Texture2D* texture) : board(texture, players) {
 }
 
 void Game::update() {
+	board.update();
+}
+
+void Game::updateState() {
 	updateWaitFrames = 60;
 	queuedForUpdate = false;
 	// Check if the game ended
@@ -33,7 +37,7 @@ void Game::update() {
 		return;
 	}
 
-	board.update();
+	board.updateState();
 
 	for (auto& event : activeEvents) {
 		event->updateEvent(board);

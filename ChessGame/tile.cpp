@@ -4,6 +4,12 @@
 
 Tile::Tile(int lifetime) : lifetime(lifetime) { }
 
+void Tile::update() {
+	if (currentPiece) {
+		currentPiece->update();
+	}
+}
+
 int Tile::getLifetime() {
     return lifetime;
 }

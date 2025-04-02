@@ -7,6 +7,7 @@
 
 // Declare the function here, but don't define it.
 Vector2 IsoToScreen(float isoX, float isoY, float isoZ);
+Vector2 IsoToScreen(Vector3 position);
 Vector2 ScreenToISO(Vector2 screenPosition);
 Vector2 ScreenToISOFloat(Vector2 screenPosition);
 
