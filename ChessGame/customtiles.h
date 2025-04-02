@@ -12,7 +12,6 @@ class BasicTile : public Tile {
         void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
-        bool isSelectable() override;
 };
 
 class IceTile : public Tile {
@@ -25,7 +24,6 @@ class IceTile : public Tile {
         void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
-        bool isSelectable() override;
 };
 
 class BreakingTile : public Tile {
@@ -38,7 +36,6 @@ class BreakingTile : public Tile {
         void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
-        bool isSelectable() override;
 };
 
 enum Direction {
@@ -59,5 +56,17 @@ class ConveyorTile : public Tile {
         void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
-        bool isSelectable() override;
+};
+
+class PortalTile : public Tile {
+    private:
+        raylib::Texture2D* atlas;
+        int portalNumber;
+
+    public:
+        PortalTile(raylib::Texture2D* texture, int portalNumber);
+
+        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+
+        void updateState(Board& board) override;
 };

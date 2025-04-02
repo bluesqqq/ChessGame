@@ -25,7 +25,11 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players) {
 }
 
 void Game::draw() {
-	background->draw();
+	if (background) {
+		background->draw();
+	} else {
+		ClearBackground(WHITE);
+	}
 
 	board.draw(renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
 
@@ -35,7 +39,9 @@ void Game::draw() {
 }
 
 void Game::update() {
-	background->update();
+	if (background) {
+		background->update();
+	}
 
 	board.update();
 }

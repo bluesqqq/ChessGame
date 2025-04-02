@@ -14,6 +14,10 @@ int Tile::getLifetime() {
     return lifetime;
 }
 
+void Tile::setLifetime(int _lifetime) {
+    lifetime = _lifetime;
+}
+
 void Tile::setPiece(Piece* piece) {
     currentPiece = piece;
 }
@@ -43,18 +47,15 @@ Piece* Tile::removePiece()
     return tempPiece;
 }
 
-bool Tile::hasPiece()
-{
+bool Tile::hasPiece() {
     return currentPiece != nullptr;
 }
 
-Piece* Tile::getPiece()
-{
+Piece* Tile::getPiece() {
     return currentPiece;
 }
 
-bool Tile::isSelectable()
-{
+bool Tile::isSelectable() {
     return true; // Base tile is always selectable
 }
 

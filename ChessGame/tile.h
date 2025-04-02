@@ -38,6 +38,8 @@ class Tile
         /// <returns>The lifetime of the piece</returns>
         int getLifetime();
 
+		void setLifetime(int lifetime);
+
         /// <summary>
         /// Sets the piece on the tile
         /// </summary>

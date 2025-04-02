@@ -209,6 +209,15 @@ void Board::updateState() {
         case 3:
             spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
             break;
+        case 4:
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
+        case 5:
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
+        case 6:
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
     }
 }
 
@@ -408,9 +417,8 @@ vector<pair<int, int>> Board::getPlayersPiecesOfType(int player)
 }
 
 template <typename T>
-vector<pair<int, int>> Board::getTilesOfType()
-{
-    vector<pair<int, int>> locations;
+vector<Tile*> Board::getTilesOfType() {
+    vector<Tile*> tiles;
 
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -418,13 +426,13 @@ vector<pair<int, int>> Board::getTilesOfType()
 
             if (tile) {
                 if (dynamic_cast<T*>(tile) != nullptr) {
-                    locations.push_back({ row, col });
+                    tiles.push_back(tile);
                 }
             }
         }
     }
 
-    return locations;
+    return tiles;
 }
 
 bool Board::isInCheck(int player) {
@@ -483,6 +491,25 @@ bool Board::isInStalemate(int player) {
 
 void Board::spawnRandomTiles(TileSpawnType type) {
     switch (type) {
+        case TileSpawnType::PORTAL_SPAWN: {
+            while (true) {
+                cout << "SPAWN PORTAL" << endl;
+                raylib::Vector2 spawnPositionFirst(rand() % 8, rand() % 8);
+                raylib::Vector2 spawnPositionSecond(rand() % 8, rand() % 8);
+
+				if (spawnPositionFirst == spawnPositionSecond) continue;
+
+                Tile* spawnTileFirst = getTile(spawnPositionFirst.x, spawnPositionFirst.y);
+				Tile* spawnTileSecond = getTile(spawnPositionSecond.x, spawnPositionSecond.y);
+
+                // Create two linked portals
+				changeTile(spawnPositionFirst.x,  spawnPositionFirst.y,  new PortalTile(atlas, 0));
+                changeTile(spawnPositionSecond.x, spawnPositionSecond.y, new PortalTile(atlas, 0));
+
+                return;
+            }
+            break;
+        }
 
         case TileSpawnType::ICE_SPAWN: {
             while (true) {
@@ -571,3 +598,5 @@ int Board::getTileCount() {
 template int Board::getTileCount<ConveyorTile>();
 template int Board::getTileCount<IceTile>();
 template int Board::getTileCount<BreakingTile>();
+
+template std::vector<Tile*> Board::getTilesOfType<PortalTile>();

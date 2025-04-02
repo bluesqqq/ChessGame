@@ -74,8 +74,7 @@ vector<pair<int, int>> Piece::getLegalMoves(int x, int y, Board& board) {
     return legalMoves;
 }
 
-bool Piece::isLegalMove(int x, int y, Board& board, int moveX, int moveY)
-{
+bool Piece::isLegalMove(int x, int y, Board& board, int moveX, int moveY) {
     vector<pair<int, int>> validMoves = getLegalMoves(x, y, board);
 
     if (validMoves.empty()) return false;

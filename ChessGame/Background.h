@@ -36,5 +36,4 @@ class SpaceBackground : public Background {
 		void update() override;
 };
 
-
 #endif

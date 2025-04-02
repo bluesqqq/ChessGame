@@ -18,7 +18,8 @@ enum class TileSpawnType {
     ICE_SPAWN,
     CONVEYOR_ROW_SPAWN,
     CONVEYOR_LOOP_SPAWN,
-    BREAK_SPAWN
+    BREAK_SPAWN,
+    PORTAL_SPAWN
 };
 
 struct Move {
@@ -120,7 +121,7 @@ class Board {
         vector<pair<int, int>> getPlayersPiecesOfType(int player);
 
         template <typename T>
-        vector<pair<int, int>> getTilesOfType();
+        vector<Tile*> getTilesOfType();
 
         /// <summary>
         /// Determines if a player is in check

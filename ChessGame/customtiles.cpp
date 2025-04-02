@@ -30,15 +30,11 @@ void BasicTile::updateState(Board& board) {
     }
 }
 
-bool BasicTile::isSelectable()
-{
-    return true; // Basic tile will always be selectable
-}
+
 
 IceTile::IceTile(raylib::Texture2D* texture) : Tile(1), atlas(texture) {}
 
-void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide)
-{
+void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
     TilePosition tile = tileData[tileType];
@@ -50,8 +46,7 @@ void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selecte
 
     renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : BLUE));
 
-    if (currentPiece != nullptr)
-    {
+    if (currentPiece != nullptr) {
         currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
@@ -90,17 +85,11 @@ void IceTile::updateState(Board& board) {
     }
 }
 
-bool IceTile::isSelectable()
-{
-    return true; // Basic tile will always be selectable
-}
-
 
 
 BreakingTile::BreakingTile(raylib::Texture2D* texture) : Tile(6), atlas(texture) {}
 
-void BreakingTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide)
-{
+void BreakingTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
     TilePosition tile = tileData[tileType];
@@ -125,22 +114,11 @@ void BreakingTile::updateState(Board& board) {
     }
 }
 
-bool BreakingTile::isSelectable()
-{
-    if (lifetime) {
-        return true; // Basic tile will always be selectable
-    }
-    else {
-        return false;
-    }
-}
-
 
 
 ConveyorTile::ConveyorTile(raylib::Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
 
 void ConveyorTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
-
     TileType tileType = TILE_HORIZONTAL_CONVEYOR;
 
     if (direction == UP || direction == DOWN) {
@@ -196,6 +174,54 @@ void ConveyorTile::updateState(Board& board) {
     lifetime--;
 }
 
-bool ConveyorTile::isSelectable() {
-    return true;
+
+
+PortalTile::PortalTile(raylib::Texture2D* texture, int portalNumber) : Tile(10), atlas(texture), portalNumber(portalNumber) { }
+
+void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+
+    TilePosition tile = tileData[tileType];
+
+    Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : GREEN));
+
+    if (currentPiece != nullptr) {
+        currentPiece->draw(renderQueue, x, y, z, hide);
+    }
+}
+
+void PortalTile::updateState(Board& board) {
+    if (hasPiece()) {
+		// Get a list of all portal tiles
+        vector<Tile*> portalTiles = board.getTilesOfType<PortalTile>();
+
+        // Find the destination portal tile with the same portal number
+        PortalTile* destinationPortal = nullptr;
+        for (Tile* portalTile : portalTiles) {
+			PortalTile* portal = dynamic_cast<PortalTile*>(portalTile);
+            if (portal != this && portal->portalNumber == this->portalNumber) {
+                destinationPortal = portal;
+                break;
+            }
+        }
+
+        if (destinationPortal) {
+            // Get the positions of the current and destination portal tiles
+            raylib::Vector2 currentPosition = board.getTilePosition(this);
+            raylib::Vector2 destinationPosition = board.getTilePosition(destinationPortal);
+
+            // Queue a movement to the destination portal tile
+            board.addQueuedMove({
+                destinationPortal,
+                this,
+                false,
+                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - currentPosition.x, destinationPosition.y - currentPosition.y, 0))
+            });
+
+            lifetime = 0;
+			destinationPortal->setLifetime(0);
+        }
+    }
 }
