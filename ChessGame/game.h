@@ -4,7 +4,7 @@
 #include "board.h"
 #include "event.h"
 #include "RenderQueue.h"
-
+#include "Background.h"
 
 class Game {
 	private:
@@ -22,6 +22,8 @@ class Game {
 		raylib::Music musicConveyor;
 
 		RenderQueue renderQueue;
+
+		Background* background;
 
 		raylib::Vector2 selectedTile = { -1.0f, -1.0f };
 

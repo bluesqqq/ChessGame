@@ -12,7 +12,7 @@ int Event::getLifetime() {
 	return lifetime;
 }
 
-void Event::updateEvent(Board& board) {
+void Event::updateState(Board& board) {
 	applyEvent(board);
 	lifetime--;
 }
@@ -41,4 +41,10 @@ void GravityEvent::applyEvent(Board& board) {
             }
         }
     }
+}
+
+IceAgeEvent::IceAgeEvent() : Event("Ice Age", 6) {}
+
+void IceAgeEvent::applyEvent(Board& board) {
+    // put a bunch of ice tiles
 }

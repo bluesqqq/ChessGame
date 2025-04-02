@@ -13,90 +13,123 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Board">
+      <UniqueIdentifier>{6d16a426-3a84-4d40-96df-415428835103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Board">
+      <UniqueIdentifier>{7e716871-d68a-4371-ab29-c2a383dea415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{4b234854-b674-4ddd-b6b2-ee3a4ed6c9d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{50bacab3-eeef-4350-99a4-4aeb91bbf93d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Animation">
+      <UniqueIdentifier>{05428970-1c79-4f66-b066-37c1809f29ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation">
+      <UniqueIdentifier>{e8a6dab9-39b4-496c-b460-68834cdc41d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sprites">
+      <UniqueIdentifier>{4fa5b5cf-fd29-444b-b889-f16ea3f613f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sprites">
+      <UniqueIdentifier>{d8d5e77d-758a-47de-b949-5b8abf7e27d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="board.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="piece.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="isometric.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="board.cpp">
+      <Filter>Source Files\Board</Filter>
     </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="tile.cpp">
+      <Filter>Source Files\Board</Filter>
+    </ClCompile>
+    <ClCompile Include="piece.cpp">
+      <Filter>Source Files\Board</Filter>
     </ClCompile>
     <ClCompile Include="customtiles.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Board</Filter>
     </ClCompile>
-    <ClCompile Include="textures.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="game.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="event.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="animation.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
     <ClCompile Include="easing.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
     <ClCompile Include="RenderQueue.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Sprites</Filter>
+    </ClCompile>
+    <ClCompile Include="textures.cpp">
+      <Filter>Source Files\Sprites</Filter>
+    </ClCompile>
+    <ClCompile Include="Background.cpp">
+      <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="board.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="piece.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="isometric.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="board.h">
+      <Filter>Header Files\Board</Filter>
     </ClInclude>
-    <ClInclude Include="game.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="tile.h">
+      <Filter>Header Files\Board</Filter>
+    </ClInclude>
+    <ClInclude Include="piece.h">
+      <Filter>Header Files\Board</Filter>
     </ClInclude>
     <ClInclude Include="customtiles.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Board</Filter>
     </ClInclude>
-    <ClInclude Include="textures.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="player.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="event.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="animation.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
     <ClInclude Include="easing.h">
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="isometric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderQueue.h">
+      <Filter>Header Files\Sprites</Filter>
+    </ClInclude>
+    <ClInclude Include="textures.h">
+      <Filter>Header Files\Sprites</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Background.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animation.cpp" />
+    <ClCompile Include="Background.cpp" />
     <ClCompile Include="board.cpp" />
     <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="customtiles.cpp" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animation.h" />
+    <ClInclude Include="Background.h" />
     <ClInclude Include="board.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="customtiles.h" />
@@ -154,6 +156,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="tile.h" />
   </ItemGroup>

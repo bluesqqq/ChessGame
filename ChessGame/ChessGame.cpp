@@ -105,7 +105,6 @@ int main() {
 
         cameraMouseOffset = cameraMouseOffset.Lerp(raylib::Vector2(((mousePosition.x - HALF_SCREEN_WIDTH) / HALF_SCREEN_WIDTH) * mouseOffsetMultiplier, ((mousePosition.y - HALF_SCREEN_HEIGHT) / HALF_SCREEN_HEIGHT) * mouseOffsetMultiplier), 0.02f);
 
-		cout << cameraMouseOffset.x << " " << cameraMouseOffset.y << endl;
         camera.target = cameraMouseOffset;
 
         if (!game.queuedForUpdate) {

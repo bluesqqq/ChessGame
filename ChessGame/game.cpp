@@ -20,9 +20,13 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players) {
 	PlayMusicStream(musicIce);
 	PlayMusicStream(musicBreak);
 	PlayMusicStream(musicConveyor);
+
+	background = new SpaceBackground();
 }
 
 void Game::draw() {
+	background->draw();
+
 	board.draw(renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
 
 	renderQueue.sortQueue();
@@ -31,6 +35,8 @@ void Game::draw() {
 }
 
 void Game::update() {
+	background->update();
+
 	board.update();
 }
 
@@ -45,10 +51,12 @@ void Game::updateState() {
 		return;
 	}
 
+	// Update the state of the board
 	board.updateState();
 
+	// Update the state of the events
 	for (auto& event : activeEvents) {
-		event->updateEvent(board);
+		event->updateState(board);
 	}
 
 	activeEvents.erase(
