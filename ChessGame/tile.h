@@ -81,6 +81,8 @@ class Tile
         /// </summary>
         /// <returns>true if the tile is selectable, false if not</returns>
         virtual bool isSelectable();
+
+        virtual bool isPassable();
 };
 
 #endif

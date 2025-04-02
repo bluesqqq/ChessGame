@@ -13,7 +13,7 @@ Star::Star() {
 	position = raylib::Vector3(random_float(-5, 15), -10, 0);
 	speed = random_float(0.01f, 0.1f);
 	radius = random_float(0.5f, 3.0f);
-	Color color = WHITE;
+	color = WHITE;
 }
 
 void SpaceBackground::draw() {

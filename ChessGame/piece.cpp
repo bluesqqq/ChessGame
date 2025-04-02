@@ -108,6 +108,10 @@ bool Piece::getImmobile() {
     return frozen > 0;
 }
 
+bool Piece::isSelectable() {
+    return !getImmobile();
+}
+
 string Piece::getName() {
     return name;
 }
@@ -122,16 +126,25 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     vector<pair<int, int>> moves;
     int direction = (player == 1 ? 1 : -1);
 
-    if (board.getTile(x, y + direction) && !board.getTile(x, y + direction)->hasPiece())
+    bool blocked = false;
+
+    // Move 1 forward
+    if (board.getTile(x, y + direction) && !board.getTile(x, y + direction)->hasPiece()) {
         moves.emplace_back(x, y + direction);
+        if (!board.getTile(x, y + direction)->isPassable()) {
+            blocked = true;
+        }
+    }
 
     // Can move two squares on the first move
-    if (this->moves == 0 && board.getTile(x, y + direction * 2) && !board.getTile(x, y + direction * 2)->hasPiece() && !board.getTile(x, y + direction)->hasPiece())
+    if (!blocked && this->moves == 0 && board.getTile(x, y + direction * 2) && !board.getTile(x, y + direction * 2)->hasPiece() && !board.getTile(x, y + direction)->hasPiece())
         moves.emplace_back(x, y + direction * 2);
 
+    // Capture up and left
     if (board.getTile(x - 1, y + direction) && board.getTile(x - 1, y + direction)->hasPiece() && board.getTile(x - 1, y + direction)->getPiece()->getPlayer() != player)
         moves.emplace_back(x - 1, y + direction);
 
+    // Capture up and right
     if (board.getTile(x + 1, y + direction) && board.getTile(x + 1, y + direction)->hasPiece() && board.getTile(x + 1, y + direction)->getPiece()->getPlayer() != player)
         moves.emplace_back(x + 1, y + direction);
 
@@ -190,6 +203,8 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
                 break;
             }
             else break;
+
+            if (!tile->isPassable()) break;
         }
     }
     return moves;
@@ -224,6 +239,8 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
                 break;
             }
             else break;
+
+            if (!tile->isPassable()) break;
         }
     }
     return moves;
@@ -258,6 +275,8 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
                 break;
             }
             else break;
+
+            if (!tile->isPassable()) break;
         }
     }
     return moves;

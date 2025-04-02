@@ -59,3 +59,6 @@ bool Tile::isSelectable() {
     return true; // Base tile is always selectable
 }
 
+bool Tile::isPassable() {
+    return true;
+}

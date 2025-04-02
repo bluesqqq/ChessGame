@@ -20,6 +20,7 @@ class Game {
 		raylib::Music musicIce;
 		raylib::Music musicBreak;
 		raylib::Music musicConveyor;
+		raylib::Music musicPortal;
 
 		RenderQueue renderQueue;
 

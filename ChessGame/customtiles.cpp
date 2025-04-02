@@ -175,7 +175,6 @@ void ConveyorTile::updateState(Board& board) {
 }
 
 
-
 PortalTile::PortalTile(raylib::Texture2D* texture, int portalNumber) : Tile(10), atlas(texture), portalNumber(portalNumber) { }
 
 void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
@@ -185,7 +184,21 @@ void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool sele
 
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
-    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : GREEN));
+    Color portalColor;
+
+    switch (portalNumber % 3) {
+        case 0:
+			portalColor = ORANGE;
+			break;
+        case 1:
+			portalColor = GREEN;
+            break;
+		case 2:
+            portalColor = PURPLE;
+            break;
+    }
+
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : portalColor));
 
     if (currentPiece != nullptr) {
         currentPiece->draw(renderQueue, x, y, z, hide);

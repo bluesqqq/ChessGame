@@ -64,8 +64,6 @@ class Board {
 
         void removeConflictingMoves();
 
-        void spawnRandomTiles();
-
         void executeQueuedMoves();
 
         /// <summary>
@@ -158,6 +156,8 @@ class Board {
         /// <param name="player">The player to check for stalemate</param>
         /// <returns>true is player is in stalemate, false if not</returns>
         bool isInStalemate(int player);
+
+        void spawnRandomTiles();
 
         void spawnRandomTiles(TileSpawnType type);
 

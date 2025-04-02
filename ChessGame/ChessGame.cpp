@@ -118,8 +118,10 @@ int main() {
                     if (targetTile) {
                         Piece* targetPiece = targetTile->getPiece();
 
+                        bool pieceHasMoves = !targetPiece->getLegalMoves(position.x, position.y, game.getBoard()).empty();
+
                         // Check if piece exists on tile and if it is the current player's
-                        if (targetPiece && targetPiece->getPlayer() == game.getPlayerTurn()) {
+                        if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && pieceHasMoves) {
                             selectedTile = targetTile;
                             selectedPiece = targetPiece;
 

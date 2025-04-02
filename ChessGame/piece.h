@@ -106,6 +106,8 @@ class Piece {
         /// <returns>true if the piece is immobile, false if not</returns>
         bool getImmobile();
 
+        bool isSelectable();
+
         string getName();
 };
 

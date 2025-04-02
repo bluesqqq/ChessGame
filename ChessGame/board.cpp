@@ -203,29 +203,6 @@ void Board::removeExpiredTiles() {
     }
 }
 
-void Board::spawnRandomTiles() {
-    // Rudimentary random spawning tiles system
-    int randSpawn = rand() % 10;
-
-    switch (randSpawn) {
-        case 0:
-            spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
-            break;
-        case 1:
-            spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
-            break;
-        case 2:
-            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
-            break;
-        case 3:
-            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
-            break;
-        case 4:
-            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
-            break;
-    }
-}
-
 bool Board::isPlayable() {
     return (queuedMoves.empty());
 }
@@ -499,26 +476,51 @@ bool Board::isInStalemate(int player) {
     return !canMove(player);
 }
 
+void Board::spawnRandomTiles() {
+    int randSpawn = rand() % 10;
+
+    switch (randSpawn) {
+        case 0:
+            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            break;
+        case 1:
+            spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
+            break;
+        case 2:
+            spawnRandomTiles(TileSpawnType::CONVEYOR_ROW_SPAWN);
+            break;
+        case 3:
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
+    }
+}
+
 void Board::spawnRandomTiles(TileSpawnType type) {
     switch (type) {
         case TileSpawnType::PORTAL_SPAWN: {
-            while (true) {
-                cout << "SPAWN PORTAL" << endl;
-                raylib::Vector2 spawnPositionFirst(rand() % 8, rand() % 8);
-                raylib::Vector2 spawnPositionSecond(rand() % 8, rand() % 8);
+            Tile* spawnTileFirst;
+            Tile* spawnTileSecond;
 
-				if (spawnPositionFirst == spawnPositionSecond) continue;
+            raylib::Vector2 spawnPositionFirst(rand() % 8, rand() % 8);
+            raylib::Vector2 spawnPositionSecond(rand() % 8, rand() % 8);
 
-                Tile* spawnTileFirst = getTile(spawnPositionFirst.x, spawnPositionFirst.y);
-				Tile* spawnTileSecond = getTile(spawnPositionSecond.x, spawnPositionSecond.y);
+            spawnTileFirst = getTile(spawnPositionFirst.x, spawnPositionFirst.y);
+            spawnTileSecond = getTile(spawnPositionSecond.x, spawnPositionSecond.y);
 
-                // Create two linked portals
-				changeTile(spawnPositionFirst.x,  spawnPositionFirst.y,  new PortalTile(atlas, portalCounter));
-                changeTile(spawnPositionSecond.x, spawnPositionSecond.y, new PortalTile(atlas, portalCounter));
+			// Keep trying to spawn until two empty tiles are found (that are not the same)
+            while (spawnTileFirst->hasPiece() || spawnTileSecond->hasPiece() || spawnPositionFirst == spawnPositionSecond) {
+                spawnPositionFirst = raylib::Vector2(rand() % 8, rand() % 8);
+                spawnPositionSecond = raylib::Vector2(rand() % 8, rand() % 8);
 
-                portalCounter++;
-                return;
+                spawnTileFirst = getTile(spawnPositionFirst.x, spawnPositionFirst.y);
+                spawnTileSecond = getTile(spawnPositionSecond.x, spawnPositionSecond.y);
             }
+
+            // Create two linked portals
+			changeTile(spawnPositionFirst.x,  spawnPositionFirst.y,  new PortalTile(atlas, portalCounter));
+            changeTile(spawnPositionSecond.x, spawnPositionSecond.y, new PortalTile(atlas, portalCounter));
+
+            portalCounter++;
             break;
         }
 
@@ -609,5 +611,6 @@ int Board::getTileCount() {
 template int Board::getTileCount<ConveyorTile>();
 template int Board::getTileCount<IceTile>();
 template int Board::getTileCount<BreakingTile>();
+template int Board::getTileCount<PortalTile>();
 
 template std::vector<Tile*> Board::getTilesOfType<PortalTile>();

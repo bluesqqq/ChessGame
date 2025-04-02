@@ -10,16 +10,19 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players) {
 	musicIce      = LoadMusicStream("resources/theme1_ice.wav");
 	musicBreak    = LoadMusicStream("resources/theme1_break.wav");
 	musicConveyor = LoadMusicStream("resources/theme1_conveyor.wav");
+	musicPortal   = LoadMusicStream("resources/theme1_portal.wav");
 
 	SetMusicVolume(musicNormal, 1.0f);
 	SetMusicVolume(musicIce, 0.0f);
 	SetMusicVolume(musicBreak, 0.0f);
 	SetMusicVolume(musicConveyor, 0.0f);
+	SetMusicVolume(musicPortal, 0.0f);
 
 	PlayMusicStream(musicNormal);
 	PlayMusicStream(musicIce);
 	PlayMusicStream(musicBreak);
 	PlayMusicStream(musicConveyor);
+	PlayMusicStream(musicPortal);
 
 	background = new SpaceBackground();
 }
@@ -75,22 +78,27 @@ void Game::updateState() {
 
 void Game::updateMusicStreams() {
 
-	int numberOfIceTiles = board.getTileCount<IceTile>();
+	int numberOfIceTiles      = board.getTileCount<IceTile>();
 	int numberOfConveyorTiles = board.getTileCount<ConveyorTile>();
-	int numberOfBreakTiles = board.getTileCount<BreakingTile>();
+	int numberOfBreakTiles    = board.getTileCount<BreakingTile>();
+	int numberOfPortalTiles   = board.getTileCount<PortalTile>();
 
-	float iceVolume      = Clamp((float)numberOfIceTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 5 ice tiles
+	float iceVolume      = Clamp((float)numberOfIceTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 3 ice tiles
 	float conveyorVolume = Clamp((float)numberOfConveyorTiles / 8.0f, 0.0f, 1.0f); // Reaches max volume at 8 conveyor tiles
-	float breakVolume = Clamp((float)numberOfBreakTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 5 break tiles
+	float breakVolume    = Clamp((float)numberOfBreakTiles / 3.0f, 0.0f, 1.0f); // Reaches max volume at 3 break tiles
+	float portalVolume   = Clamp((float)numberOfPortalTiles / 6.0f, 0.0f, 1.0f); // Reaches max volume at 6 portal tiles
 
 	SetMusicVolume(musicIce, iceVolume);
 	SetMusicVolume(musicConveyor, conveyorVolume);
 	SetMusicVolume(musicBreak, breakVolume);
+	SetMusicVolume(musicPortal, portalVolume);
+
 
 	UpdateMusicStream(musicNormal);
 	UpdateMusicStream(musicIce);
 	UpdateMusicStream(musicBreak);
 	UpdateMusicStream(musicConveyor);
+	UpdateMusicStream(musicPortal);
 }
 
 void Game::setSelectedTile(raylib::Vector2 tile) {
