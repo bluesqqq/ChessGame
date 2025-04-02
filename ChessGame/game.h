@@ -3,6 +3,8 @@
 #include "player.h"
 #include "board.h"
 #include "event.h"
+#include "RenderQueue.h"
+
 
 class Game {
 	private:
@@ -19,11 +21,17 @@ class Game {
 		raylib::Music musicBreak;
 		raylib::Music musicConveyor;
 
+		RenderQueue renderQueue;
+
+		raylib::Vector2 selectedTile = { -1.0f, -1.0f };
+
 	public:
-		Game(Texture2D* texture);
+		Game(raylib::Texture2D* texture);
 
 		int updateWaitFrames = 60;
 		bool queuedForUpdate = false;
+
+		void draw();
 
 		/// <summary>
 		/// Update called every frame
@@ -33,6 +41,10 @@ class Game {
 		void updateState();
 
 		void updateMusicStreams();
+
+		void setSelectedTile(raylib::Vector2 tile) {
+			selectedTile = tile;
+		}
 
 		/// <summary>
 		/// Determines if the game has ended

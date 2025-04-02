@@ -4,6 +4,7 @@
 
 #include "include/raylib-cpp.hpp"
 #include "isometric.h"
+#include "RenderQueue.h"
 
 class Board;
 class Piece;
@@ -19,7 +20,7 @@ class Tile
         Tile(int lifetime = -1);
         virtual ~Tile() {}
 
-        virtual void draw(int x, int y, float z, bool selected, bool hide) = 0;
+        virtual void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) = 0;
 
         /// <summary>
         /// Update called every frame

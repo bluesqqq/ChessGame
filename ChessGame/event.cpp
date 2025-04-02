@@ -30,8 +30,6 @@ void GravityEvent::applyEvent(Board& board) {
             }
         }
 
-        cout << "Pieces in column #" << col << ": " << pieces.size() << endl;
-
         // Place pieces back to the left of the column
         for (int row = 0; row < 8; row++) {
             if (!pieces.empty()) {

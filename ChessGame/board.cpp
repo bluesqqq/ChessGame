@@ -2,14 +2,13 @@
 #include <cmath>
 #include <algorithm>
 
-void Board::drawTile(int row, int col, TileType type) {
+void Board::drawTile(RenderQueue& renderQueue, int row, int col, TileType type) {
     TilePosition tile = tileData[type];
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-    Vector2 position = IsoToScreen(row, col, 0);
-    DrawTextureRec(*atlas, source, position, WHITE);
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(row, col, -1), atlas, source));
 }
 
-Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), players(players) {
+Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(texture), players(players) {
     // Populate with generic tiles
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -51,7 +50,7 @@ Board::Board(Texture2D* texture, vector<Player>& players) : atlas(texture), play
 
 }
 
-void Board::draw(int player, int x, int y) {
+void Board::draw(RenderQueue& renderQueue, int player, int x, int y) {
     bool hide = false; 
 
     std::vector<std::pair<int, int>> highlightTiles;
@@ -70,35 +69,35 @@ void Board::draw(int player, int x, int y) {
     for (int row = -1; row <= 8; row++) {
         for (int col = -1; col <= 8; col++) {
             if (row == -1 && col == -1) {
-                drawTile(row, col, TILE_SE_CORNER);
+                drawTile(renderQueue, row, col, TILE_SE_CORNER);
                 continue;
             }
             else if (row == -1 && col == 8) {
-                drawTile(row, col, TILE_NE_CORNER);
+                drawTile(renderQueue, row, col, TILE_NE_CORNER);
                 continue;
             }
             else if (row == 8 && col == -1) {
-                drawTile(row, col, TILE_SW_CORNER);
+                drawTile(renderQueue, row, col, TILE_SW_CORNER);
                 continue;
             }
             else if (row == 8 && col == 8) {
-                drawTile(row, col, TILE_NW_CORNER);
+                drawTile(renderQueue, row, col, TILE_NW_CORNER);
                 continue;
             }
             else if (row == -1) {
-                drawTile(row, col, TILE_EAST_WALL);
+                drawTile(renderQueue, row, col, TILE_EAST_WALL);
                 continue;
             }
             else if (row == 8) {
-                drawTile(row, col, TILE_WEST_WALL);
+                drawTile(renderQueue, row, col, TILE_WEST_WALL);
                 continue;
             }
             else if (col == -1) {
-                drawTile(row, col, TILE_SOUTH_WALL);
+                drawTile(renderQueue, row, col, TILE_SOUTH_WALL);
                 continue;
             }
             else if (col == 8) {
-                drawTile(row, col, TILE_NORTH_WALL);
+                drawTile(renderQueue, row, col, TILE_NORTH_WALL);
                 continue;
             }
 
@@ -112,15 +111,15 @@ void Board::draw(int player, int x, int y) {
 
             if (x == row && y == col) // Mouse is hovered
             {
-                tile->draw(row, col, waveOffset, true, false);
+                tile->draw(renderQueue, row, col, waveOffset, true, false);
             }
             else if (it != highlightTiles.end()) // Possible moves on hovered piece
             {
-                tile->draw(row, col, waveOffset, true, false);
+                tile->draw(renderQueue, row, col, waveOffset, true, false);
             }
             else // Normal rendering
             {
-                tile->draw(row, col, waveOffset, false, hide);
+                tile->draw(renderQueue, row, col, waveOffset, false, hide);
             }
         }
     }
@@ -157,12 +156,10 @@ void Board::update() {
 				if (animatingPiece) {
 					raylib::Vector3 animationOffset = move.animation.getPosition();
 
-                    cout << move.animation.getPosition().x << ", " << move.animation.getPosition().y << ", " << move.animation.getPosition().z << endl;
 					animatingPiece->setOffset(animationOffset);
 				}
             }
         } else {
-			cout << "All animations finished!" << endl;
 			executeQueuedMoves();
         }
     }

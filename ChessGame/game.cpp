@@ -1,7 +1,7 @@
 #include "game.h"
 #include <iostream>
 
-Game::Game(Texture2D* texture) : board(texture, players) {
+Game::Game(raylib::Texture2D* texture) : board(texture, players) {
 	players.push_back(Player("Player 1"));
 	players.push_back(Player("Player 2"));
 
@@ -20,6 +20,14 @@ Game::Game(Texture2D* texture) : board(texture, players) {
 	PlayMusicStream(musicIce);
 	PlayMusicStream(musicBreak);
 	PlayMusicStream(musicConveyor);
+}
+
+void Game::draw() {
+	board.draw(renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
+
+	renderQueue.sortQueue();
+	renderQueue.draw();
+	renderQueue.clearQueue();
 }
 
 void Game::update() {

@@ -2,22 +2,20 @@
 #include "board.h"
 #include "textures.h"
 
-Piece::Piece(Texture2D* texture, int player, string name) : atlas(texture), player(player), name(name) {
+Piece::Piece(raylib::Texture2D* texture, int player, string name) : atlas(texture), player(player), name(name) {
 
 }
 
 Piece::~Piece() {}
 
-void Piece::draw(float x, float y, float z, bool hidden) {
+void Piece::draw(RenderQueue& renderQueue, float x, float y, float z, bool hidden) {
     if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 
     if (frozen > 0) {
-        Vector2 position = IsoToScreen(raylib::Vector3(x, y, z + (frozenSpriteRect.height / TILE_HEIGHT) - 1) + offset);
-        DrawTextureRec(*atlas, frozenSpriteRect, position, Fade(WHITE, opacity));
+        renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z) + offset, atlas, frozenSpriteRect, WHITE, opacity));
     } else {
-        Vector2 position = IsoToScreen(raylib::Vector3(x, y, z + (spriteRect.height / TILE_HEIGHT) - 1) + offset);
-        DrawTextureRec(*atlas, spriteRect, position, Fade(getColor(), opacity));
+        renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z) + offset, atlas, spriteRect, getColor(), opacity));
     }
 }
 
@@ -116,7 +114,7 @@ string Piece::getName() {
 }
 
 
-Pawn::Pawn(Texture2D* texture, int player) : Piece(texture, player, "Pawn") {
+Pawn::Pawn(raylib::Texture2D* texture, int player) : Piece(texture, player, "Pawn") {
     spriteRect = pieceSprites[SPRITE_PAWN].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_PAWN_FROZEN].toSpriteRect();
 }
@@ -141,7 +139,7 @@ vector<pair<int, int>> Pawn::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Knight::Knight(Texture2D* texture, int player) : Piece(texture, player, "Knight") {
+Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, "Knight") {
     spriteRect = pieceSprites[SPRITE_KNIGHT].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_KNIGHT_FROZEN].toSpriteRect();
 }
@@ -164,7 +162,7 @@ vector<pair<int, int>> Knight::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Bishop::Bishop(Texture2D* texture, int player) : Piece(texture, player, "Bishop") {
+Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, "Bishop") {
     spriteRect = pieceSprites[SPRITE_BISHOP].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_BISHOP_FROZEN].toSpriteRect();
 }
@@ -198,7 +196,7 @@ vector<pair<int, int>> Bishop::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Rook::Rook(Texture2D* texture, int player) : Piece(texture, player, "Rook") {
+Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, "Rook") {
     spriteRect = pieceSprites[SPRITE_ROOK].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
 }
@@ -232,7 +230,7 @@ vector<pair<int, int>> Rook::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-Queen::Queen(Texture2D* texture, int player) : Piece(texture, player, "Queen") {
+Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, "Queen") {
     spriteRect = pieceSprites[SPRITE_QUEEN].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
 }
@@ -266,7 +264,7 @@ vector<pair<int, int>> Queen::getValidMoves(int x, int y, Board& board) {
     return moves;
 }
 
-King::King(Texture2D* texture, int player) : Piece(texture, player, "King") {
+King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, "King") {
     spriteRect = pieceSprites[SPRITE_KING].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_KING_FROZEN].toSpriteRect();
 }

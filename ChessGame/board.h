@@ -12,6 +12,7 @@
 #include "include/raylib-cpp.hpp"
 #include "textures.h"
 #include "animation.h"
+#include "RenderQueue.h"
 
 enum class TileSpawnType {
     ICE_SPAWN,
@@ -30,18 +31,18 @@ struct Move {
 class Board {
     private:
         Tile* tiles[8][8];
-        Texture2D* atlas;
+        raylib::Texture2D* atlas;
 
         vector<Player>& players;
 
         vector<Move> queuedMoves;
 
-        void drawTile(int row, int col, TileType type);
+        void drawTile(RenderQueue& renderQueue, int row, int col, TileType type);
 
     public:
-        Board(Texture2D* texture, vector<Player>& players);
+        Board(raylib::Texture2D* texture, vector<Player>& players);
 
-        void draw(int player, int x, int y);
+        void draw(RenderQueue& renderQueue, int player, int x, int y);
 
         /// <summary>
         /// Update called every frame

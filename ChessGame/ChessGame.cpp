@@ -11,7 +11,7 @@ using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 360;
 
-Texture2D atlas;
+raylib::Texture2D* atlas;
 
 raylib::Vector2* target = nullptr;
 raylib::Vector3 interpolatedCursorIsoPositionFloat = { 0.0f, 0.0f, 0.0f };
@@ -43,12 +43,18 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
 
     if (selectedTile) cursorIsoPosition = game.getBoard().getTilePosition(selectedTile);
 
+	game.setSelectedTile(cursorIsoPosition);
+    game.draw();
+
+    /*
     game.getBoard().draw(game.getPlayerTurn(), (int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
 
     // Draw the selected piece at the mouse position
     if (selectedPiece) {
         selectedPiece->draw(interpolatedCursorIsoPositionFloat.x, interpolatedCursorIsoPositionFloat.y, interpolatedCursorIsoPositionFloat.z); // Adjust the offset as needed
     }
+
+    */
 
     EndMode2D();
 
@@ -76,9 +82,9 @@ int main() {
 
     SetTargetFPS(60);
 
-    atlas = LoadTexture("resources/Tiles.png");
+    atlas = new raylib::Texture2D(LoadTexture("resources/Tiles.png"));
 
-    Game game = Game(&atlas);
+    Game game = Game(atlas);
 
     Camera2D camera = { 0 };
     camera.target = raylib::Vector2{ 0.0f, 0.0f };

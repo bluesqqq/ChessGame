@@ -4,9 +4,9 @@
 #include "board.h"
 #include <iostream>
 
-BasicTile::BasicTile(Texture2D* texture) : Tile(), atlas(texture) {}
+BasicTile::BasicTile(raylib::Texture2D* texture) : Tile(), atlas(texture) {}
 
-void BasicTile::draw(int x, int y, float z, bool selected, bool hide) {
+void BasicTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
     TilePosition tile = tileData[tileType];
@@ -16,12 +16,10 @@ void BasicTile::draw(int x, int y, float z, bool selected, bool hide) {
         TILE_SIZE, TILE_SIZE
     };
 
-    Vector2 position = IsoToScreen(x, y, z);
-
-    DrawTextureRec(*atlas, source, position, selected ? RED : WHITE);
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : WHITE));
 
     if (currentPiece != nullptr) {
-        currentPiece->draw(x, y, z, hide);
+        currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
 
@@ -37,9 +35,9 @@ bool BasicTile::isSelectable()
     return true; // Basic tile will always be selectable
 }
 
-IceTile::IceTile(Texture2D* texture) : Tile(1), atlas(texture) {}
+IceTile::IceTile(raylib::Texture2D* texture) : Tile(1), atlas(texture) {}
 
-void IceTile::draw(int x, int y, float z, bool selected, bool hide)
+void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide)
 {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
@@ -50,13 +48,11 @@ void IceTile::draw(int x, int y, float z, bool selected, bool hide)
         TILE_SIZE, TILE_SIZE
     };
 
-    Vector2 position = IsoToScreen(x, y, z);
-
-    DrawTextureRec(*atlas, source, position, selected ? RED : BLUE);
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : BLUE));
 
     if (currentPiece != nullptr)
     {
-        currentPiece->draw(x, y, z, hide);
+        currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
 
@@ -101,9 +97,9 @@ bool IceTile::isSelectable()
 
 
 
-BreakingTile::BreakingTile(Texture2D* texture) : Tile(6), atlas(texture) {}
+BreakingTile::BreakingTile(raylib::Texture2D* texture) : Tile(6), atlas(texture) {}
 
-void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
+void BreakingTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide)
 {
     TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
 
@@ -111,13 +107,11 @@ void BreakingTile::draw(int x, int y, float z, bool selected, bool hide)
 
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
-    Vector2 position = IsoToScreen(x, y, z);
-
-    DrawTextureRec(*atlas, source, position, selected ? RED : BROWN);
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : BROWN));
 
     if (currentPiece != nullptr)
     {
-        currentPiece->draw(x, y, z, hide);
+        currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
 
@@ -143,9 +137,9 @@ bool BreakingTile::isSelectable()
 
 
 
-ConveyorTile::ConveyorTile(Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
+ConveyorTile::ConveyorTile(raylib::Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
 
-void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide) {
+void ConveyorTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
 
     TileType tileType = TILE_HORIZONTAL_CONVEYOR;
 
@@ -157,12 +151,10 @@ void ConveyorTile::draw(int x, int y, float z, bool selected, bool hide) {
 
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
-    Vector2 position = IsoToScreen(x, y, z);
-
-    DrawTextureRec(*atlas, source, position, selected ? RED : BROWN);
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : WHITE));
 
     if (currentPiece != nullptr) {
-        currentPiece->draw(x, y, z, hide);
+        currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
 

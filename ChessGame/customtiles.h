@@ -1,14 +1,15 @@
 #pragma once
 #include "tile.h"
+#include "RenderQueue.h"
 
 class BasicTile : public Tile {
     private:
-        Texture2D* atlas;
+        raylib::Texture2D* atlas;
 
     public:
-        BasicTile(Texture2D* texture);
+        BasicTile(raylib::Texture2D* texture);
 
-        void draw(int x, int y, float z, bool selected, bool hide) override;
+        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
         bool isSelectable() override;
@@ -16,12 +17,12 @@ class BasicTile : public Tile {
 
 class IceTile : public Tile {
     private:
-        Texture2D* atlas;
+        raylib::Texture2D* atlas;
 
     public:
-        IceTile(Texture2D* texture);
+        IceTile(raylib::Texture2D* texture);
 
-        void draw(int x, int y, float z, bool selected, bool hide) override;
+        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
         bool isSelectable() override;
@@ -29,12 +30,12 @@ class IceTile : public Tile {
 
 class BreakingTile : public Tile {
     private:
-        Texture2D* atlas;
+        raylib::Texture2D* atlas;
 
     public:
-        BreakingTile(Texture2D* texture);
+        BreakingTile(raylib::Texture2D* texture);
 
-        void draw(int x, int y, float z, bool selected, bool hide) override;
+        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
         bool isSelectable() override;
@@ -49,13 +50,13 @@ enum Direction {
 
 class ConveyorTile : public Tile {
     private:
-        Texture2D* atlas;
+        raylib::Texture2D* atlas;
         Direction direction;
 
     public:
-        ConveyorTile(Texture2D* texture, Direction direction);
+        ConveyorTile(raylib::Texture2D* texture, Direction direction);
 
-        void draw(int x, int y, float z, bool selected, bool hide) override;
+        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
         bool isSelectable() override;

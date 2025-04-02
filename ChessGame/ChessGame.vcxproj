@@ -137,6 +137,7 @@
     <ClCompile Include="isometric.cpp" />
     <ClCompile Include="piece.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="textures.cpp" />
     <ClCompile Include="tile.cpp" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="isometric.h" />
     <ClInclude Include="piece.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="tile.h" />
