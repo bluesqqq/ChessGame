@@ -26,7 +26,7 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
 
     BeginMode2D(camera);
 
-    if (game.queuedForUpdate) {
+    if (game.queuedForUpdate || !game.getBoard().isPlayable()) {
         // Darker background
         ClearBackground(Color{ 154, 187, 219, 255 });
     } else {
@@ -46,15 +46,9 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
 	game.setSelectedTile(cursorIsoPosition);
     game.draw();
 
-    /*
-    game.getBoard().draw(game.getPlayerTurn(), (int)cursorIsoPosition.x, (int)cursorIsoPosition.y);
-
-    // Draw the selected piece at the mouse position
     if (selectedPiece) {
-        selectedPiece->draw(interpolatedCursorIsoPositionFloat.x, interpolatedCursorIsoPositionFloat.y, interpolatedCursorIsoPositionFloat.z); // Adjust the offset as needed
+        selectedPiece->draw(game.getRenderQueue(), interpolatedCursorIsoPositionFloat.x, interpolatedCursorIsoPositionFloat.y, interpolatedCursorIsoPositionFloat.z); // Adjust the offset as needed
     }
-
-    */
 
     EndMode2D();
 
@@ -94,8 +88,25 @@ int main() {
 
     bool exitWindow = false;
 
+    float HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0f;
+    float HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2.0f;
+
+    float mouseOffsetMultiplier = 15;
+
+    raylib::Vector2 cameraMouseOffset = { 0.0f, 0.0f };
+
+    /*
+        LOOP
+    */ 
     while (!exitWindow && !WindowShouldClose()) {
         game.updateMusicStreams();
+
+        raylib::Vector2 mousePosition = GetMousePosition();
+
+        cameraMouseOffset = cameraMouseOffset.Lerp(raylib::Vector2(((mousePosition.x - HALF_SCREEN_WIDTH) / HALF_SCREEN_WIDTH) * mouseOffsetMultiplier, ((mousePosition.y - HALF_SCREEN_HEIGHT) / HALF_SCREEN_HEIGHT) * mouseOffsetMultiplier), 0.02f);
+
+		cout << cameraMouseOffset.x << " " << cameraMouseOffset.y << endl;
+        camera.target = cameraMouseOffset;
 
         if (!game.queuedForUpdate) {
 
@@ -120,6 +131,14 @@ int main() {
                         }
                     }
                 }
+
+                /* This looks ugly at low resolution
+                if (selectedPiece) {
+					camera.zoom = Lerp(camera.zoom, 1.2f, 0.1f);
+                } else {
+                    camera.zoom = Lerp(camera.zoom, 1.0f, 0.1f);
+                }
+                */
 
                 if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
                     raylib::Vector2 position = CursorToISO(camera);

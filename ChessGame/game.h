@@ -42,9 +42,9 @@ class Game {
 
 		void updateMusicStreams();
 
-		void setSelectedTile(raylib::Vector2 tile) {
-			selectedTile = tile;
-		}
+		void setSelectedTile(raylib::Vector2 tile);
+
+		RenderQueue& getRenderQueue();
 
 		/// <summary>
 		/// Determines if the game has ended

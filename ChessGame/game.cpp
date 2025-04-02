@@ -79,6 +79,14 @@ void Game::updateMusicStreams() {
 	UpdateMusicStream(musicConveyor);
 }
 
+void Game::setSelectedTile(raylib::Vector2 tile) {
+	selectedTile = tile;
+}
+
+RenderQueue& Game::getRenderQueue() {
+	return renderQueue;
+}
+
 bool Game::getGameEnd() {
 	return gameEnd;
 }

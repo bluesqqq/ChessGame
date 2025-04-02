@@ -55,12 +55,14 @@ void Board::draw(RenderQueue& renderQueue, int player, int x, int y) {
 
     std::vector<std::pair<int, int>> highlightTiles;
 
-    // If piece is selected, hide the other pieces
-    if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece()) {
-        if (tiles[x][y]->getPiece()->getPlayer() == player) {
-            hide = true;
-            highlightTiles = tiles[x][y]->getPiece()->getLegalMoves(x, y, *this);
-            hide = true;
+    if (isPlayable()) {
+        // If piece is selected, hide the other pieces
+        if (x >= 0 && x < 8 && y >= 0 && y < 8 && tiles[x][y]->hasPiece()) {
+            if (tiles[x][y]->getPiece()->getPlayer() == player) {
+                hide = true;
+                highlightTiles = tiles[x][y]->getPiece()->getLegalMoves(x, y, *this);
+                hide = true;
+            }
         }
     }
 
