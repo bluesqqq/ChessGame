@@ -38,6 +38,10 @@ class Board {
 
         vector<Move> queuedMoves;
 
+        bool updateStatePhase = false;
+
+        int portalCounter = 0;
+
         void drawTile(RenderQueue& renderQueue, int row, int col, TileType type);
 
     public:
@@ -52,11 +56,15 @@ class Board {
 
         void updateState();
 
+        void removeExpiredTiles();
+
         bool isPlayable();
 
         void addQueuedMove(Move move);
 
         void removeConflictingMoves();
+
+        void spawnRandomTiles();
 
         void executeQueuedMoves();
 

@@ -164,10 +164,34 @@ void Board::update() {
         } else {
 			executeQueuedMoves();
         }
+    } else if (updateStatePhase) {
+        removeExpiredTiles();
+		spawnRandomTiles();
+
+        // Finish update state phase
+		updateStatePhase = false;
     }
 }
 
 void Board::updateState() {
+    updateStatePhase = true;
+    // Update the state of every tile
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            tiles[row][col]->updateState(*this);
+        }
+    }
+
+    // Remove any conflicting moves added to the queuedMoves
+	removeConflictingMoves();
+
+	// Start animations for all queued moves
+    for (auto& move : queuedMoves) {
+		move.animation.startAnimation();
+    }
+}
+
+void Board::removeExpiredTiles() {
     // Set any expired tiles back to BasicTiles
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -177,45 +201,26 @@ void Board::updateState() {
             }
         }
     }
+}
 
-    // Update the state of every tile
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            tiles[row][col]->updateState(*this);
-        }
-    }
-
-	removeConflictingMoves();
-
-    for (auto& move : queuedMoves) {
-		move.animation.startAnimation();
-    }
-
-    //executeQueuedMoves();
-
+void Board::spawnRandomTiles() {
     // Rudimentary random spawning tiles system
     int randSpawn = rand() % 10;
 
     switch (randSpawn) {
         case 0:
-            spawnRandomTiles(TileSpawnType::CONVEYOR_ROW_SPAWN);
+            spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
             break;
         case 1:
             spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
             break;
         case 2:
-            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
             break;
         case 3:
-            spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
             break;
         case 4:
-            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
-            break;
-        case 5:
-            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
-            break;
-        case 6:
             spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
             break;
     }
@@ -266,7 +271,12 @@ void Board::executeQueuedMoves() {
     for (auto& move : queuedMoves) {
         Piece* animatingPiece = move.from->getPiece();
 
-        animatingPiece->setOffset({ 0.0, 0.0, 0.0 });
+        if (animatingPiece) {
+            animatingPiece->setOffset({ 0.0, 0.0, 0.0 });
+        } else {
+            Vector2 location = getTilePosition(move.from);
+            cout << "ERROR: cannot find piece at location: " << location.x << ", " << location.y << endl;
+        }
 
         move.to->queuePiece(move.from->removePiece());
     }
@@ -503,9 +513,10 @@ void Board::spawnRandomTiles(TileSpawnType type) {
 				Tile* spawnTileSecond = getTile(spawnPositionSecond.x, spawnPositionSecond.y);
 
                 // Create two linked portals
-				changeTile(spawnPositionFirst.x,  spawnPositionFirst.y,  new PortalTile(atlas, 0));
-                changeTile(spawnPositionSecond.x, spawnPositionSecond.y, new PortalTile(atlas, 0));
+				changeTile(spawnPositionFirst.x,  spawnPositionFirst.y,  new PortalTile(atlas, portalCounter));
+                changeTile(spawnPositionSecond.x, spawnPositionSecond.y, new PortalTile(atlas, portalCounter));
 
+                portalCounter++;
                 return;
             }
             break;
@@ -552,7 +563,7 @@ void Board::spawnRandomTiles(TileSpawnType type) {
             int x = rand() % (8 - width);
             int y = rand() % (8 - width);
 
-            bool clockwise = rand() % 2; // Random direction
+            bool clockwise = false; // rand() % 2; // Random direction
 
             int cw = clockwise ? 0 : 1;
 

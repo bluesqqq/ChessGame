@@ -217,7 +217,7 @@ void PortalTile::updateState(Board& board) {
                 destinationPortal,
                 this,
                 false,
-                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - currentPosition.x, destinationPosition.y - currentPosition.y, 0))
+                createTeleportAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - currentPosition.x, destinationPosition.y - currentPosition.y, 0))
             });
 
             lifetime = 0;

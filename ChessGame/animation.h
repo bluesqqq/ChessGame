@@ -37,4 +37,6 @@ Animation createSlideAnimation(raylib::Vector3 start, raylib::Vector3 end);
 
 Animation createPickAndPlaceAnimation(raylib::Vector3 start, raylib::Vector3 end);
 
+Animation createTeleportAnimation(raylib::Vector3 start, raylib::Vector3 end);
+
 #endif

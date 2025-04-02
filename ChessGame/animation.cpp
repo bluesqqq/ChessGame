@@ -70,3 +70,12 @@ Animation createPickAndPlaceAnimation(raylib::Vector3 start, raylib::Vector3 end
 		Keyframe(2, end) // Ending Position
 	});
 }
+
+Animation createTeleportAnimation(raylib::Vector3 start, raylib::Vector3 end) {
+	return Animation({
+		Keyframe(0, start, EASE_IN), // Starting Position
+		Keyframe(0.5, start + raylib::Vector3(0, 0, -1)), // Above Starting Position
+		Keyframe(0.501, end + raylib::Vector3(0, 0, -1), EASE_OUT), // Above Ending Position
+		Keyframe(2, end) // Ending Position
+		});
+}
