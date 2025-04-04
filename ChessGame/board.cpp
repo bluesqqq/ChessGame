@@ -306,8 +306,7 @@ raylib::Vector2 Board::getTilePosition(Tile* tile) {
     return { -1.0f, -1.0f }; // Return an invalid position if the tile isn't found
 }
 
-Piece* Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol)
-{
+Piece* Board::movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol) {
     Tile* startTile = getTile(pieceRow, pieceCol);
     Tile* endTile = getTile(destinationRow, destinationCol);
 
@@ -318,9 +317,8 @@ Piece* Board::movePiece(int player, int pieceRow, int pieceCol, int destinationR
     Piece* discardedPiece = nullptr;
 
     // if the destination tile has a piece, remove it and store it as the discarded piece
-    if (endTile->hasPiece())
-    {
-        Piece* discardedPiece = endTile->removePiece();
+    if (endTile->hasPiece()) {
+        discardedPiece = endTile->removePiece();
     }
 
     targetPiece->move();
@@ -477,20 +475,33 @@ bool Board::isInStalemate(int player) {
 }
 
 void Board::spawnRandomTiles() {
-    int randSpawn = rand() % 10;
+    int randSpawn = rand() % 20;
 
     switch (randSpawn) {
         case 0:
-            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
-            break;
-        case 1:
             spawnRandomTiles(TileSpawnType::CONVEYOR_LOOP_SPAWN);
             break;
-        case 2:
+        case 1:
             spawnRandomTiles(TileSpawnType::CONVEYOR_ROW_SPAWN);
             break;
+
+        case 2:
+            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            break;
         case 3:
+            spawnRandomTiles(TileSpawnType::ICE_SPAWN);
+            break;
+        case 4:
             spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
+        case 5:
+            spawnRandomTiles(TileSpawnType::PORTAL_SPAWN);
+            break;
+        case 6:
+            spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
+            break;
+        case 7:
+            spawnRandomTiles(TileSpawnType::BREAK_SPAWN);
             break;
     }
 }

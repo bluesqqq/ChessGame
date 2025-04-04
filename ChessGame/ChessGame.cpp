@@ -8,8 +8,8 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 360;
+const int SCREEN_WIDTH = 768;
+const int SCREEN_HEIGHT = 432;
 
 raylib::Texture2D* atlas;
 
@@ -52,14 +52,22 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
 
     EndMode2D();
 
-    DrawText(game.getPlayer(1).getName().c_str(), 10, 30, 20, BLACK);
+    /*
+        DRAW UI
+    */
+
+    string move = game.getPlayer(game.getPlayerTurn()).getName() + " to move";
+
+    DrawText(move.c_str(), (SCREEN_WIDTH / 2) - (MeasureText(move.c_str(), 20) / 2), SCREEN_HEIGHT - 30, 20, WHITE);
+
+    DrawText(game.getPlayer(1).getName().c_str(), 10, 30, 20, WHITE);
 
     vector<Piece*> p1DiscardedPieces = game.getPlayer(1).getDiscardedPieces();
     for (int i = 0; i < p1DiscardedPieces.size(); i++) {
         p1DiscardedPieces[i]->drawIcon(0 + (i % 2) * 32, 50 + (16 * i));
     }
 
-    DrawText(game.getPlayer(2).getName().c_str(), 640 - MeasureText(game.getPlayer(2).getName().c_str() - 10, 20), 30, 20, BLACK);
+    DrawText(game.getPlayer(2).getName().c_str(), 640 - MeasureText(game.getPlayer(2).getName().c_str() - 10, 20), 30, 20, WHITE);
 
     vector<Piece*> p2DiscardedPieces = game.getPlayer(2).getDiscardedPieces();
     for (int i = 0; i < p2DiscardedPieces.size(); i++) {

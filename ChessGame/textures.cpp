@@ -23,7 +23,14 @@ SpriteBounds pieceSprites[] = {
 TilePosition tileData[] = {
     {0, 0}, // TILE_WHITE_CUBE
     {1, 0}, // TILE_BLACK_CUBE
-    {2, 0}, // TILE_BLACK_CUBE
+    {2, 0}, // TILE_RED_CUBE
+    {6, 2}, // TILE_ICE
+
+    {0, 3}, // TILE_BREAK_SMALL
+    {1, 3}, // TILE_BREAK_MEDIUM
+    {2, 3}, // TILE_BREAK_LARGE
+
+    {3, 3}, // TILE_PORTAL
     {0, 1}, // TILE_EAST_WALL
     {1, 1}, // TILE_SOUTH_WALL
     {2, 1}, // TILE_NW_CORNER

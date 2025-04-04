@@ -9,8 +9,7 @@
 class Board;
 class Piece;
 
-class Tile
-{
+class Tile {
     protected:
         Piece* currentPiece = nullptr;
         Piece* queuedPiece = nullptr;
@@ -38,6 +37,10 @@ class Tile
         /// <returns>The lifetime of the piece</returns>
         int getLifetime();
 
+		/// <summary>
+		/// Sets the lifetime of the tile
+		/// </summary>
+		/// <param name="lifetime">Lifetime of the tile (in turns)</param>
 		void setLifetime(int lifetime);
 
         /// <summary>
@@ -82,6 +85,10 @@ class Tile
         /// <returns>true if the tile is selectable, false if not</returns>
         virtual bool isSelectable();
 
+        /// <summary>
+        /// Determines if this tile can be passed by pieces that use passing (Rook, Bishop, Queen)
+        /// </summary>
+        /// <returns>true if the tile is passable, false if not</returns>
         virtual bool isPassable();
 };
 

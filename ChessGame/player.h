@@ -2,8 +2,7 @@
 
 #include "piece.h"
 
-class Player
-{
+class Player {
 	private:
 		string name;
 		vector<Piece*> discardedPieces;

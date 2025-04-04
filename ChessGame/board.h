@@ -54,16 +54,36 @@ class Board {
         /// </summary>
         void update();
 
+        /// <summary>
+        /// Updates the state of the board
+        /// </summary>
         void updateState();
 
+        /// <summary>
+        /// Replace all expired tiles on the board with basic tiles
+        /// </summary>
         void removeExpiredTiles();
 
+        /// <summary>
+		/// If the board can currently be played on (make a move)
+        /// </summary>
+        /// <returns>true if the the board is playable, false if not</returns>
         bool isPlayable();
 
+        /// <summary>
+		/// Adds a move to the queue
+        /// </summary>
+        /// <param name="move"></param>
         void addQueuedMove(Move move);
 
+        /// <summary>
+		/// Removes all conflicting moves from the queue
+        /// </summary>
         void removeConflictingMoves();
 
+        /// <summary>
+		/// Executes all queued moves and clears the queue
+        /// </summary>
         void executeQueuedMoves();
 
         /// <summary>

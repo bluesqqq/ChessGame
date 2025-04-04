@@ -144,6 +144,5 @@ void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destina
 
 		currentTurn++; 
 		queuedForUpdate = true;
-		//update();
 	}
 }

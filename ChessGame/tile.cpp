@@ -40,8 +40,7 @@ Piece* Tile::dequeuePiece() {
     return removedPiece;
 }
 
-Piece* Tile::removePiece()
-{
+Piece* Tile::removePiece() {
     Piece* tempPiece = currentPiece;
     currentPiece = nullptr;
     return tempPiece;

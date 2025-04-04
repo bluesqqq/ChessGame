@@ -39,6 +39,10 @@ class Piece {
 
         void drawIcon(int x, int y);
 
+		/// <summary>
+		/// Sets the draw offset of the piece
+		/// </summary>
+		/// <param name="offset">The offset position as a Vector3</param>
 		void setOffset(raylib::Vector3 offset);
 
         /// <summary>
@@ -101,53 +105,55 @@ class Piece {
         void setFrozen(int frozenTurns);
 
         /// <summary>
-        /// Determines whether the piece is immobile
+        /// Determines if the piece is immobile
         /// </summary>
         /// <returns>true if the piece is immobile, false if not</returns>
         bool getImmobile();
 
+        /// <summary>
+        /// Determines if the piece is selectable
+        /// </summary>
+        /// <returns>true if the piece is selectable, false if not</returns>
         bool isSelectable();
 
+        /// <summary>
+        /// Gets the name of the piece
+        /// </summary>
+        /// <returns>The name of the piece as a string</returns>
         string getName();
 };
 
-class Pawn : public Piece
-{
+class Pawn : public Piece {
     public:
         Pawn(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
-class Knight : public Piece
-{
+class Knight : public Piece {
     public:
         Knight(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
-class Bishop : public Piece
-{
+class Bishop : public Piece {
     public:
         Bishop(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
-class Rook : public Piece
-{
+class Rook : public Piece {
     public:
         Rook(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
-class Queen : public Piece
-{
+class Queen : public Piece {
     public:
         Queen(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
 };
 
-class King : public Piece
-{
+class King : public Piece {
     public:
         King(raylib::Texture2D* texture, int player);
         vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;

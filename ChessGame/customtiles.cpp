@@ -35,9 +35,7 @@ void BasicTile::updateState(Board& board) {
 IceTile::IceTile(raylib::Texture2D* texture) : Tile(1), atlas(texture) {}
 
 void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
-    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
-
-    TilePosition tile = tileData[tileType];
+    TilePosition tile = tileData[TILE_ICE];
 
     Rectangle source = {
         tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE,
@@ -96,10 +94,26 @@ void BreakingTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool se
 
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
-    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : BROWN));
+    TileType breakTileType;
 
-    if (currentPiece != nullptr)
-    {
+	if (lifetime > 4) {
+		breakTileType = TILE_BREAK_SMALL;
+	}
+	else if (lifetime > 2) {
+		breakTileType = TILE_BREAK_MEDIUM;
+	}
+	else {
+		breakTileType = TILE_BREAK_LARGE;
+	}
+
+    TilePosition breakTile = tileData[breakTileType];
+
+    Rectangle breakTileSource = { breakTile.tileX * TILE_SIZE, breakTile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : WHITE));
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1 + 0.0001f), atlas, breakTileSource, WHITE));
+
+    if (currentPiece != nullptr) {
         currentPiece->draw(renderQueue, x, y, z, hide);
     }
 }
@@ -184,6 +198,11 @@ void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool sele
 
     Rectangle source = { tile.tileX * TILE_SIZE, tile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
+
+    TilePosition portalTile = tileData[TILE_PORTAL];
+
+    Rectangle portalSource = { portalTile.tileX * TILE_SIZE, portalTile.tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+
     Color portalColor;
 
     switch (portalNumber % 3) {
@@ -198,7 +217,8 @@ void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool sele
             break;
     }
 
-    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : portalColor));
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1), atlas, source, selected ? RED : WHITE));
+    renderQueue.addSpriteObject(SpriteObject(raylib::Vector3(x, y, z - 1 + 0.0001f), atlas, portalSource, selected ? RED : portalColor));
 
     if (currentPiece != nullptr) {
         currentPiece->draw(renderQueue, x, y, z, hide);
