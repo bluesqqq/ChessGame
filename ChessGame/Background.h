@@ -13,7 +13,6 @@ float random_float(float min, float max);
 class Background {
 	public:
 		virtual void draw() = 0;
-
 		virtual void update() = 0;
 };
 
@@ -32,7 +31,15 @@ class SpaceBackground : public Background {
 
 	public:
 		void draw() override;
+		void update() override;
+};
 
+class SkyBackground : public Background {
+	private:
+		Color backgroundColor = BLUE;
+
+	public:
+		void draw() override;
 		void update() override;
 };
 

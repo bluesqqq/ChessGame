@@ -1,6 +1,7 @@
 #pragma once
 #include "tile.h"
 #include "RenderQueue.h"
+#include "Theme.h"
 
 class BasicTile : public Tile {
     private:
@@ -9,7 +10,7 @@ class BasicTile : public Tile {
     public:
         BasicTile(raylib::Texture2D* texture);
 
-        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+        void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
 };
@@ -21,7 +22,7 @@ class IceTile : public Tile {
     public:
         IceTile(raylib::Texture2D* texture);
 
-        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+        void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
 };
@@ -33,7 +34,7 @@ class BreakingTile : public Tile {
     public:
         BreakingTile(raylib::Texture2D* texture);
 
-        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+        void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
 };
@@ -53,7 +54,7 @@ class ConveyorTile : public Tile {
     public:
         ConveyorTile(raylib::Texture2D* texture, Direction direction);
 
-        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+        void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
 };
@@ -66,7 +67,7 @@ class PortalTile : public Tile {
     public:
         PortalTile(raylib::Texture2D* texture, int portalNumber);
 
-        void draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
+        void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
         void updateState(Board& board) override;
 };

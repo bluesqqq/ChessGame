@@ -47,7 +47,7 @@ class Board {
     public:
         Board(raylib::Texture2D* texture, vector<Player>& players);
 
-        void draw(RenderQueue& renderQueue, int player, int x, int y);
+        void draw(Theme& theme, RenderQueue& renderQueue, int player, int x, int y);
 
         /// <summary>
         /// Update called every frame

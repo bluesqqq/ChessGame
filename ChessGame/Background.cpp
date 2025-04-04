@@ -37,3 +37,12 @@ void SpaceBackground::update() {
 	// Remove any stars that have gone off the screen
 	stars.erase(std::remove_if(stars.begin(), stars.end(), [](Star& a) { return a.position.y > 20; }), stars.end());
 }
+
+
+void SkyBackground::draw() {
+	ClearBackground(Color{ 204, 230, 255, 255 });
+}
+
+void SkyBackground::update() {
+
+}

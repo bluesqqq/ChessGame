@@ -1,7 +1,7 @@
 #include "game.h"
 #include <iostream>
 
-Game::Game(raylib::Texture2D* texture) : board(texture, players) {
+Game::Game(raylib::Texture2D* texture) : board(texture, players), theme(new SkyBackground(), TILE_GRASS_LIGHT, TILE_GRASS_DARK) {
 	players.push_back(Player("Player 1"));
 	players.push_back(Player("Player 2"));
 
@@ -23,18 +23,12 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players) {
 	PlayMusicStream(musicBreak);
 	PlayMusicStream(musicConveyor);
 	PlayMusicStream(musicPortal);
-
-	background = new SpaceBackground();
 }
 
 void Game::draw() {
-	if (background) {
-		background->draw();
-	} else {
-		ClearBackground(WHITE);
-	}
+	theme.drawBackground();
 
-	board.draw(renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
+	board.draw(theme, renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
 
 	renderQueue.sortQueue();
 	renderQueue.draw();
@@ -42,9 +36,7 @@ void Game::draw() {
 }
 
 void Game::update() {
-	if (background) {
-		background->update();
-	}
+	theme.updateBackground();
 
 	board.update();
 }

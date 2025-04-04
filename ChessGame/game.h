@@ -4,7 +4,7 @@
 #include "board.h"
 #include "event.h"
 #include "RenderQueue.h"
-#include "Background.h"
+#include "Theme.h"
 
 class Game {
 	private:
@@ -24,7 +24,7 @@ class Game {
 
 		RenderQueue renderQueue;
 
-		Background* background;
+		Theme theme;
 
 		raylib::Vector2 selectedTile = { -1.0f, -1.0f };
 

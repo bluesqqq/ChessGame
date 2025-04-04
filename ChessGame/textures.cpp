@@ -31,6 +31,9 @@ TilePosition tileData[] = {
     {2, 3}, // TILE_BREAK_LARGE
 
     {3, 3}, // TILE_PORTAL
+    {4, 3}, // TILE_GRASS_LIGHT
+    {5, 3}, // TILE_GRASS_DARK
+
     {0, 1}, // TILE_EAST_WALL
     {1, 1}, // TILE_SOUTH_WALL
     {2, 1}, // TILE_NW_CORNER

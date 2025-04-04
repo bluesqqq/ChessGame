@@ -3,11 +3,12 @@
 #include "textures.h"
 #include "board.h"
 #include <iostream>
+#include "Theme.h"
 
 BasicTile::BasicTile(raylib::Texture2D* texture) : Tile(), atlas(texture) {}
 
-void BasicTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
-    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+void BasicTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+    TileType tileType = ((x + y) % 2 == 0) ? theme.getDefaultWhite() : theme.getDefaultBlack();
 
     TilePosition tile = tileData[tileType];
 
@@ -34,7 +35,7 @@ void BasicTile::updateState(Board& board) {
 
 IceTile::IceTile(raylib::Texture2D* texture) : Tile(1), atlas(texture) {}
 
-void IceTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+void IceTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TilePosition tile = tileData[TILE_ICE];
 
     Rectangle source = {
@@ -87,8 +88,8 @@ void IceTile::updateState(Board& board) {
 
 BreakingTile::BreakingTile(raylib::Texture2D* texture) : Tile(6), atlas(texture) {}
 
-void BreakingTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
-    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+void BreakingTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+    TileType tileType = ((x + y) % 2 == 0) ? theme.getDefaultWhite() : theme.getDefaultBlack();
 
     TilePosition tile = tileData[tileType];
 
@@ -132,7 +133,7 @@ void BreakingTile::updateState(Board& board) {
 
 ConveyorTile::ConveyorTile(raylib::Texture2D* texture, Direction direction) : Tile(10), atlas(texture), direction(direction) {}
 
-void ConveyorTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+void ConveyorTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TileType tileType = TILE_HORIZONTAL_CONVEYOR;
 
     if (direction == UP || direction == DOWN) {
@@ -191,8 +192,8 @@ void ConveyorTile::updateState(Board& board) {
 
 PortalTile::PortalTile(raylib::Texture2D* texture, int portalNumber) : Tile(10), atlas(texture), portalNumber(portalNumber) { }
 
-void PortalTile::draw(RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
-    TileType tileType = ((x + y) % 2 == 0) ? TILE_WHITE_CUBE : TILE_BLACK_CUBE;
+void PortalTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
+    TileType tileType = ((x + y) % 2 == 0) ? theme.getDefaultWhite() : theme.getDefaultBlack();
 
     TilePosition tile = tileData[tileType];
 

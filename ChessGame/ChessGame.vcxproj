@@ -140,6 +140,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="textures.cpp" />
+    <ClCompile Include="Theme.cpp" />
     <ClCompile Include="tile.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
     <ClInclude Include="textures.h" />
+    <ClInclude Include="Theme.h" />
     <ClInclude Include="tile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

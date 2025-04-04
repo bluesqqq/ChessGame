@@ -1,6 +1,7 @@
 #include "board.h"
 #include <cmath>
 #include <algorithm>
+#include "Theme.h"
 
 void Board::drawTile(RenderQueue& renderQueue, int row, int col, TileType type) {
     TilePosition tile = tileData[type];
@@ -50,7 +51,7 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
 }
 
-void Board::draw(RenderQueue& renderQueue, int player, int x, int y) {
+void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, int x, int y) {
     bool hide = false; 
 
     std::vector<std::pair<int, int>> highlightTiles;
@@ -113,15 +114,15 @@ void Board::draw(RenderQueue& renderQueue, int player, int x, int y) {
 
             if (x == row && y == col) // Mouse is hovered
             {
-                tile->draw(renderQueue, row, col, waveOffset, true, false);
+                tile->draw(theme, renderQueue, row, col, waveOffset, true, false);
             }
             else if (it != highlightTiles.end()) // Possible moves on hovered piece
             {
-                tile->draw(renderQueue, row, col, waveOffset, true, false);
+                tile->draw(theme, renderQueue, row, col, waveOffset, true, false);
             }
             else // Normal rendering
             {
-                tile->draw(renderQueue, row, col, waveOffset, false, hide);
+                tile->draw(theme, renderQueue, row, col, waveOffset, false, hide);
             }
         }
     }
