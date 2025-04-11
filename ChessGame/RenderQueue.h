@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RENDERQUEUE_H
+#define RENDERQUEUE_H
 
 #include "include/raylib-cpp.hpp"
 #include <vector>
@@ -33,3 +34,4 @@ class RenderQueue {
 		int numberOfSpriteObjects();
 };
 
+#endif

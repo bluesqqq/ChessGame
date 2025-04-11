@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVENT_H
+#define EVENT_H
 
 #include <string>
 
@@ -32,3 +33,5 @@ class IceAgeEvent : public Event {
 		IceAgeEvent();
 		void applyEvent(Board& board) override;
 };
+
+#endif

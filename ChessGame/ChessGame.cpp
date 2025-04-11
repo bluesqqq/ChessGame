@@ -115,58 +115,81 @@ int main() {
 
         camera.target = cameraMouseOffset;
 
+        Player& currentPlayer = game.getCurrentPlayer();
+
         if (!game.queuedForUpdate) {
 
             if (game.getBoard().isPlayable()) {
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    raylib::Vector2 position = CursorToISO(camera);
-                    Tile* targetTile = game.getBoard().getTile(position.x, position.y);
+                
+                if (game.getPlayerTurn() == 1) {
+                    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                        raylib::Vector2 position = CursorToISO(camera);
+                        Tile* targetTile = game.getBoard().getTile(position.x, position.y);
 
-                    // Check if tile exists
-                    if (targetTile) {
-                        Piece* targetPiece = targetTile->getPiece();
+                        // Check if tile exists
+                        if (targetTile) {
+                            Piece* targetPiece = targetTile->getPiece();
 
-                        // Check if piece exists on tile and if it is the current player's
-                        if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(position.x, position.y, game.getBoard()).empty()) {
-                            selectedTile = targetTile;
-                            selectedPiece = targetPiece;
+                            // Check if piece exists on tile and if it is the current player's
+                            if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(position.x, position.y, game.getBoard()).empty()) {
+                                selectedTile = targetTile;
+                                selectedPiece = targetPiece;
 
-                            interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
+                                interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
 
-                            Sound fxPickup = LoadSound("resources/pickup.wav");
-                            PlaySound(fxPickup);
+                                Sound fxPickup = LoadSound("resources/pickup.wav");
+                                PlaySound(fxPickup);
+                            }
                         }
                     }
-                }
 
-                /* This looks ugly at low resolution
-                if (selectedPiece) {
-					camera.zoom = Lerp(camera.zoom, 1.2f, 0.1f);
-                } else {
-                    camera.zoom = Lerp(camera.zoom, 1.0f, 0.1f);
-                }
-                */
-
-                if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-                    raylib::Vector2 position = CursorToISO(camera);
-                    Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
-
-                    // Check if tile exists
-                    if (destinationTile) {
-                        Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
-                        Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
-
-                        // Move target piece to destination tile
-                        game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
-
+                    /* This looks ugly at low resolution
+                    if (selectedPiece) {
+					    camera.zoom = Lerp(camera.zoom, 1.2f, 0.1f);
+                    } else {
+                        camera.zoom = Lerp(camera.zoom, 1.0f, 0.1f);
                     }
+                    */
 
-                    selectedTile = nullptr;
-                    selectedPiece = nullptr;
+                    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
+                        raylib::Vector2 position = CursorToISO(camera);
+                        Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
 
-                    Sound fxPutdown = LoadSound("resources/putdown.wav");
+                        // Check if tile exists
+                        if (destinationTile) {
+                            cout << "HERE" << endl;
+                            Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
+                            Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
 
-                    PlaySound(fxPutdown);
+                            currentPlayer.setMove(new Move{ selectedTile, destinationTile, true, createPickAndPlaceAnimation({selectedTilePosition.x, selectedTilePosition.y, 0,}, {destinationTilePosition.x, destinationTilePosition.y, 0}) });
+
+                            // Move target piece to destination tile
+                        
+                            //game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
+
+                        }
+
+                        selectedTile = nullptr;
+                        selectedPiece = nullptr;
+
+                        Sound fxPutdown = LoadSound("resources/putdown.wav");
+
+                        PlaySound(fxPutdown);
+                    }
+                } else { // AI's turn
+
+                    vector<Move> moves = game.getBoard().getAllLegalMoves(game.getPlayerTurn());
+
+                    // Right now it just picks random moves
+                    if (!moves.empty()) {
+                        int index = rand() % moves.size();
+
+                        // This causes a memory leak but whatever
+                        Move* selectedMove = new Move(moves[index]);
+
+                        // Pass pointer to setMove
+                        currentPlayer.setMove(selectedMove);
+                    }
                 }
             }
         } else {

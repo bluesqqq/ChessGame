@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CUSTOMTILES_H
+#define CUSTOMTILES_H
+
 #include "tile.h"
 #include "RenderQueue.h"
 #include "Theme.h"
@@ -71,3 +73,5 @@ class PortalTile : public Tile {
 
         void updateState(Board& board) override;
 };
+
+#endif

@@ -13,6 +13,7 @@
 #include "textures.h"
 #include "animation.h"
 #include "RenderQueue.h"
+#include "Move.h"
 
 enum class TileSpawnType {
     ICE_SPAWN,
@@ -20,13 +21,6 @@ enum class TileSpawnType {
     CONVEYOR_LOOP_SPAWN,
     BREAK_SPAWN,
     PORTAL_SPAWN
-};
-
-struct Move {
-    Tile* to;
-    Tile* from;
-    bool canOvertake;
-    Animation animation;
 };
 
 class Board {
@@ -140,6 +134,8 @@ class Board {
         /// <param name="destinationCol">The column of the tile to move the piece to</param>
         /// <returns>true if it is a valid move, false if not</returns>
         bool isLegalMove(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+
+        vector<Move> getAllLegalMoves(int player);
 
         vector<pair<int, int>> getPlayersPieces(int player);
 

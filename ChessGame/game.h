@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 
 #include "player.h"
 #include "board.h"
@@ -69,6 +70,8 @@ class Game {
 		/// <returns>A reference to the player</returns>
 		Player& getPlayer(int player);
 
+		Player& getCurrentPlayer();
+
 		/// <summary>
 		/// Gets the board in play
 		/// </summary>
@@ -82,5 +85,8 @@ class Game {
 		int getPlayerTurn();
 
 		void movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+
+		void movePiece(Tile* targetTile, Tile* destinationTile);
 };
 
+#endif

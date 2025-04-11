@@ -1,10 +1,8 @@
-#pragma once
 #ifndef PIECE_H
 #define PIECE_H
 
 #include <vector>
 #include <utility>
-
 
 #include "include/raylib-cpp.hpp"
 #include "config.h"

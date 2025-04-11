@@ -38,6 +38,17 @@ void Game::draw() {
 void Game::update() {
 	theme.updateBackground();
 
+	// Check if the board is ready for a move and the player has made a move
+	if (board.isPlayable()) {
+		Player& currentPlayer = getCurrentPlayer();
+		if (currentPlayer.hasMove()) {
+			Move* playerMove = currentPlayer.getMove();
+			// Can add extra failsafe handling here if needed, but not for now
+
+			cout << "MOVING PIECE!!!!!" << endl;
+			movePiece(playerMove->to, playerMove->from);
+		}
+	}
 	board.update();
 }
 
@@ -116,6 +127,10 @@ Player& Game::getPlayer(int player) {
 	return players[player - 1];
 }
 
+Player& Game::getCurrentPlayer() {
+	return getPlayer(getPlayerTurn());
+}
+
 Board& Game::getBoard() {
 	return board;
 }
@@ -125,6 +140,7 @@ int Game::getPlayerTurn() {
 }
 
 void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol) {
+	cout << "attempting game move piece... from " << pieceRow << ", " << pieceCol << " to " << destinationRow << ", " << destinationCol << endl;
 	if (board.isLegalMove(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol)) {
 
 		Piece* discardedPiece = board.movePiece(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol);
@@ -137,4 +153,10 @@ void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destina
 		currentTurn++; 
 		queuedForUpdate = true;
 	}
+}
+
+void Game::movePiece(Tile* targetTile, Tile* destinationTile) {
+	Vector2 targetPosition     = board.getTilePosition(targetTile);
+	Vector2 desinationPosition = board.getTilePosition(destinationTile);
+	movePiece(targetPosition.x, targetPosition.y, desinationPosition.x, desinationPosition.y);
 }

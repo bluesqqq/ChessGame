@@ -352,6 +352,36 @@ bool Board::isLegalMove(int player, int pieceRow, int pieceCol, int destinationR
     return true;
 }
 
+
+vector<Move> Board::getAllLegalMoves(int player) {
+    vector<Move> allLegalMoves;
+
+    vector<pair<int, int>> pieceLocations = getPlayersPieces(player);
+
+    for (auto& pieceLocation : pieceLocations) {
+        Tile* tile = getTile(pieceLocation.first, pieceLocation.second);
+
+        Piece* piece = tile->getPiece();
+
+        vector<pair<int, int>> pieceMoves = piece->getLegalMoves(pieceLocation.first, pieceLocation.second, *this);
+
+        for (auto& move : pieceMoves) {
+            Tile* from = tile;
+            Tile* to = getTile(move.first, move.second);
+
+            Move m = {
+                from,
+                to,
+                true,
+                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(move.second - pieceLocation.first, move.second - pieceLocation.second, 0))
+            };
+            allLegalMoves.push_back(m);
+        }
+    }
+
+    return allLegalMoves;
+}
+
 vector<pair<int, int>> Board::getPlayersPieces(int player)
 {
     vector<pair<int, int>> locations;

@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef THEME_H
 #define THEME_H
 
