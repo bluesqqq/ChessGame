@@ -12,20 +12,20 @@ string Player::getName() {
 }
 
 bool Player::hasMove() {
-	return (nextMove != nullptr);
+	return (nextMove.has_value());
 }
 
-Move* Player::getMove() {
+Move Player::getMove() {
 	if (hasMove()) {
-		Move* tempMove = nextMove;
-		nextMove = nullptr;
+		Move tempMove = nextMove.value();
+		nextMove = nullopt;
 		return tempMove;
 	}
 
-	return nullptr;
+	throw std::runtime_error("Player has no move.");
 }
 
-void Player::setMove(Move* move) {
+void Player::setMove(Move move) {
 	cout << "setting move of player..." << endl;
 	nextMove = move;
 }

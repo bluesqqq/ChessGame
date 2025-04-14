@@ -83,10 +83,6 @@ class Game {
 		/// </summary>
 		/// <returns>The number of the player who is currently making their move</returns>
 		int getPlayerTurn();
-
-		void movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol);
-
-		void movePiece(Tile* targetTile, Tile* destinationTile);
 };
 
 #endif

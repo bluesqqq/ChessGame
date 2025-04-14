@@ -4,9 +4,11 @@
 #include "piece.h"
 #include "Move.h"
 
+#include <optional>
+
 class Player {
 	private:
-		Move* nextMove;
+		optional<Move> nextMove;
 		string name;
 		vector<Piece*> discardedPieces;
 
@@ -17,9 +19,9 @@ class Player {
 
 		bool hasMove();
 
-		Move* getMove();
+		Move getMove();
 
-		void setMove(Move* move);
+		void setMove(Move move);
 
 		vector<Piece*> getDiscardedPieces();
 

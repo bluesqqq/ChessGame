@@ -42,11 +42,11 @@ void Game::update() {
 	if (board.isPlayable()) {
 		Player& currentPlayer = getCurrentPlayer();
 		if (currentPlayer.hasMove()) {
-			Move* playerMove = currentPlayer.getMove();
+			Move playerMove = currentPlayer.getMove();
 			// Can add extra failsafe handling here if needed, but not for now
 
-			cout << "MOVING PIECE!!!!!" << endl;
-			movePiece(playerMove->to, playerMove->from);
+			board.queuePlayerMove(playerMove);
+			currentTurn++;
 		}
 	}
 	board.update();
@@ -137,26 +137,4 @@ Board& Game::getBoard() {
 
 int Game::getPlayerTurn() {
 	return (currentTurn % 2) + 1;
-}
-
-void Game::movePiece(int pieceRow, int pieceCol, int destinationRow, int destinationCol) {
-	cout << "attempting game move piece... from " << pieceRow << ", " << pieceCol << " to " << destinationRow << ", " << destinationCol << endl;
-	if (board.isLegalMove(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol)) {
-
-		Piece* discardedPiece = board.movePiece(getPlayerTurn(), pieceRow, pieceCol, destinationRow, destinationCol);
-
-		// Add the discarded piece to that player's list of discarded pieces
-		if (discardedPiece) {
-			players[discardedPiece->getPlayer() - 1].addDiscardedPiece(discardedPiece);
-		}
-
-		currentTurn++; 
-		queuedForUpdate = true;
-	}
-}
-
-void Game::movePiece(Tile* targetTile, Tile* destinationTile) {
-	Vector2 targetPosition     = board.getTilePosition(targetTile);
-	Vector2 desinationPosition = board.getTilePosition(destinationTile);
-	movePiece(targetPosition.x, targetPosition.y, desinationPosition.x, desinationPosition.y);
 }

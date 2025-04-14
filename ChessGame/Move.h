@@ -11,6 +11,8 @@ struct Move {
     Animation animation;
 
     Move(Tile* to, Tile* from, bool canOvertake, Animation animation);
+
+    bool overtakes();
 };
 
 #endif

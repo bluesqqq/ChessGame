@@ -122,6 +122,8 @@ int main() {
             if (game.getBoard().isPlayable()) {
                 
                 if (game.getPlayerTurn() == 1) {
+
+                    // LEFT CLICK
                     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                         raylib::Vector2 position = CursorToISO(camera);
                         Tile* targetTile = game.getBoard().getTile(position.x, position.y);
@@ -151,22 +153,21 @@ int main() {
                     }
                     */
 
+                    // LEFT RELEASE
                     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
                         raylib::Vector2 position = CursorToISO(camera);
                         Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
 
                         // Check if tile exists
                         if (destinationTile) {
-                            cout << "HERE" << endl;
+
+                            // Check if the move is valid
                             Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
                             Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
 
-                            currentPlayer.setMove(new Move{ selectedTile, destinationTile, true, createPickAndPlaceAnimation({selectedTilePosition.x, selectedTilePosition.y, 0,}, {destinationTilePosition.x, destinationTilePosition.y, 0}) });
-
-                            // Move target piece to destination tile
-                        
-                            //game.movePiece(selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y);
-
+                            if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y)) {
+                                currentPlayer.setMove(Move{ destinationTile, selectedTile, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) });
+                            }
                         }
 
                         selectedTile = nullptr;
@@ -176,19 +177,37 @@ int main() {
 
                         PlaySound(fxPutdown);
                     }
-                } else { // AI's turn
 
+                } else { // AI's turn
                     vector<Move> moves = game.getBoard().getAllLegalMoves(game.getPlayerTurn());
 
                     // Right now it just picks random moves
                     if (!moves.empty()) {
-                        int index = rand() % moves.size();
 
-                        // This causes a memory leak but whatever
-                        Move* selectedMove = new Move(moves[index]);
+                        vector<Move> overtakes;
 
-                        // Pass pointer to setMove
-                        currentPlayer.setMove(selectedMove);
+                        for (Move& move : moves) {
+                            if (move.overtakes()) {
+                                overtakes.push_back(move);
+                            }
+                        }
+
+                        if (!overtakes.empty()) {
+                            int index = rand() % overtakes.size();
+
+                            Move selectedMove = Move(overtakes[index]);
+
+                            // Pass pointer to setMove
+                            currentPlayer.setMove(selectedMove);
+                        }
+                        else {
+                            int index = rand() % moves.size();
+
+                            Move selectedMove = Move(moves[index]);
+
+                            // Pass pointer to setMove
+                            currentPlayer.setMove(selectedMove);
+                        }
                     }
                 }
             }

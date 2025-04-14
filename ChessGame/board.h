@@ -70,6 +70,8 @@ class Board {
         /// <param name="move"></param>
         void addQueuedMove(Move move);
 
+        void queuePlayerMove(Move move);
+
         /// <summary>
 		/// Removes all conflicting moves from the queue
         /// </summary>

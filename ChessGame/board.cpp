@@ -209,7 +209,14 @@ bool Board::isPlayable() {
 }
 
 void Board::addQueuedMove(Move move) {
+    move.animation.startAnimation();
+
     queuedMoves.push_back(move);
+}
+
+void Board::queuePlayerMove(Move move) {
+    move.from->getPiece()->move();
+    addQueuedMove(move);
 }
 
 void Board::removeConflictingMoves() {
@@ -370,10 +377,10 @@ vector<Move> Board::getAllLegalMoves(int player) {
             Tile* to = getTile(move.first, move.second);
 
             Move m = {
-                from,
                 to,
+                from,
                 true,
-                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(move.second - pieceLocation.first, move.second - pieceLocation.second, 0))
+                createPickAndPlaceAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(move.first - pieceLocation.first, move.second - pieceLocation.second, 0))
             };
             allLegalMoves.push_back(m);
         }
