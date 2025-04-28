@@ -5,6 +5,7 @@
 #include "include/raylib-cpp.hpp"
 #include "player.h"
 #include "game.h"
+#include "MoveGenerator.h"
 
 using namespace std;
 
@@ -22,28 +23,24 @@ Piece* selectedPiece = nullptr;
 void UpdateDrawFrame(Camera2D camera, Game& game) {
     float time = GetTime(); // Get elapsed time
 
+    Board& board = game.getBoard();
+
     BeginDrawing();
 
     BeginMode2D(camera);
 
-    if (game.queuedForUpdate || !game.getBoard().isPlayable()) {
-        // Darker background
-        ClearBackground(Color{ 154, 187, 219, 255 });
+    raylib::Vector2 cursorPosition = GetMousePosition(); // Get the cursor position
+
+    raylib::Vector3 cursorIsoPositionFloat = ScreenToISOFloat(cursorPosition - camera.offset, 2.0f);
+
+    interpolatedCursorIsoPositionFloat = interpolatedCursorIsoPositionFloat.Lerp(cursorIsoPositionFloat, 0.2f);
+
+    if (selectedTile) {
+        game.setSelectedCell(board.getTileCell(selectedTile));
     } else {
-        ClearBackground(Color{ 204, 230, 255, 255 });
+        game.setSelectedCell(board.getCellAtScreenPosition(cursorPosition, camera));
     }
 
-    raylib::Vector2 cursorPosition = GetMousePosition();
-
-    raylib::Vector2 cursorIsoPosition = ScreenToISO(cursorPosition - camera.offset);
-
-    raylib::Vector2 cursorIsoPositionFloat = ScreenToISOFloat(cursorPosition - camera.offset);
-
-    interpolatedCursorIsoPositionFloat = interpolatedCursorIsoPositionFloat.Lerp({ cursorIsoPositionFloat.x, cursorIsoPositionFloat.y, 2.0f }, 0.2f);
-
-    if (selectedTile) cursorIsoPosition = game.getBoard().getTilePosition(selectedTile);
-
-	game.setSelectedTile(cursorIsoPosition);
     game.draw();
 
     if (selectedPiece) {
@@ -109,6 +106,8 @@ int main() {
     while (!exitWindow && !WindowShouldClose()) {
         game.updateMusicStreams();
 
+		Board& board = game.getBoard();
+
         raylib::Vector2 mousePosition = GetMousePosition();
 
         cameraMouseOffset = cameraMouseOffset.Lerp(raylib::Vector2(((mousePosition.x - HALF_SCREEN_WIDTH) / HALF_SCREEN_WIDTH) * mouseOffsetMultiplier, ((mousePosition.y - HALF_SCREEN_HEIGHT) / HALF_SCREEN_HEIGHT) * mouseOffsetMultiplier), 0.02f);
@@ -125,17 +124,18 @@ int main() {
 
                     // LEFT CLICK
                     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                        raylib::Vector2 position = CursorToISO(camera);
-                        Tile* targetTile = game.getBoard().getTile(position.x, position.y);
+                        Tile* targetTile = board.getTile(board.getCellAtScreenPosition(mousePosition, camera));
 
                         // Check if tile exists
                         if (targetTile) {
                             Piece* targetPiece = targetTile->getPiece();
 
                             // Check if piece exists on tile and if it is the current player's
-                            if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(position.x, position.y, game.getBoard()).empty()) {
+                            if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(game.getBoard()).empty()) {
                                 selectedTile = targetTile;
                                 selectedPiece = targetPiece;
+
+								Vector2 position = game.getBoard().getTilePosition(selectedTile);
 
                                 interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
 
@@ -155,8 +155,7 @@ int main() {
 
                     // LEFT RELEASE
                     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-                        raylib::Vector2 position = CursorToISO(camera);
-                        Tile* destinationTile = game.getBoard().getTile(position.x, position.y);
+                        Tile* destinationTile = board.getTile(board.getCellAtScreenPosition(mousePosition, camera));
 
                         // Check if tile exists
                         if (destinationTile) {
@@ -165,8 +164,14 @@ int main() {
                             Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
                             Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
 
-                            if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedTilePosition.x, selectedTilePosition.y, destinationTilePosition.x, destinationTilePosition.y)) {
-                                currentPlayer.setMove(Move{ destinationTile, selectedTile, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) });
+							Cell selectedCell    = Cell(game.getBoard().getTileCell(selectedTile));
+                            Cell destinationCell = Cell(game.getBoard().getTileCell(destinationTile));
+
+                            if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
+                                Move move = Move{ destinationTile, selectedTile, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) };
+
+                                cout << "Setting Move: From: " << game.getBoard().getTilePositionName(move.from) << " To: " << game.getBoard().getTilePositionName(move.to) << endl;
+                                currentPlayer.setMove(move);
                             }
                         }
 
@@ -179,6 +184,15 @@ int main() {
                     }
 
                 } else { // AI's turn
+                    MoveGenerator generator = MoveGenerator(game);
+
+                    TileMove tileMove = generator.chooseMove(game.getPlayerTurn(), 5);
+
+                    Move move = Move(game.getBoard().getTile(tileMove.toRow, tileMove.toCol), game.getBoard().getTile(tileMove.fromRow, tileMove.fromCol), true, createPickAndPlaceAnimation({ 0, 0, 0 }, { (float)(tileMove.toRow - tileMove.fromRow), (float)(tileMove.toCol - tileMove.fromCol), 0 }));
+
+                    currentPlayer.setMove(move);
+                    /*
+
                     vector<Move> moves = game.getBoard().getAllLegalMoves(game.getPlayerTurn());
 
                     // Right now it just picks random moves
@@ -209,6 +223,7 @@ int main() {
                             currentPlayer.setMove(selectedMove);
                         }
                     }
+                    */
                 }
             }
         } else {

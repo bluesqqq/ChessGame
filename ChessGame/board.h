@@ -14,6 +14,9 @@
 #include "animation.h"
 #include "RenderQueue.h"
 #include "Move.h"
+#include "Cell.h"
+
+using namespace std;
 
 enum class TileSpawnType {
     ICE_SPAWN,
@@ -36,12 +39,12 @@ class Board {
 
         int portalCounter = 0;
 
-        void drawTile(RenderQueue& renderQueue, int row, int col, TileType type);
+        void drawTile(RenderQueue& renderQueue, int rank, int file, TileType type);
 
     public:
         Board(raylib::Texture2D* texture, vector<Player>& players);
 
-        void draw(Theme& theme, RenderQueue& renderQueue, int player, int x, int y);
+        void draw(Theme& theme, RenderQueue& renderQueue, int player, Cell selectedCell);
 
         /// <summary>
         /// Update called every frame
@@ -83,30 +86,35 @@ class Board {
         void executeQueuedMoves();
 
         /// <summary>
-        /// Changes a tile at a specific row and column to a different tile
+        /// Changes a tile at a specific rank and file to a different tile
         /// </summary>
-        /// <param name="row">The row of the tile to change</param>
-        /// <param name="col">The column of the tile to change</param>
+        /// <param name="rank">The rank of the tile to change</param>
+        /// <param name="file">The file of the tile to change</param>
         /// <param name="newTile">The tile to change to</param>
         /// <returns>A pointer to the original tile before being changed</returns>
-        Tile* setTile(int row, int col, Tile* newTile);
+        Tile* setTile(int rank, int file, Tile* newTile);
 
         /// <summary>
-        /// Changes a tile at a specific row and column to a different tile, while also moving the piece to the new tile
+        /// Changes a tile at a specific rank and file to a different tile, while also moving the piece to the new tile
         /// </summary>
-        /// <param name="row">The row of the tile to change</param>
-        /// <param name="col">The column of the tile to change</param>
+        /// <param name="rank">The rank of the tile to change</param>
+        /// <param name="file">The file of the tile to change</param>
         /// <param name="newTile">The tile to change to</param>
         /// <returns>A pointer to the original tile before being changed</returns>
-        Tile* changeTile(int row, int col, Tile* newTile);
+        Tile* changeTile(int rank, int file, Tile* newTile);
 
         /// <summary>
-        /// Gets a tile at a specific row and column
+        /// Gets a tile at a specific rank and file
         /// </summary>
-        /// <param name="row">The row of the tile to get</param>
-        /// <param name="col">The column of the tile to get </param>
-        /// <returns>A pointer to the tile at position [row][col]</returns>
-        Tile* getTile(int row, int col);
+        /// <param name="rank">The rank of the tile to get</param>
+        /// <param name="file">The file of the tile to get </param>
+        /// <returns>A pointer to the tile at position [rank][file]</returns>
+        Tile* getTile(int rank, int file);
+
+        Tile* getTile(Cell cell) {
+            if (!cell.isInBounds()) return nullptr;
+            return tiles[cell.rank - 1][cell.file - 1];
+        }
 
         /// <summary>
         /// Gets the position of a specific tile
@@ -115,34 +123,75 @@ class Board {
         /// <returns>A Vector2 with the tile's position if found, { -1.0f, -1.0f } if not</returns>
         raylib::Vector2 getTilePosition(Tile* tile);
 
+        Cell getTileCell(Tile* tile) {
+            for (int rank = 0; rank < 8; rank++) {
+                for (int file = 0; file < 8; file++) {
+                    if (tiles[rank][file] == tile) {
+                        return Cell(rank + 1, file + 1);
+                    }
+                }
+            }
+
+            return Cell(-1, -1);
+        }
+
+        Cell getPieceCell(Piece* piece) {
+            for (int rank = 0; rank < 8; rank++) {
+                for (int file = 0; file < 8; file++) {
+                    if (tiles[rank][file]->hasPiece() && tiles[rank][file]->getPiece() == piece) {
+                        return Cell(rank + 1, file + 1);
+                    }
+                }
+            }
+
+            return Cell(-1, -1);
+        }
+
+        string getTilePositionName(Tile* tile);
+
+        raylib::Vector2 cellToScreenPosition(Cell cell);
+
+		Cell getCellAtIsoPosition(raylib::Vector3 isoPosition) {
+            return Cell(8 - isoPosition.y, isoPosition.x + 1); // Ignore Z axis 
+        }
+
+		Cell getCellAtScreenPosition(raylib::Vector2 screenPosition, raylib::Camera2D camera) {
+            raylib::Vector2 translatedPosition = screenPosition - camera.offset;
+
+            // Translate the screen position to isometric coordinates
+            Vector3 isoPosition = ScreenToISO(translatedPosition, 0.0f); // NOTE: if moving the board anywhere on the z axis in the future, this will have to change
+            
+			return getCellAtIsoPosition(isoPosition);
+		}
+
         /// <summary>
         /// Moves a player's piece from one tile to another. Does not check if the move is valid before
         /// </summary>
         /// <param name="player">The player who is making this move</param>
-        /// <param name="pieceRow">The row of the piece to move</param>
-        /// <param name="pieceCol">The column of the piece to move</param>
-        /// <param name="destinationRow">The row of the tile to move the piece to</param>
-        /// <param name="destinationCol">The column of the tile to move the piece to</param>
+        /// <param name="pieceRow">The rank of the piece to move</param>
+        /// <param name="pieceCol">The file of the piece to move</param>
+        /// <param name="destinationRow">The rank of the tile to move the piece to</param>
+        /// <param name="destinationCol">The file of the tile to move the piece to</param>
         /// <returns>A pointer to the piece removed if this move results in taking a piece, nullptr if not</returns>
-        Piece* movePiece(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+        Piece* movePiece(int player, Cell piece, Cell move);
 
         /// <summary>
         /// Checks if the given move is valid based on a set of rules
         /// </summary>
         /// <param name="player">The player who is making this move</param>
-        /// <param name="pieceRow">The row of the piece to move</param>
-        /// <param name="pieceCol">The column of the piece to move</param>
-        /// <param name="destinationRow">The row of the tile to move the piece to</param>
-        /// <param name="destinationCol">The column of the tile to move the piece to</param>
+        /// <param name="pieceRow">The rank of the piece to move</param>
+        /// <param name="pieceCol">The file of the piece to move</param>
+        /// <param name="destinationRow">The rank of the tile to move the piece to</param>
+        /// <param name="destinationCol">The file of the tile to move the piece to</param>
         /// <returns>true if it is a valid move, false if not</returns>
-        bool isLegalMove(int player, int pieceRow, int pieceCol, int destinationRow, int destinationCol);
+        bool isLegalMove(int player, Cell piece, Cell move);
 
         vector<Move> getAllLegalMoves(int player);
 
-        vector<pair<int, int>> getPlayersPieces(int player);
+        std::vector<Cell> getPlayersPieces(int player);
 
         template <typename T>
-        vector<pair<int, int>> getPlayersPiecesOfType(int player);
+        std::vector<Cell> getPlayersPiecesOfType(int player);
 
         template <typename T>
         vector<Tile*> getTilesOfType();

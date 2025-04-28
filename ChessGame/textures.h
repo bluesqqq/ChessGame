@@ -56,7 +56,7 @@ typedef enum {
     SPRITE_ROOK_FROZEN,
     SPRITE_QUEEN_FROZEN,
     SPRITE_KING_FROZEN
-} PieceType;
+} PieceTypeSprite;
 
 extern SpriteBounds pieceSprites[];
 extern TilePosition tileData[];

@@ -8,10 +8,13 @@
 #include "config.h"
 #include "isometric.h"
 #include "RenderQueue.h"
+#include "Cell.h"
 
 class Board;
 
-using namespace std;
+enum class PieceType {
+    NO_PIECE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING 
+};
 
 class Piece {
     protected:
@@ -27,10 +30,10 @@ class Piece {
 
         int frozen = 0;
 
-        string name;
+        PieceType pieceType;
 
     public:
-        Piece(raylib::Texture2D* texture, int player, string name);
+        Piece(raylib::Texture2D* texture, int player, PieceType pieceName);
         virtual ~Piece();
 
         void draw(RenderQueue& renderQueue, float x, float y, float z, bool hidden = false); // Base draw method
@@ -48,6 +51,8 @@ class Piece {
         /// </summary>
         void update();
 
+        int getNumberOfMoves();
+
         /// <summary>
         /// Updates the piece, called after every move
         /// </summary>
@@ -61,7 +66,7 @@ class Piece {
         /// <param name="y">Y position on the board of this piece</param>
         /// <param name="board">Reference to the board object</param>
         /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
-        virtual vector<pair<int, int>> getValidMoves(int x, int y, Board& board);
+        virtual std::vector<Cell> getValidMoves(Board& board) = 0;
 
         /// <summary>
         /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
@@ -70,7 +75,7 @@ class Piece {
         /// <param name="y">Y position on the board of this piece</param>
         /// <param name="board">Reference to the board object</param>
         /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
-        vector<pair<int, int>> getLegalMoves(int x, int y, Board& board);
+        std::vector<Cell> getLegalMoves(Board& board);
 
         /// <summary>
         /// Determines if a move is legal
@@ -81,7 +86,7 @@ class Piece {
         /// <param name="moveX">The destination X of the move to check</param>
         /// <param name="moveY">The destination Y of the move to check</param>
         /// <returns>true if the move is legal, false if not</returns>
-        bool isLegalMove(int x, int y, Board& board, int moveX, int moveY);
+        bool isLegalMove(Board& board, Cell move);
 
         /// <summary>
         /// Increments the move count by one
@@ -118,43 +123,45 @@ class Piece {
         /// Gets the name of the piece
         /// </summary>
         /// <returns>The name of the piece as a string</returns>
-        string getName();
+        std::string getName();
+
+        PieceType getType();
 };
 
 class Pawn : public Piece {
     public:
         Pawn(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 class Knight : public Piece {
     public:
         Knight(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 class Bishop : public Piece {
     public:
         Bishop(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 class Rook : public Piece {
     public:
         Rook(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 class Queen : public Piece {
     public:
         Queen(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 class King : public Piece {
     public:
         King(raylib::Texture2D* texture, int player);
-        vector<pair<int, int>> getValidMoves(int x, int y, Board& board) override;
+        std::vector<Cell> getValidMoves(Board& board) override;
 };
 
 #endif

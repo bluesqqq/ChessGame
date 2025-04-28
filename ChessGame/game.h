@@ -27,7 +27,7 @@ class Game {
 
 		Theme theme;
 
-		raylib::Vector2 selectedTile = { -1.0f, -1.0f };
+		Cell selectedCell = Cell(-1, -1);
 
 	public:
 		Game(raylib::Texture2D* texture);
@@ -46,7 +46,7 @@ class Game {
 
 		void updateMusicStreams();
 
-		void setSelectedTile(raylib::Vector2 tile);
+		void setSelectedCell(Cell cell);
 
 		RenderQueue& getRenderQueue();
 

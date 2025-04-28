@@ -28,7 +28,7 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players), theme(new SkyB
 void Game::draw() {
 	theme.drawBackground();
 
-	board.draw(theme, renderQueue, getPlayerTurn(), selectedTile.x, selectedTile.y);
+	board.draw(theme, renderQueue, getPlayerTurn(), selectedCell);
 
 	renderQueue.sortQueue();
 	renderQueue.draw();
@@ -45,6 +45,9 @@ void Game::update() {
 			Move playerMove = currentPlayer.getMove();
 			// Can add extra failsafe handling here if needed, but not for now
 
+			// 
+
+			cout << "From: " << board.getTilePositionName(playerMove.from) << " To: " << board.getTilePositionName(playerMove.to) << endl;
 			board.queuePlayerMove(playerMove);
 			currentTurn++;
 		}
@@ -104,8 +107,8 @@ void Game::updateMusicStreams() {
 	UpdateMusicStream(musicPortal);
 }
 
-void Game::setSelectedTile(raylib::Vector2 tile) {
-	selectedTile = tile;
+void Game::setSelectedCell(Cell cell) {
+	selectedCell = cell;
 }
 
 RenderQueue& Game::getRenderQueue() {

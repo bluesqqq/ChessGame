@@ -131,6 +131,7 @@
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="board.cpp" />
+    <ClCompile Include="Cell.cpp" />
     <ClCompile Include="ChessGame.cpp" />
     <ClCompile Include="customtiles.cpp" />
     <ClCompile Include="easing.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="isometric.cpp" />
     <ClCompile Include="Move.cpp" />
+    <ClCompile Include="MoveGenerator.cpp" />
     <ClCompile Include="piece.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
@@ -149,6 +151,7 @@
     <ClInclude Include="animation.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="board.h" />
+    <ClInclude Include="Cell.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="customtiles.h" />
     <ClInclude Include="easing.h" />
@@ -156,14 +159,19 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="isometric.h" />
     <ClInclude Include="Move.h" />
+    <ClInclude Include="MoveGenerator.h" />
     <ClInclude Include="piece.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
+    <ClInclude Include="resource2.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="Theme.h" />
     <ClInclude Include="tile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ChessGame1.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

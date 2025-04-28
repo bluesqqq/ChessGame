@@ -6,6 +6,8 @@
 
 #include <optional>
 
+using namespace std;
+
 class Player {
 	private:
 		optional<Move> nextMove;
