@@ -30,13 +30,13 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
     tiles[7][7]->setPiece(new Rook(atlas, 2));
 
     // Place Knights
-    //tiles[0][1]->setPiece(new Knight(atlas, 1));
+    tiles[0][1]->setPiece(new Knight(atlas, 1));
     tiles[0][6]->setPiece(new Knight(atlas, 1));
     tiles[7][1]->setPiece(new Knight(atlas, 2));
     tiles[7][6]->setPiece(new Knight(atlas, 2));
 
     // Place Bishops
-    //tiles[0][2]->setPiece(new Bishop(atlas, 1));
+    tiles[0][2]->setPiece(new Bishop(atlas, 1));
     tiles[0][5]->setPiece(new Bishop(atlas, 1));
     tiles[7][2]->setPiece(new Bishop(atlas, 2));
     tiles[7][5]->setPiece(new Bishop(atlas, 2));
