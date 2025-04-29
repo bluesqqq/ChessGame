@@ -45,11 +45,24 @@ void Game::update() {
 			Move playerMove = currentPlayer.getMove();
 			// Can add extra failsafe handling here if needed, but not for now
 
-			/* Piece* piece = playerMove.from->getPiece();
-			if (dynamic_cast<King*>(piece)) {
-				
+			Piece* piece = board.getTile(playerMove.from)->getPiece();
+			// Check if it's a castling move (king moves 2 spaces horizontally on the same rank)
+			if (dynamic_cast<King*>(piece) && abs(playerMove.to.file - playerMove.from.file) >= 2 &&
+				playerMove.to.rank == playerMove.from.rank) {
+
+				int direction = (playerMove.to.file > playerMove.from.file) ? 1 : -1;
+
+				// Rook starts on the edge of the board depending on direction
+				int rookStartFile = (direction == 1) ? 8 : 1;
+				int rookEndFile = playerMove.from.file + direction;
+
+				Cell rookFrom(playerMove.from.rank, rookStartFile);
+				Cell rookTo(playerMove.from.rank, rookEndFile);
+
+				// Create and queue a rook move
+				Move rookMove(rookTo, rookFrom, false, createInstantAnimation()); // or whatever animation you prefer
+				board.queuePlayerMove(rookMove);
 			}
-			*/
 
 			cout << "From: " << playerMove.from.getAlgebraicNotation() << " To: " << playerMove.to.getAlgebraicNotation() << endl;
 			board.queuePlayerMove(playerMove);
