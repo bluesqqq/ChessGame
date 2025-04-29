@@ -55,6 +55,12 @@ bool Animation::ended() {
 	return (currentTime - startTime) >= keyframes[keyframes.size() - 1].time;
 }
 
+Animation createInstantAnimation() {
+	return Animation({
+	Keyframe(0, { 0.0f, 0.0f, 0.0f })
+		});
+}
+
 Animation createSlideAnimation(raylib::Vector3 start, raylib::Vector3 end) {
 	return Animation({
 		Keyframe(0, start), 

@@ -15,6 +15,10 @@ bool Cell::operator==(const Cell& other) const {
     return (rank == other.rank && file == other.file);
 }
 
+bool Cell::operator!=(const Cell& other) const {
+    return (rank != other.rank || file != other.file);
+}
+
 Cell Cell::operator+(const Cell& other) const {
     return { rank + other.rank, file + other.file };
 }

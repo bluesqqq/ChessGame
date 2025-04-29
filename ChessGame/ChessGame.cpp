@@ -168,10 +168,11 @@ int main() {
                             Cell destinationCell = Cell(game.getBoard().getTileCell(destinationTile));
 
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationTile, selectedTile, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) };
+                                Move move = Move{ destinationCell, selectedCell, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) };
 
-                                cout << "Setting Move: From: " << game.getBoard().getTilePositionName(move.from) << " To: " << game.getBoard().getTilePositionName(move.to) << endl;
+                                cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
+
                             }
                         }
 
@@ -186,9 +187,9 @@ int main() {
                 } else { // AI's turn
                     MoveGenerator generator = MoveGenerator(game);
 
-                    TileMove tileMove = generator.chooseMove(game.getPlayerTurn(), 5);
+                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 3);
 
-                    Move move = Move(game.getBoard().getTile(tileMove.toRow, tileMove.toCol), game.getBoard().getTile(tileMove.fromRow, tileMove.fromCol), true, createPickAndPlaceAnimation({ 0, 0, 0 }, { (float)(tileMove.toRow - tileMove.fromRow), (float)(tileMove.toCol - tileMove.fromCol), 0 }));
+                    Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
 
                     currentPlayer.setMove(move);
                     /*

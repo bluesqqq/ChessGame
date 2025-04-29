@@ -30,24 +30,24 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
     tiles[7][7]->setPiece(new Rook(atlas, 2));
 
     // Place Knights
-    tiles[0][1]->setPiece(new Knight(atlas, 1));
+    //tiles[0][1]->setPiece(new Knight(atlas, 1));
     tiles[0][6]->setPiece(new Knight(atlas, 1));
     tiles[7][1]->setPiece(new Knight(atlas, 2));
     tiles[7][6]->setPiece(new Knight(atlas, 2));
 
     // Place Bishops
-    tiles[0][2]->setPiece(new Bishop(atlas, 1));
+    //tiles[0][2]->setPiece(new Bishop(atlas, 1));
     tiles[0][5]->setPiece(new Bishop(atlas, 1));
     tiles[7][2]->setPiece(new Bishop(atlas, 2));
     tiles[7][5]->setPiece(new Bishop(atlas, 2));
 
     // Place Queens
-    tiles[0][4]->setPiece(new Queen(atlas, 1)); 
-    tiles[7][4]->setPiece(new Queen(atlas, 2)); 
+    tiles[0][3]->setPiece(new Queen(atlas, 1)); 
+    tiles[7][3]->setPiece(new Queen(atlas, 2)); 
 
     // Place Kings
-    tiles[0][3]->setPiece(new King(atlas, 1));
-    tiles[7][3]->setPiece(new King(atlas, 2));
+    tiles[0][4]->setPiece(new King(atlas, 1));
+    tiles[7][4]->setPiece(new King(atlas, 2));
 }
 
 void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell selectedCell) {
@@ -158,7 +158,7 @@ void Board::update() {
             for (auto& move : queuedMoves) {
                 move.animation.currentTime = currentTime;
 
-                Piece* animatingPiece = move.from->getPiece();
+                Piece* animatingPiece = getTile(move.from)->getPiece();
 
 				if (animatingPiece) {
 					raylib::Vector3 animationOffset = move.animation.getPosition();
@@ -219,7 +219,7 @@ void Board::addQueuedMove(Move move) {
 }
 
 void Board::queuePlayerMove(Move move) {
-    move.from->getPiece()->move();
+    getTile(move.from)->getPiece()->move();
     addQueuedMove(move);
 }
 
@@ -237,10 +237,13 @@ void Board::removeConflictingMoves() {
 
     // Remove non-overtaking moves that have a stationary piece in their destination
     bool removedMove;
+
     do {
         removedMove = false;
+
         for (auto it = queuedMoves.begin(); it != queuedMoves.end();) {
-            if (!it->canOvertake && it->to->hasPiece()) {
+			Cell to = it->to;
+            if (!it->canOvertake && getTile(to)->hasPiece()) {
                 auto blockingMove = std::find_if(queuedMoves.begin(), queuedMoves.end(), [it](const Move& other) {
                     return (other.from == it->to) && (other.to != it->to);
                     });
@@ -258,16 +261,15 @@ void Board::removeConflictingMoves() {
 
 void Board::executeQueuedMoves() {
     for (auto& move : queuedMoves) {
-        Piece* animatingPiece = move.from->getPiece();
+        Piece* animatingPiece = getTile(move.from)->getPiece();
 
         if (animatingPiece) {
             animatingPiece->setOffset({ 0.0, 0.0, 0.0 });
         } else {
-            Vector2 location = getTilePosition(move.from);
-            cout << "ERROR: cannot find piece at location: " << location.x << ", " << location.y << endl;
+            cout << "ERROR: cannot find piece at location: " << move.from.rank << ", " << move.from.file << endl;
         }
 
-        move.to->queuePiece(move.from->removePiece());
+        getTile(move.to)->queuePiece(getTile(move.from)->removePiece());
     }
 
     // Dequeue all the pieces and complete the move
@@ -388,10 +390,10 @@ vector<Move> Board::getAllLegalMoves(int player) {
             Tile* to = getTile(move);
 
             Move m = {
-                to,
-                from,
+                move,
+                pieceLocation,
                 true,
-                createPickAndPlaceAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(move.file - pieceLocation.file, move.rank - pieceLocation.rank, 0))
+                createInstantAnimation()
             };
             allLegalMoves.push_back(m);
         }
@@ -672,3 +674,6 @@ template int Board::getTileCount<BreakingTile>();
 template int Board::getTileCount<PortalTile>();
 
 template std::vector<Tile*> Board::getTilesOfType<PortalTile>();
+
+
+template std::vector<Cell> Board::getPlayersPiecesOfType<Rook>(int player);

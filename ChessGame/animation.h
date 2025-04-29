@@ -33,6 +33,8 @@ struct Animation {
 	bool ended();
 };
 
+Animation createInstantAnimation();
+
 Animation createSlideAnimation(raylib::Vector3 start, raylib::Vector3 end);
 
 Animation createPickAndPlaceAnimation(raylib::Vector3 start, raylib::Vector3 end);

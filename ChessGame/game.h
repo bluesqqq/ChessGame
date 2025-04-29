@@ -13,7 +13,7 @@ class Game {
 		Board board;
 		vector<Event*> activeEvents;
 
-		int currentTurn = 0;
+		int currentTurn = 1;
 
 		int gameEnd = false;
 

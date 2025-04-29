@@ -145,8 +145,6 @@ std::vector<Cell> Pawn::getValidMoves(Board& board) {
 
     int direction = (player == 1 ? 1 : -1);
 
-    bool blocked = false;
-
     Tile* forwardTile = board.getTile(Cell(rank + direction, file));
     Tile* doubleForwardTile = board.getTile(Cell(rank + direction * 2, file));
 
@@ -154,14 +152,11 @@ std::vector<Cell> Pawn::getValidMoves(Board& board) {
     if (forwardTile && !forwardTile->hasPiece()) {
         moves.emplace_back(Cell(rank + direction, file));
 
-        if (!forwardTile->isPassable()) {
-            blocked = true;
+        // Can move two squares on the first move
+        if (forwardTile->isPassable() && this->moves == 0 && doubleForwardTile && !doubleForwardTile->hasPiece()) {
+            moves.emplace_back(Cell(rank + direction * 2, file));
         }
     }
-
-    // Can move two squares on the first move
-    if (!blocked && this->moves == 0 && doubleForwardTile && !doubleForwardTile->hasPiece() && !doubleForwardTile->hasPiece())
-        moves.emplace_back(Cell(rank + direction * 2, file));
 
     Tile* leftTile = board.getTile(Cell(rank + direction, file - 1));
     Tile* rightTile = board.getTile(Cell(rank + direction, file + 1));
@@ -350,6 +345,40 @@ std::vector<Cell> King::getValidMoves(Board& board) {
             }
         }
     }
+
+    // CASTLING
+    if (getNumberOfMoves() <= 0) { // King has not moved
+        std::vector<Cell> rookCells = board.getPlayersPiecesOfType<Rook>(player);
+
+        for (Cell& rookCell : rookCells) {
+            if (rookCell.rank == pieceCell.rank) { // Same rank as king
+                Tile* rookTile = board.getTile(rookCell);
+                Piece* rookPiece = rookTile->getPiece();
+
+                if (rookPiece->getNumberOfMoves() <= 0) { // Rook has not moved
+                    bool blockingPiece = false;
+
+                    int start = std::min(pieceCell.file, rookCell.file) + 1;
+                    int end = std::max(pieceCell.file, rookCell.file);
+
+                    for (int i = start; i < end; i++) {
+                        Tile* tile = board.getTile(Cell(pieceCell.rank, i));
+                        if (tile->hasPiece()) {
+                            blockingPiece = true;
+                            break;
+                        }
+                    }
+
+                    if (!blockingPiece) {
+                        int direction = (rookCell.file < pieceCell.file) ? -1 : 1;
+                        // Add the tile the king would move to as a castling move
+                        moves.emplace_back(pieceCell + Cell(0, direction * 2));
+                    }
+                }
+            }
+        }
+    }
+
 
     return moves;
 }

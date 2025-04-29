@@ -45,9 +45,13 @@ void Game::update() {
 			Move playerMove = currentPlayer.getMove();
 			// Can add extra failsafe handling here if needed, but not for now
 
-			// 
+			/* Piece* piece = playerMove.from->getPiece();
+			if (dynamic_cast<King*>(piece)) {
+				
+			}
+			*/
 
-			cout << "From: " << board.getTilePositionName(playerMove.from) << " To: " << board.getTilePositionName(playerMove.to) << endl;
+			cout << "From: " << playerMove.from.getAlgebraicNotation() << " To: " << playerMove.to.getAlgebraicNotation() << endl;
 			board.queuePlayerMove(playerMove);
 			currentTurn++;
 		}

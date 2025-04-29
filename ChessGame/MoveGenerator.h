@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include "Cell.h"
+#include "Personality.h"
 
 struct TileRepresentation {
 	/// <summary>
@@ -20,20 +21,34 @@ struct TileRepresentation {
 	bool hasMoved;
 };
 
-struct TileMove {
-	int fromRow, fromCol;
-	int toRow, toCol;
+struct CellMove {
+	Cell from;
+	Cell to;
+	CellMove() : from(-1, -1), to(-1, -1) {}
+	CellMove(Cell to, Cell from) : from(from), to(to) {}
+	CellMove(int fromRank, int fromFile, int toRank, int toFile) : from(fromRank + 1, fromFile + 1), to(toRank + 1, toFile + 1) {}
 };
 
 class MoveGenerator {
 	private:
 		TileRepresentation board[8][8];
+		Personality personality;
+		float positionalStrengthMultipliers[8][8] = {
+			1.1, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.1,
+			1.3, 1.5, 1.7, 1.7, 1.7, 1.7, 1.5, 1.3,
+			1.3, 1.7, 1.9, 1.9, 1.9, 1.9, 1.7, 1.3,
+			1.3, 1.7, 1.9, 2.0, 2.0, 1.9, 1.7, 1.3,
+			1.3, 1.7, 1.9, 2.0, 2.0, 1.9, 1.7, 1.3,
+			1.3, 1.7, 1.9, 1.9, 1.9, 1.9, 1.7, 1.3,
+			1.3, 1.5, 1.7, 1.7, 1.7, 1.7, 1.5, 1.3,
+			1.1, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.1
+		};
 
 	public:
 		MoveGenerator(Game& game) {
-			Board& gameBoard = game.getBoard();
+			Personality personality = Personality{ 50, 50, 50, 50 };
 
-			std::cout << std::endl << " BOARD REPRESENTATION: " << std::endl;
+			Board& gameBoard = game.getBoard();
 
 			for (int rank = 0; rank < 8; rank++) {
 				for (int file = 0; file < 8; file++) {
@@ -52,7 +67,6 @@ class MoveGenerator {
 						board[rank][file] = { PieceType::NO_PIECE, -1, false};
 					}
 				}
-				std::cout << std::endl;
 			}
 
 			printBoard();
@@ -67,16 +81,18 @@ class MoveGenerator {
 			int score = 0;
 			int pieces = 0;
 
-			for (int row = 0; row < 8; row++) {
-				for (int col = 0; col < 8; col++) {
-					TileRepresentation& tile = board[row][col];
+			for (int rank = 0; rank < 8; rank++) {
+				for (int file = 0; file < 8; file++) {
+					TileRepresentation& tile = board[rank][file];
 
 					if (tile.type != PieceType::NO_PIECE) {
-						int value = getPieceValue(tile.type);
+						int value = getPieceValue(tile.type) * positionalStrengthMultipliers[rank][file];
+
 						score += (tile.player == player) ? value : -value;
 					}
 				}
 			}
+
 			return score;
 		}
 
@@ -98,6 +114,8 @@ class MoveGenerator {
 		}
 
 		void printBoard() {
+			std::cout << std::endl << " BOARD REPRESENTATION: " << std::endl;
+
 			for (int row = 0; row < 8; row++) {
 				for (int col = 0; col < 8; col++) {
 					std::cout << " " << getPieceString(board[row][col].type) << " ";
@@ -129,8 +147,8 @@ class MoveGenerator {
 		/// </summary>
 		/// <param name="player">The player to generate moves for</param>
 		/// <returns>A vector of all moves for the player specified</returns>
-		std::vector<TileMove> generateMoves(int player) {
-			std::vector<TileMove> moves;
+		std::vector<CellMove> generateMoves(int player) {
+			std::vector<CellMove> moves;
 
 			for (int row = 0; row < 8; ++row) {
 				for (int col = 0; col < 8; ++col) {
@@ -281,9 +299,9 @@ class MoveGenerator {
 		}
 
 		// Function to make a move
-		void makeMove(TileMove move) {
-			TileRepresentation& fromTile = board[move.fromRow][move.fromCol];
-			TileRepresentation& toTile = board[move.toRow][move.toCol];
+		void makeMove(CellMove move) {
+			TileRepresentation& fromTile = board[move.from.rank][move.from.file];
+			TileRepresentation& toTile = board[move.to.rank][move.to.file];
 
 			// Move the piece
 			toTile = fromTile;
@@ -296,42 +314,42 @@ class MoveGenerator {
 		}
 
 		// Function to undo a move
-		void undoMove(TileMove move, TileRepresentation previousFrom, TileRepresentation previousTo) {
-			board[move.fromRow][move.fromCol] = previousFrom;
-			board[move.toRow][move.toCol] = previousTo;
+		void undoMove(CellMove move, TileRepresentation previousFrom, TileRepresentation previousTo) {
+			board[move.from.rank][move.from.file] = previousFrom;
+			board[move.to.rank][move.to.file] = previousTo;
 		}
 
-		TileMove chooseMove(int player, int ply) {
+		CellMove chooseMove(int player, int ply) {
 			int movesCalculated = 0;
 
-			player -= 1;  // Adjust player number (assumes player is 1 or 2 input)
+			player -= 1;  // Adjust player number (assumes input is 1 or 2)
 			std::cout << "Attempting to find best move for player #" << player << std::endl;
-			std::vector<TileMove> allMoves = generateMoves(player);
-			TileMove bestMove;
+			std::vector<CellMove> allMoves = generateMoves(player);
+			CellMove bestMove;
 			int bestScore = INT_MIN;
 
 			std::cout << "Number of found moves: " << allMoves.size() << std::endl;
 			std::cout << "Checking moves... " << std::endl;
 
-			// minimax function only returns scores now
-			std::function<int(int, int, int, int)> minimax = [&](int currentPlayer, int depth, int alpha, int beta) {
+			// Pure minimax (no alpha-beta)
+			std::function<int(int, int)> minimax = [&](int currentPlayer, int depth) {
 				if (depth == 0) {
-					return evaluateBoard(player); // Always evaluate from the original player's perspective
+					return evaluateBoard(player); // Always evaluate from original player's perspective
 				}
 
 				int bestMoveValue = (currentPlayer == player) ? INT_MIN : INT_MAX;
-				std::vector<TileMove> moves = generateMoves(currentPlayer);
+				std::vector<CellMove> moves = generateMoves(currentPlayer);
 
 				for (auto& move : moves) {
 					// Save current state
-					TileRepresentation previousFrom = board[move.fromRow][move.fromCol];
-					TileRepresentation previousTo = board[move.toRow][move.toCol];
+					TileRepresentation previousFrom = board[move.from.rank][move.from.file];
+					TileRepresentation previousTo = board[move.to.rank][move.to.file];
 
 					// Make move
 					makeMove(move);
 
 					// Recurse
-					int score = minimax((currentPlayer + 1) % 2, depth - 1, alpha, beta);
+					int score = minimax((currentPlayer + 1) % 2, depth - 1);
 					movesCalculated++;
 
 					// Undo move
@@ -340,16 +358,9 @@ class MoveGenerator {
 					// Maximizing or minimizing
 					if (currentPlayer == player) {
 						bestMoveValue = std::max(bestMoveValue, score);
-						alpha = std::max(alpha, bestMoveValue);
 					}
 					else {
 						bestMoveValue = std::min(bestMoveValue, score);
-						beta = std::min(beta, bestMoveValue);
-					}
-
-					// Alpha-beta pruning
-					if (beta <= alpha) {
-						break;
 					}
 				}
 
@@ -358,12 +369,12 @@ class MoveGenerator {
 
 			// Top level: check each move separately
 			for (auto& move : allMoves) {
-				TileRepresentation previousFrom = board[move.fromRow][move.fromCol];
-				TileRepresentation previousTo = board[move.toRow][move.toCol];
+				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
+				TileRepresentation previousTo = board[move.to.rank][move.to.file];
 
 				makeMove(move);
 
-				int score = minimax((player + 1) % 2, ply - 1, INT_MIN, INT_MAX);
+				int score = minimax((player + 1) % 2, ply - 1);
 				movesCalculated++;
 
 				undoMove(move, previousFrom, previousTo);
@@ -376,13 +387,26 @@ class MoveGenerator {
 
 			std::cout << "Total moves Calculated: " << movesCalculated << std::endl;
 			std::cout << "Decided to move "
-				<< getPieceString(board[bestMove.fromRow][bestMove.fromCol].type)
-				<< " from " << bestMove.fromRow + 1 << "," << bestMove.fromCol + 1
-				<< " to " << bestMove.toRow + 1 << "," << bestMove.toCol + 1
+				<< getPieceString(board[bestMove.from.rank][bestMove.from.file].type)
+				<< " from " <<  bestMove.from.getAlgebraicNotation()
+				<< " to " << bestMove.to.getAlgebraicNotation()
 				<< std::endl;
 
 			return bestMove;
 		}
 
+		void printShannonNumber(int calculatedMoves, int plies) { // https://en.wikipedia.org/wiki/Shannon_number
+			std::vector<long long> shannonNumbers = { 20, 400, 8902, 197281, 4865609, 119060324, 2863350967, 69586103104, 1669531250000 };
+
+			std::cout << "Total moves calculated: " << calculatedMoves << std::endl;
+
+			int expectedMoves = 0;
+				
+			for (int i = 0; i < plies; i++) {
+				expectedMoves += shannonNumbers[i];
+			}
+
+			std::cout << "Expected moves calculated: " << expectedMoves << std::endl;
+		}
 };
 

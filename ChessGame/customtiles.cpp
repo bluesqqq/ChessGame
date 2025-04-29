@@ -177,11 +177,11 @@ void ConveyorTile::updateState(Board& board) {
 
         if (destinationTile) {
             // Queue a movement to the destination tile
-            board.addQueuedMove({ 
-                destinationTile, 
-                this, 
-                false, 
-                createSlideAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - tilePosition.x, destinationPosition.y - tilePosition.y, 0))
+            board.addQueuedMove({
+                board.getTileCell(destinationTile),
+                board.getTileCell(this),
+                false,
+                createInstantAnimation()
             });
         }
     }
@@ -244,12 +244,13 @@ void PortalTile::updateState(Board& board) {
         if (destinationPortal) {
             // Get the positions of the current and destination portal tiles
             raylib::Vector2 currentPosition = board.getTilePosition(this);
+
             raylib::Vector2 destinationPosition = board.getTilePosition(destinationPortal);
 
             // Queue a movement to the destination portal tile
             board.addQueuedMove({
-                destinationPortal,
-                this,
+                board.getTileCell(destinationPortal),
+                board.getTileCell(this),
                 false,
                 createTeleportAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - currentPosition.x, destinationPosition.y - currentPosition.y, 0))
             });

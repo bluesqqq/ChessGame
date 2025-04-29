@@ -93,12 +93,12 @@
     <ClCompile Include="Cell.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Personality.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="board.h">
@@ -137,9 +137,6 @@
     <ClInclude Include="textures.h">
       <Filter>Header Files\Sprites</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Background.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
@@ -152,10 +149,10 @@
     <ClInclude Include="MoveGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource2.h">
+    <ClInclude Include="Cell.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cell.h">
+    <ClInclude Include="Personality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,6 +17,8 @@ struct Cell {
 
     bool operator==(const Cell& other) const;
 
+    bool operator!=(const Cell& other) const;
+
     Cell operator+(const Cell& other) const;
 
     Cell& operator+=(const Cell& other);
