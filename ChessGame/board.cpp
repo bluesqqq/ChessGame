@@ -19,8 +19,8 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
 	// Place Pawns in the second and seventh ranks
     for (int file = 0; file < 8; file++) {
-        tiles[1][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
-        tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
+        tiles[6][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
+        //tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
     }
 
     // Place Rooks
@@ -143,8 +143,7 @@ void Board::update() {
 
     double currentTime = GetTime();
 
-    // Check if there are any moves
-    if (!queuedMoves.empty()) {
+    if (!queuedMoves.empty()) { // Continued unfinished moves until all are gone
         bool unfinishedAnimations = false;
 
         // Check if any moves have unfinished animations
@@ -168,8 +167,23 @@ void Board::update() {
             }
         } else {
 			executeQueuedMoves();
+
+            // Add all promotions
+            for (int file = 1; file <= 8; file++) {
+                Cell cell = Cell(8, file); // Cells that a white pawn can get promoted on
+
+                Tile* tile = getTile(cell);
+
+                Piece* piece = tile->getPiece();
+
+                if (piece && dynamic_cast<Pawn*>(piece) != nullptr) {
+                    queuedPromotions.push_back(cell);
+                }
+            }
         }
-    } else if (updateStatePhase) {
+    } else if (!queuedPromotions.empty()) { // Continued unfinished promotions until all are gone
+
+    } else if (updateStatePhase) { // Finish up
         removeExpiredTiles();
 		spawnRandomTiles();
 
@@ -209,7 +223,7 @@ void Board::removeExpiredTiles() {
 }
 
 bool Board::isPlayable() {
-    return (queuedMoves.empty());
+    return (queuedMoves.empty() && queuedPromotions.empty());
 }
 
 void Board::addQueuedMove(Move move) {
@@ -319,13 +333,6 @@ raylib::Vector2 Board::getTilePosition(Tile* tile) {
 
     return { -1.0f, -1.0f }; // Return an invalid position if the tile isn't found
 }
-
-string Board::getTilePositionName(Tile* tile) {
-    raylib::Vector2 position = getTilePosition(tile);
-    char file = 'a' + position.y;
-    return file + to_string((int)(position.x + 1));
-}
-
 
 Piece* Board::movePiece(int player, Cell piece, Cell move) {
     Tile* startTile = getTile(piece);

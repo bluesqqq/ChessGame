@@ -35,6 +35,8 @@ class Board {
 
         vector<Move> queuedMoves;
 
+        vector<Cell> queuedPromotions;
+
         bool updateStatePhase = false;
 
         int portalCounter = 0;
@@ -66,6 +68,17 @@ class Board {
         /// </summary>
         /// <returns>true if the the board is playable, false if not</returns>
         bool isPlayable();
+
+        bool hasPromotion() {
+            return !queuedPromotions.empty();
+        }
+
+        Cell getPromotionCell() {
+            Cell cell = queuedPromotions.back();
+            queuedPromotions.pop_back();
+
+            return cell;
+        }
 
         /// <summary>
 		/// Adds a move to the queue
@@ -146,8 +159,6 @@ class Board {
 
             return Cell(-1, -1);
         }
-
-        string getTilePositionName(Tile* tile);
 
         raylib::Vector2 cellToScreenPosition(Cell cell);
 

@@ -20,6 +20,13 @@ SpriteBounds pieceSprites[] = {
     {5, 4, 1, 2}, // King   (ice variant)
 };
 
+SpriteBounds iconSprites[] = {
+    {7, 2, 1, 1}, // Knight
+    {7, 3, 1, 1}, // Rook
+    {7, 4, 1, 1}, // Bishop
+    {7, 5, 1, 1} // Queen
+};
+
 TilePosition tileData[] = {
     {0, 0}, // TILE_WHITE_CUBE
     {1, 0}, // TILE_BLACK_CUBE

@@ -25,7 +25,7 @@ Game::Game(raylib::Texture2D* texture) : board(texture, players), theme(new SkyB
 	PlayMusicStream(musicPortal);
 }
 
-void Game::draw() {
+void Game::draw(raylib::Texture2D* atlas) {
 	theme.drawBackground();
 
 	board.draw(theme, renderQueue, getPlayerTurn(), selectedCell);
@@ -33,19 +33,41 @@ void Game::draw() {
 	renderQueue.sortQueue();
 	renderQueue.draw();
 	renderQueue.clearQueue();
+
+	EndMode2D();
+
+	if (promotionMenu.has_value()) {
+		promotionMenu.value().draw(atlas, board);
+	}
 }
 
 void Game::update() {
-	theme.updateBackground();
+	theme.updateBackground(); // Update the theme
 
-	// Check if the board is ready for a move and the player has made a move
-	if (board.isPlayable()) {
+	if (promotionMenu.has_value()) {
+		if (promotionMenu.value().finished()) {
+			promotionMenu = nullopt; // Remove the finished promotion menu
+		}
+	}
+	
+	if (board.hasPromotion() && !promotionMenu.has_value()) {
+		promotionMenu = PromotionMenu(board.getPromotionCell());
+	}
+
+	// Check if the board is ready to play
+	if (board.isPlayable() && !promotionMenu) {
 		Player& currentPlayer = getCurrentPlayer();
+
+		// Check if the current player has made a move
 		if (currentPlayer.hasMove()) {
-			Move playerMove = currentPlayer.getMove();
+			Move playerMove = currentPlayer.getMove(); // Get the player's move
 			// Can add extra failsafe handling here if needed, but not for now
 
-			Piece* piece = board.getTile(playerMove.from)->getPiece();
+			Piece* piece = board.getTile(playerMove.from)->getPiece(); // Get the piece the player is moving
+
+			// Since castling is the only move that moves 2 pieces at the same time, i'm just handling it here.
+			// It might be a good idea to test this with interactions though.
+			
 			// Check if it's a castling move (king moves 2 spaces horizontally on the same rank)
 			if (dynamic_cast<King*>(piece) && abs(playerMove.to.file - playerMove.from.file) >= 2 &&
 				playerMove.to.rank == playerMove.from.rank) {
@@ -64,12 +86,13 @@ void Game::update() {
 				board.queuePlayerMove(rookMove);
 			}
 
-			cout << "From: " << playerMove.from.getAlgebraicNotation() << " To: " << playerMove.to.getAlgebraicNotation() << endl;
-			board.queuePlayerMove(playerMove);
-			currentTurn++;
+			board.queuePlayerMove(playerMove); // Queue the player's move up
+
+			currentTurn++; // Next player's turn
 		}
 	}
-	board.update();
+
+	board.update(); // Update the board
 }
 
 void Game::updateState() {

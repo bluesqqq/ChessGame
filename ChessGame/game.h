@@ -6,6 +6,8 @@
 #include "event.h"
 #include "RenderQueue.h"
 #include "Theme.h"
+#include "PromotionMenu.h"
+#include <optional>
 
 class Game {
 	private:
@@ -29,13 +31,15 @@ class Game {
 
 		Cell selectedCell = Cell(-1, -1);
 
+		optional<PromotionMenu> promotionMenu = nullopt;
+
 	public:
 		Game(raylib::Texture2D* texture);
 
 		int updateWaitFrames = 60;
 		bool queuedForUpdate = false;
 
-		void draw();
+		void draw(raylib::Texture2D* atlas);
 
 		/// <summary>
 		/// Update called every frame
@@ -47,6 +51,10 @@ class Game {
 		void updateMusicStreams();
 
 		void setSelectedCell(Cell cell);
+
+		bool isPlayable() {
+			return board.isPlayable() && !promotionMenu.has_value();
+		}
 
 		RenderQueue& getRenderQueue();
 

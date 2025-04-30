@@ -43,6 +43,13 @@ typedef enum {
 } TileType;
 
 typedef enum {
+    ICON_KNIGHT,
+    ICON_ROOK,
+    ICON_BISHOP,
+    ICON_QUEEN,
+} IconType;
+
+typedef enum {
     SPRITE_KNIGHT,
     SPRITE_PAWN,
     SPRITE_BISHOP,
@@ -59,6 +66,7 @@ typedef enum {
 } PieceTypeSprite;
 
 extern SpriteBounds pieceSprites[];
+extern SpriteBounds iconSprites[];
 extern TilePosition tileData[];
 
 #endif

@@ -6,6 +6,8 @@
 #include "player.h"
 #include "game.h"
 #include "MoveGenerator.h"
+#include "textures.h"
+#include "PromotionMenu.h"
 
 using namespace std;
 
@@ -41,7 +43,7 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
         game.setSelectedCell(board.getCellAtScreenPosition(cursorPosition, camera));
     }
 
-    game.draw();
+    game.draw(atlas);
 
     if (selectedPiece) {
         selectedPiece->draw(game.getRenderQueue(), interpolatedCursorIsoPositionFloat.x, interpolatedCursorIsoPositionFloat.y, interpolatedCursorIsoPositionFloat.z); // Adjust the offset as needed
@@ -118,7 +120,7 @@ int main() {
 
         if (!game.queuedForUpdate) {
 
-            if (game.getBoard().isPlayable()) {
+            if (game.isPlayable()) {
                 
                 if (game.getPlayerTurn() == 1) {
 
@@ -192,39 +194,6 @@ int main() {
                     Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
 
                     currentPlayer.setMove(move);
-                    /*
-
-                    vector<Move> moves = game.getBoard().getAllLegalMoves(game.getPlayerTurn());
-
-                    // Right now it just picks random moves
-                    if (!moves.empty()) {
-
-                        vector<Move> overtakes;
-
-                        for (Move& move : moves) {
-                            if (move.overtakes()) {
-                                overtakes.push_back(move);
-                            }
-                        }
-
-                        if (!overtakes.empty()) {
-                            int index = rand() % overtakes.size();
-
-                            Move selectedMove = Move(overtakes[index]);
-
-                            // Pass pointer to setMove
-                            currentPlayer.setMove(selectedMove);
-                        }
-                        else {
-                            int index = rand() % moves.size();
-
-                            Move selectedMove = Move(moves[index]);
-
-                            // Pass pointer to setMove
-                            currentPlayer.setMove(selectedMove);
-                        }
-                    }
-                    */
                 }
             }
         } else {
