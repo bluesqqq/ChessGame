@@ -86,7 +86,7 @@ class MoveGenerator {
 					TileRepresentation& tile = board[rank][file];
 
 					if (tile.type != PieceType::NO_PIECE) {
-						int value = getPieceValue(tile.type) * positionalStrengthMultipliers[rank][file];
+						int value = getPieceValue(tile.type) * 1; //positionalStrengthMultipliers[rank][file];
 
 						score += (tile.player == player) ? value : -value;
 					}

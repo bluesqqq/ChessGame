@@ -183,28 +183,19 @@ void Board::update(int player) {
     double currentTime = GetTime();
 
     if (!queuedMoves.empty()) { // Continued unfinished moves until all are gone
+
         bool unfinishedAnimations = false;
 
         // Check if any moves have unfinished animations
 		for (auto& move : queuedMoves) {
-            if (!move.animation.ended()) { 
+			Piece* animatingPiece = getTile(move.from)->getPiece();
+
+            if (!animatingPiece->animationFinished()) {
                 unfinishedAnimations = true;
             }
 		}
 
-        if (unfinishedAnimations) {
-            for (auto& move : queuedMoves) {
-                move.animation.currentTime = currentTime;
-
-                Piece* animatingPiece = getTile(move.from)->getPiece();
-
-				if (animatingPiece) {
-					raylib::Vector3 animationOffset = move.animation.getPosition();
-
-					animatingPiece->setOffset(animationOffset);
-				}
-            }
-        } else {
+        if (!unfinishedAnimations) {
 			executeQueuedMoves();
 
             promotePieces(player);
@@ -231,11 +222,6 @@ void Board::updateState() {
 
     // Remove any conflicting moves added to the queuedMoves
 	removeConflictingMoves();
-
-	// Start animations for all queued moves
-    for (auto& move : queuedMoves) {
-		move.animation.startAnimation();
-    }
 }
 
 void Board::removeExpiredTiles() {
@@ -255,7 +241,9 @@ bool Board::isPlayable() {
 }
 
 void Board::queueMove(Move move) {
-    move.animation.startAnimation(); // Start the move's animation
+    Piece* animatingPiece = getTile(move.from)->getPiece();
+
+    animatingPiece->playAnimation(move.animation);
 
     // It's debatable whether or not tiles that move the pieces should count as a piece move, but I'm going to say yes
 	getTile(move.from)->getPiece()->move();
@@ -304,7 +292,7 @@ void Board::executeQueuedMoves() {
         Piece* animatingPiece = getTile(move.from)->getPiece();
 
         if (animatingPiece) {
-            animatingPiece->setOffset({ 0.0, 0.0, 0.0 });
+			animatingPiece->removeAnimation(); // Remove the moving animation from the piece
         } else {
             cout << "ERROR: cannot find piece at location: " << move.from.rank << ", " << move.from.file << endl;
         }

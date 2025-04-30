@@ -12,28 +12,30 @@ void Animation::startAnimation() {
 	startTime = GetTime();
 }
 
+void Animation::play(float speed) {
+	startTime = GetTime();
+	this->speed = speed;
+}
+
 raylib::Vector3 Animation::getPositionAtTime(double time) {
 	// If there are no keyframes, return a zero vector
-	if (keyframes.size() == 0) {
-		return { 0.0f, 0.0f, 0.0f };
-	}
+	if (keyframes.size() == 0) return { 0.0f, 0.0f, 0.0f };
 
 	// If there is only one keyframe, return that keyframe's position
-	if (keyframes.size() == 1) {
-		return keyframes[0].position;
-	}
+	if (keyframes.size() == 1) return keyframes[0].position;
 
 	// If the time is before the first keyframe, return the first keyframe's position
-	if (time < keyframes[0].time) {
-		return keyframes[0].position;
-	}
+	if (time < (keyframes[0].time * speed)) return keyframes[0].position;
 
 	// If the time is between two keyframes, interpolate between them
 	for (int i = 0; i < keyframes.size() - 1; i++) {
+		double thisTime = keyframes[i].time * speed;
+		double nextTime = keyframes[i + 1].time * speed;
+
 		// Check if the time is between the current keyframe and the next keyframe
-		if (time >= keyframes[i].time && time < keyframes[i + 1].time) {
-			float timeDiff = keyframes[i + 1].time - keyframes[i].time;
-			float timeInto = time - keyframes[i].time;
+		if (time >= thisTime && time < nextTime) {
+			float timeDiff = nextTime - thisTime;
+			float timeInto = time - thisTime;
 			float ratio = timeInto / timeDiff;
 
 			ratio = easeValue(ratio, keyframes[i].easing);
@@ -47,12 +49,14 @@ raylib::Vector3 Animation::getPositionAtTime(double time) {
 }
 
 raylib::Vector3 Animation::getPosition() {
+	double currentTime = GetTime();
 	return getPositionAtTime(currentTime - startTime);
 }
 
 bool Animation::ended() {
+	double currentTime = GetTime();
 	// this here check
-	return (currentTime - startTime) >= keyframes[keyframes.size() - 1].time;
+	return (currentTime - startTime) >= keyframes[keyframes.size() - 1].time * speed;
 }
 
 Animation createInstantAnimation() {

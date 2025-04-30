@@ -189,7 +189,7 @@ int main() {
                 } else { // AI's turn
                     MoveGenerator generator = MoveGenerator(game);
 
-                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 4);
+                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 5);
 
                     Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
 

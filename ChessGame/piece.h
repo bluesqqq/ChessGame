@@ -9,6 +9,8 @@
 #include "isometric.h"
 #include "RenderQueue.h"
 #include "Cell.h"
+#include "animation.h"
+#include <optional>
 
 class Board;
 
@@ -31,6 +33,8 @@ class Piece {
         int frozen = 0;
 
         PieceType pieceType;
+
+        optional<Animation> animation;
 
     public:
         Piece(raylib::Texture2D* texture, int player, PieceType pieceName);
@@ -57,6 +61,29 @@ class Piece {
         /************************************|
                   ANIMATION FUNCTIONS
         |************************************/
+
+        /// <summary>
+        /// Determines if the piece currently has an animation
+        /// </summary>
+        /// <returns>True if there is an animation, false if not</returns>
+        bool hasAnimation();
+
+        /// <summary>
+        /// Sets the piece's animation and plays it
+        /// </summary>
+        /// <param name="anim">The animation to play</param>
+        void playAnimation(Animation anim);
+
+        /// <summary>
+        /// Determines if the animation is finished
+        /// </summary>
+        /// <returns>Tre if the animation is finished or there is no animation, false if not</returns>
+        bool animationFinished();
+
+        /// <summary>
+        /// Removes the animation from the piece
+        /// </summary>
+        void removeAnimation();
 
 		/// <summary>
 		/// Sets the draw offset of the piece

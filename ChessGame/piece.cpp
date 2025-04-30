@@ -9,6 +9,13 @@ Piece::Piece(raylib::Texture2D* texture, int player, PieceType pieceType) : atla
 Piece::~Piece() {}
 
 void Piece::draw(RenderQueue& renderQueue, float x, float y, float z, bool hidden) {
+	if (hasAnimation()) {
+		setOffset(animation->getPosition());
+    }
+    else {
+		setOffset({ 0.0f, 0.0f, 0.0f });
+    }
+
     if (hidden) opacity = Lerp(opacity, 0.4f, 0.25f);
     else opacity = Lerp(opacity, 1.0f, 0.25f);
 
@@ -23,6 +30,25 @@ void Piece::drawIcon(int x, int y) {
     Vector2 position = { x, y };
     DrawTextureRec(*atlas, spriteRect, position, getColor());
 }
+
+bool Piece::hasAnimation() {
+    return animation.has_value();
+}
+
+void Piece::playAnimation(Animation anim) {
+    animation = anim;
+    animation.value().play();
+}
+
+bool Piece::animationFinished() {
+    if (!hasAnimation()) return true;
+
+    if (animation->ended()) return true;
+
+    return false;
+}
+
+void Piece::removeAnimation() { animation.reset(); }
 
 void Piece::setOffset(raylib::Vector3 offset) {
 	this->offset = offset;

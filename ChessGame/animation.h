@@ -19,12 +19,28 @@ struct Keyframe {
 };
 
 struct Animation {
-    double currentTime = 0;
+	/// <summary>
+	/// The time that the animation started at
+	/// </summary>
 	double startTime = 0;
+
+	/// <summary>
+	/// The speed of the animation
+	/// </summary>
+	float speed = 1.0f;
+
+    /// <summary>
+	/// The keyframes of the animation
+    /// </summary>
     std::vector<Keyframe> keyframes;
+
 	Animation(std::vector<Keyframe> keyframes);
 
 	void startAnimation();
+
+	void play(float speed = 1.0f);
+
+	
 
 	raylib::Vector3 getPositionAtTime(double time);
 
