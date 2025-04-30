@@ -19,8 +19,8 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
 	// Place Pawns in the second and seventh ranks
     for (int file = 0; file < 8; file++) {
-        tiles[6][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
-        //tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
+        tiles[1][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
+        tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
     }
 
     // Place Rooks
@@ -71,7 +71,7 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
     for (int rank = -1; rank <= 8; rank++) {
         for (int file = -1; file <= 8; file++) {
 
-			raylib::Vector2 tilePosition = cellToScreenPosition(Cell(rank + 1, file + 1));
+			raylib::Vector3 tilePosition = getIsoPositionAtCell(Cell(rank + 1, file + 1));
 
             if (rank == -1 && file == -1) {
                 drawTile(renderQueue, rank, file, TILE_SE_CORNER);
@@ -126,12 +126,53 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
     }
 }
 
-raylib::Vector2 Board::cellToScreenPosition(Cell cell) {
-	raylib::Vector2 position = { (float)(cell.file - 1), (float)(8 - cell.rank) }; // Draws a1 to the left, h8 to the right
+Cell Board::getCell(Piece* piece) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (tiles[rank][file]->hasPiece() && tiles[rank][file]->getPiece() == piece) {
+                return Cell(rank + 1, file + 1);
+            }
+        }
+    }
+
+    return Cell(-1, -1);
+}
+
+Piece* Board::getPiece(Cell cell) {
+    if (!cell.isInBounds()) return nullptr;
+
+    Tile* tile = getTile(cell);
+
+    if (tile) {
+        return tile->getPiece();
+    }
+
+    return nullptr;
+}
+
+raylib::Vector3 Board::getIsoPositionAtCell(Cell cell) {
+	raylib::Vector3 position = { (float)(cell.file - 1), (float)(8 - cell.rank), 0 }; // Draws a1 to the left, h8 to the right
 	return position;
 }
 
-void Board::update() {
+raylib::Vector2 Board::getScreenPositionAtCell(Cell cell) {
+    return IsoToScreen(getIsoPositionAtCell(cell));
+}
+
+Cell Board::getCellAtIsoPosition(raylib::Vector3 isoPosition) {
+    return Cell(8 - isoPosition.y, isoPosition.x + 1); // Ignore Z axis 
+}
+
+Cell Board::getCellAtScreenPosition(raylib::Vector2 screenPosition, raylib::Camera2D camera) {
+    raylib::Vector2 translatedPosition = screenPosition - camera.offset;
+
+    // Translate the screen position to isometric coordinates
+    Vector3 isoPosition = ScreenToISO(translatedPosition, 0.0f); // NOTE: if moving the board anywhere on the z axis in the future, this will have to change
+
+    return getCellAtIsoPosition(isoPosition);
+}
+
+void Board::update(int player) {
     // Update all tiles
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
@@ -166,7 +207,7 @@ void Board::update() {
         } else {
 			executeQueuedMoves();
 
-            promotePieces();
+            promotePieces(player);
         }
     } else if (hasPromotion()) { // Continued unfinished promotions until all are gone
 
@@ -281,6 +322,32 @@ void Board::executeQueuedMoves() {
     queuedMoves.clear();
 }
 
+void Board::promotePieces(int player) {
+    // Add all promotions
+    for (int file = 1; file <= 8; file++) {
+        Cell cell = Cell(8, file); // Cells that a white pawn can get promoted on
+
+        Tile* tile = getTile(cell);
+
+        Piece* piece = tile->getPiece();
+
+        if (piece && piece->getPlayer() == player && dynamic_cast<Pawn*>(piece) != nullptr) {
+            promotions.push(cell);
+        }
+    }
+}
+
+bool Board::hasPromotion() { return !promotions.empty(); }
+
+Cell Board::getPromotionCell() {
+    if (promotions.empty()) throw std::runtime_error("promotions is empty!");
+
+    Cell cell = promotions.front();
+    promotions.pop();
+
+    return cell;
+}
+
 Tile* Board::setTile(int rank, int file, Tile* newTile) {
     Tile* oldTile = tiles[rank][file];
     tiles[rank][file] = newTile;
@@ -317,6 +384,18 @@ raylib::Vector2 Board::getTilePosition(Tile* tile) {
     }
 
     return { -1.0f, -1.0f }; // Return an invalid position if the tile isn't found
+}
+
+Cell Board::getCell(Tile* tile) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (tiles[rank][file] == tile) {
+                return Cell(rank + 1, file + 1);
+            }
+        }
+    }
+
+    return Cell(-1, -1);
 }
 
 Piece* Board::movePiece(int player, Cell piece, Cell move) {

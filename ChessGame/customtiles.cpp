@@ -153,7 +153,7 @@ void ConveyorTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, fl
 
 void ConveyorTile::updateState(Board& board) {
     if (hasPiece()) {
-		Cell cell = board.getTileCell(this);
+		Cell cell = board.getCell(this);
         Cell destinationCell;
 
         switch (direction) {
@@ -241,14 +241,14 @@ void PortalTile::updateState(Board& board) {
 
         if (destinationPortal) {
             // Get the positions of the current and destination portal tiles
-			Cell cell = board.getTileCell(this);
+			Cell cell = board.getCell(this);
 
-            Cell destinationCell = board.getTileCell(destinationPortal);
+            Cell destinationCell = board.getCell(destinationPortal);
 
             // Queue a movement to the destination portal tile
             board.queueMove({
-                board.getTileCell(destinationPortal),
-                board.getTileCell(this),
+                board.getCell(destinationPortal),
+                board.getCell(this),
                 false,
                 createInstantAnimation()
             });

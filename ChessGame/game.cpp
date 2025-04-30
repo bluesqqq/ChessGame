@@ -92,7 +92,7 @@ void Game::update() {
 		}
 	}
 
-	board.update(); // Update the board
+	board.update(getPlayerTurn()); // Update the board
 }
 
 void Game::updateState() {
@@ -147,21 +147,15 @@ void Game::updateMusicStreams() {
 	UpdateMusicStream(musicPortal);
 }
 
-void Game::setSelectedCell(Cell cell) {
-	selectedCell = cell;
-}
+void Game::setSelectedCell(Cell cell) { selectedCell = cell; }
 
-RenderQueue& Game::getRenderQueue() {
-	return renderQueue;
-}
+bool Game::isPlayable() { return board.isPlayable() && !promotionMenu.has_value(); }
 
-bool Game::getGameEnd() {
-	return gameEnd;
-}
+RenderQueue& Game::getRenderQueue() { return renderQueue; }
 
-bool Game::playerIsInCheck(int player) {
-	return board.isInCheck(player);
-}
+bool Game::getGameEnd() { return gameEnd; }
+
+bool Game::playerIsInCheck(int player) { return board.isInCheck(player); }
 
 Player& Game::getPlayer(int player) {
 	if (player <= 0 || player > players.size()) {

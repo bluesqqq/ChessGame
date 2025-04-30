@@ -38,7 +38,7 @@ void UpdateDrawFrame(Camera2D camera, Game& game) {
     interpolatedCursorIsoPositionFloat = interpolatedCursorIsoPositionFloat.Lerp(cursorIsoPositionFloat, 0.2f);
 
     if (selectedTile) {
-        game.setSelectedCell(board.getTileCell(selectedTile));
+        game.setSelectedCell(board.getCell(selectedTile));
     } else {
         game.setSelectedCell(board.getCellAtScreenPosition(cursorPosition, camera));
     }
@@ -164,8 +164,8 @@ int main() {
                         if (destinationTile) {
 
                             // Check if the move is valid
-							Cell selectedCell    = Cell(game.getBoard().getTileCell(selectedTile));
-                            Cell destinationCell = Cell(game.getBoard().getTileCell(destinationTile));
+							Cell selectedCell    = Cell(game.getBoard().getCell(selectedTile));
+                            Cell destinationCell = Cell(game.getBoard().getCell(destinationTile));
 
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
                                 Move move = Move{ destinationCell, selectedCell, true, createInstantAnimation()};

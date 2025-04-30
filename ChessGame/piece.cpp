@@ -46,7 +46,7 @@ std::vector<Cell> Piece::getLegalMoves(Board& board) {
     std::vector<Cell> validMoves = getValidMoves(board);
     std::vector<Cell> legalMoves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     Tile* originalTile = board.getTile(pieceCell);
 
@@ -138,7 +138,7 @@ Pawn::Pawn(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
 std::vector<Cell> Pawn::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     int rank = pieceCell.rank;
     int file = pieceCell.file;
@@ -180,7 +180,7 @@ Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, 
 std::vector<Cell> Knight::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     const std::vector<Cell> offsets = { {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2} };
 
@@ -208,7 +208,7 @@ Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, 
 std::vector<Cell> Bishop::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     const std::vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1} };
 
@@ -245,7 +245,7 @@ Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
 std::vector<Cell> Rook::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     const std::vector<Cell> directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
@@ -284,7 +284,7 @@ Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, Pi
 std::vector<Cell> Queen::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     const std::vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
@@ -323,7 +323,7 @@ King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
 std::vector<Cell> King::getValidMoves(Board& board) {
     std::vector<Cell> moves;
 
-    Cell pieceCell = board.getPieceCell(this);
+    Cell pieceCell = board.getCell(this);
 
     int rank = pieceCell.rank;
     int file = pieceCell.file;

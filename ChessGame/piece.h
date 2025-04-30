@@ -36,62 +36,75 @@ class Piece {
         Piece(raylib::Texture2D* texture, int player, PieceType pieceName);
         virtual ~Piece();
 
+        /************************************|
+                 GAME LOOP FUNCTIONS
+        |************************************/
+
         void draw(RenderQueue& renderQueue, float x, float y, float z, bool hidden = false); // Base draw method
 
         void drawIcon(int x, int y);
-
-		/// <summary>
-		/// Sets the draw offset of the piece
-		/// </summary>
-		/// <param name="offset">The offset position as a Vector3</param>
-		void setOffset(raylib::Vector3 offset);
 
         /// <summary>
         /// Update called every frame
         /// </summary>
         void update();
 
-        int getNumberOfMoves();
-
         /// <summary>
         /// Updates the piece, called after every move
         /// </summary>
         void updateState();
+
+        /************************************|
+                  ANIMATION FUNCTIONS
+        |************************************/
+
+		/// <summary>
+		/// Sets the draw offset of the piece
+		/// </summary>
+		/// <param name="offset">The offset position as a Vector3</param>
+		void setOffset(raylib::Vector3 offset);
         
-        /// <summary>
-        /// Returns a list of valid moves based on this piece's ruleset. Note that this function does not account for
-        /// any of the games rules like king-checking, and all the other various rules that might be implemented.
-        /// </summary>
-        /// <param name="x">X position on the board of this piece</param>
-        /// <param name="y">Y position on the board of this piece</param>
-        /// <param name="board">Reference to the board object</param>
-        /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
-        virtual std::vector<Cell> getValidMoves(Board& board) = 0;
-
-        /// <summary>
-        /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
-        /// </summary>
-        /// <param name="x">X position on the board of this piece</param>
-        /// <param name="y">Y position on the board of this piece</param>
-        /// <param name="board">Reference to the board object</param>
-        /// <returns>A vector of {x, y} pairs representing all possible positions that this piece can move to</returns>
-        std::vector<Cell> getLegalMoves(Board& board);
-
-        /// <summary>
-        /// Determines if a move is legal
-        /// </summary>
-        /// <param name="x">The x position of this piece</param>
-        /// <param name="y">The y position of this piece</param>
-        /// <param name="board">A reference to the board this piece is on</param>
-        /// <param name="moveX">The destination X of the move to check</param>
-        /// <param name="moveY">The destination Y of the move to check</param>
-        /// <returns>true if the move is legal, false if not</returns>
-        bool isLegalMove(Board& board, Cell move);
+        /************************************|
+                    MOVE FUNCTIONS
+        |************************************/
 
         /// <summary>
         /// Increments the move count by one
         /// </summary>
         void move();
+
+        /// <summary>
+        /// Get the number of moves this piece has made, including movement from tiles
+        /// </summary>
+        /// <returns>The number of moves this piece has made</returns>
+        int getNumberOfMoves();
+
+        /// <summary>
+        /// Returns a list of valid moves based on this piece's ruleset. Note that this function does not account for
+        /// any of the games rules like king-checking, and all the other various rules that might be implemented.
+        /// </summary>
+        /// <param name="board">The board this piece is on</param>
+        /// <returns>A vector of all cells this piece can move to</returns>
+        virtual std::vector<Cell> getValidMoves(Board& board) = 0;
+
+        /// <summary>
+        /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
+        /// </summary>
+        /// <param name="board">The board this piece is on</param>
+        /// <returns>>A vector of all cells this piece can legally move to</returns>
+        std::vector<Cell> getLegalMoves(Board& board);
+        
+        /// <summary>
+        /// Determines if a move is legal
+        /// </summary>
+        /// <param name="board">The board this piece is on</param>
+        /// <param name="move">The cell of the desired move</param>
+        /// <returns>True if the move is legal, false if not</returns>
+        bool isLegalMove(Board& board, Cell move);
+
+        /************************************|
+                   STATE FUNCTIONS
+        |************************************/
 
         Color getColor() const;
 

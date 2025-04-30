@@ -39,6 +39,10 @@ class Game {
 		int updateWaitFrames = 60;
 		bool queuedForUpdate = false;
 
+		/************************************|
+				 GAME LOOP FUNCTIONS
+		|************************************/
+
 		void draw(raylib::Texture2D* atlas);
 
 		/// <summary>
@@ -52,10 +56,12 @@ class Game {
 
 		void setSelectedCell(Cell cell);
 
-		bool isPlayable() {
-			return board.isPlayable() && !promotionMenu.has_value();
-		}
+		bool isPlayable();
 
+		/// <summary>
+		/// Gets the render queue used for drawing the game
+		/// </summary>
+		/// <returns></returns>
 		RenderQueue& getRenderQueue();
 
 		/// <summary>
@@ -63,6 +69,16 @@ class Game {
 		/// </summary>
 		/// <returns>true if the game has ended, false if not</returns>
 		bool getGameEnd();
+
+		/************************************|
+				  PLAYER FUNCTIONS
+		|************************************/
+
+		/// <summary>
+		/// Gets which players turn it is
+		/// </summary>
+		/// <returns>The number of the player who is currently making their move</returns>
+		int getPlayerTurn();
 
 		/// <summary>
 		/// Determines if a player is in check
@@ -78,19 +94,21 @@ class Game {
 		/// <returns>A reference to the player</returns>
 		Player& getPlayer(int player);
 
+		/// <summary>
+		/// Gets the current player whos turn it is
+		/// </summary>
+		/// <returns>A reference to the current player</returns>
 		Player& getCurrentPlayer();
+
+		/************************************|
+				  BOARD FUNCTIONS
+		|************************************/
 
 		/// <summary>
 		/// Gets the board in play
 		/// </summary>
 		/// <returns>A reference to the board in play</returns>
 		Board& getBoard();
-
-		/// <summary>
-		/// Gets which players turn it is
-		/// </summary>
-		/// <returns>The number of the player who is currently making their move</returns>
-		int getPlayerTurn();
 };
 
 #endif

@@ -19,6 +19,10 @@ class Tile {
         Tile(int lifetime = -1);
         virtual ~Tile() {}
 
+        /************************************|
+                 GAME LOOP FUNCTIONS
+        |************************************/
+
         virtual void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) = 0;
 
         /// <summary>
@@ -31,17 +35,21 @@ class Tile {
         /// </summary>
         virtual void updateState(Board& board) = 0;
 
-        /// <summary>
-        /// Gets the lifetime of the tile
-        /// </summary>
-        /// <returns>The lifetime of the piece</returns>
-        int getLifetime();
+        /************************************|
+                   PIECE FUNCTIONS
+        |************************************/
 
-		/// <summary>
-		/// Sets the lifetime of the tile
-		/// </summary>
-		/// <param name="lifetime">Lifetime of the tile (in turns)</param>
-		void setLifetime(int lifetime);
+        /// <summary>
+        /// Determines if the tile has a piece on it
+        /// </summary>
+        /// <returns>true if the tile has a piece, false if not</returns>
+        bool hasPiece();
+
+        /// <summary>
+        /// Gets the piece on the tile
+        /// </summary>
+        /// <returns>A pointer to the piece on the tile</returns>
+        Piece* getPiece();
 
         /// <summary>
         /// Sets the piece on the tile
@@ -67,17 +75,21 @@ class Tile {
         /// <returns>A pointer to the piece that was removed</returns>
         Piece* removePiece();
 
-        /// <summary>
-        /// Determines if the tile has a piece on it
-        /// </summary>
-        /// <returns>true if the tile has a piece, false if not</returns>
-        bool hasPiece();
+        /************************************|
+                   STATE FUNCTIONS
+        |************************************/
 
         /// <summary>
-        /// Gets the piece on the tile
+        /// Gets the lifetime of the tile
         /// </summary>
-        /// <returns>A pointer to the piece on the tile</returns>
-        Piece* getPiece();
+        /// <returns>The lifetime of the piece</returns>
+        int getLifetime();
+
+		/// <summary>
+		/// Sets the lifetime of the tile
+		/// </summary>
+		/// <param name="lifetime">Lifetime of the tile (in turns)</param>
+		void setLifetime(int lifetime);
 
         /// <summary>
         /// Determines whether this tile is selectable

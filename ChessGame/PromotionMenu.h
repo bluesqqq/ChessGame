@@ -29,7 +29,7 @@ class PromotionMenu {
 				totalWidth -= 0.02f;
 			}
 
-			Vector2 pos = board.cellToScreenPosition(promotionCell);
+			Vector3 pos = board.getIsoPositionAtCell(promotionCell);
 
             float x = pos.x;
             float y = pos.y;
