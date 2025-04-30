@@ -168,8 +168,9 @@ int main() {
                             Cell destinationCell = Cell(game.getBoard().getCell(destinationTile));
 
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationCell, selectedCell, true, createInstantAnimation()};
-
+                                Move move = Move{ destinationCell, selectedCell, true, createSlideAnimation({0,0,0},differencePosition)
+                            };
+                                
                                 cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
                             }
@@ -186,7 +187,7 @@ int main() {
                 } else { // AI's turn
                     MoveGenerator generator = MoveGenerator(game);
 
-                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 3);
+                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 4);
 
                     Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
 
