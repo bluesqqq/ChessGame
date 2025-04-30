@@ -16,6 +16,8 @@
 #include "Move.h"
 #include "Cell.h"
 
+#include <queue>
+
 using namespace std;
 
 enum class TileSpawnType {
@@ -35,7 +37,7 @@ class Board {
 
         vector<Move> queuedMoves;
 
-        vector<Cell> queuedPromotions;
+        queue<Cell> promotions;
 
         bool updateStatePhase = false;
 
@@ -69,13 +71,23 @@ class Board {
         /// <returns>true if the the board is playable, false if not</returns>
         bool isPlayable();
 
+        /// <summary>
+        /// Checks if there are any pawn promotions to handle
+        /// </summary>
+        /// <returns>true if there are any pawns to promote, flse if not</returns>
         bool hasPromotion() {
-            return !queuedPromotions.empty();
+            return !promotions.empty();
         }
 
+        /// <summary>
+		/// Gets the cell of a pawn promotion, and removes it from the queue
+        /// </summary>
+        /// <returns>The cell with the pawn to be promoted</returns>
         Cell getPromotionCell() {
-            Cell cell = queuedPromotions.back();
-            queuedPromotions.pop_back();
+            if (promotions.empty()) throw std::runtime_error("promotions is empty!");
+
+            Cell cell = promotions.front();
+            promotions.pop();
 
             return cell;
         }
@@ -83,10 +95,8 @@ class Board {
         /// <summary>
 		/// Adds a move to the queue
         /// </summary>
-        /// <param name="move"></param>
-        void addQueuedMove(Move move);
-
-        void queuePlayerMove(Move move);
+        /// <param name="move">The move to add to the queue</param>
+        void queueMove(Move move);
 
         /// <summary>
 		/// Removes all conflicting moves from the queue
@@ -97,6 +107,21 @@ class Board {
 		/// Executes all queued moves and clears the queue
         /// </summary>
         void executeQueuedMoves();
+
+        void promotePieces() {
+            // Add all promotions
+            for (int file = 1; file <= 8; file++) {
+                Cell cell = Cell(8, file); // Cells that a white pawn can get promoted on
+
+                Tile* tile = getTile(cell);
+
+                Piece* piece = tile->getPiece();
+
+                if (piece && dynamic_cast<Pawn*>(piece) != nullptr) {
+                    promotions.push(cell);
+                }
+            }
+        }
 
         /// <summary>
         /// Changes a tile at a specific rank and file to a different tile
@@ -158,6 +183,18 @@ class Board {
             }
 
             return Cell(-1, -1);
+        }
+
+        Piece* getPiece(Cell cell) {
+			if (!cell.isInBounds()) return nullptr;
+
+			Tile* tile = getTile(cell);
+
+			if (tile) {
+				return tile->getPiece();
+			}
+
+			return nullptr;
         }
 
         raylib::Vector2 cellToScreenPosition(Cell cell);

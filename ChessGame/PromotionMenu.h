@@ -64,7 +64,7 @@ class PromotionMenu {
                 Rectangle source = bounds.toSpriteRect();
                 DrawTextureRec(*atlas, source, { x, y + yOffset }, WHITE);
 
-                if (hovering && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                if (hovering && open && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     // Replace the piece with the selected one
                     Piece* newPiece = nullptr;
 					int player = promotionPiece->getPlayer();

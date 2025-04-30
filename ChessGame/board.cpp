@@ -59,8 +59,6 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
         // If piece is selected, hide the other pieces
         if (selectedCell.rank > 0 && selectedCell.rank < 9 && selectedCell.file > 0 && selectedCell.file < 9 && getTile(selectedCell)->hasPiece()) {
             if (getTile(selectedCell)->getPiece()->getPlayer() == player) {
-				raylib::Vector2 pos = getTilePosition(getTile(selectedCell));
-
                 hide = true;
                 highlightTiles = getTile(selectedCell)->getPiece()->getLegalMoves(*this);
                 hide = true;
@@ -168,20 +166,9 @@ void Board::update() {
         } else {
 			executeQueuedMoves();
 
-            // Add all promotions
-            for (int file = 1; file <= 8; file++) {
-                Cell cell = Cell(8, file); // Cells that a white pawn can get promoted on
-
-                Tile* tile = getTile(cell);
-
-                Piece* piece = tile->getPiece();
-
-                if (piece && dynamic_cast<Pawn*>(piece) != nullptr) {
-                    queuedPromotions.push_back(cell);
-                }
-            }
+            promotePieces();
         }
-    } else if (!queuedPromotions.empty()) { // Continued unfinished promotions until all are gone
+    } else if (hasPromotion()) { // Continued unfinished promotions until all are gone
 
     } else if (updateStatePhase) { // Finish up
         removeExpiredTiles();
@@ -223,18 +210,16 @@ void Board::removeExpiredTiles() {
 }
 
 bool Board::isPlayable() {
-    return (queuedMoves.empty() && queuedPromotions.empty());
+    return (queuedMoves.empty() && promotions.empty());
 }
 
-void Board::addQueuedMove(Move move) {
-    move.animation.startAnimation();
+void Board::queueMove(Move move) {
+    move.animation.startAnimation(); // Start the move's animation
 
-    queuedMoves.push_back(move);
-}
+    // It's debatable whether or not tiles that move the pieces should count as a piece move, but I'm going to say yes
+	getTile(move.from)->getPiece()->move();
 
-void Board::queuePlayerMove(Move move) {
-    getTile(move.from)->getPiece()->move();
-    addQueuedMove(move);
+    queuedMoves.push_back(move); // Add the move to the queue
 }
 
 void Board::removeConflictingMoves() {

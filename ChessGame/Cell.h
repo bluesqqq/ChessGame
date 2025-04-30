@@ -7,6 +7,8 @@ using namespace std;
 struct Cell {
     int rank;
     int file;
+    Cell();
+
     Cell(int rank, int file);
 
     string getAlgebraicNotation();

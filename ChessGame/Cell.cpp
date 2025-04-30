@@ -1,5 +1,7 @@
 #include "Cell.h"
 
+Cell::Cell() : rank(0), file(0) {}
+
 Cell::Cell(int rank, int file) : rank(rank), file(file) {}
 
 string Cell::getAlgebraicNotation() {

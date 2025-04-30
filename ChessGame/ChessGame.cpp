@@ -126,7 +126,8 @@ int main() {
 
                     // LEFT CLICK
                     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                        Tile* targetTile = board.getTile(board.getCellAtScreenPosition(mousePosition, camera));
+                        Cell targetCell = board.getCellAtScreenPosition(mousePosition, camera);
+                        Tile* targetTile = board.getTile(targetCell);
 
                         // Check if tile exists
                         if (targetTile) {
@@ -163,18 +164,14 @@ int main() {
                         if (destinationTile) {
 
                             // Check if the move is valid
-                            Vector2 selectedTilePosition = game.getBoard().getTilePosition(selectedTile);
-                            Vector2 destinationTilePosition = game.getBoard().getTilePosition(destinationTile);
-
 							Cell selectedCell    = Cell(game.getBoard().getTileCell(selectedTile));
                             Cell destinationCell = Cell(game.getBoard().getTileCell(destinationTile));
 
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationCell, selectedCell, true, createPickAndPlaceAnimation({0, 0, 0}, { destinationTilePosition.x - selectedTilePosition.x, destinationTilePosition.y - selectedTilePosition.y, 0 }) };
+                                Move move = Move{ destinationCell, selectedCell, true, createInstantAnimation()};
 
                                 cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
-
                             }
                         }
 

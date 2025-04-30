@@ -152,34 +152,32 @@ void ConveyorTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, fl
 }
 
 void ConveyorTile::updateState(Board& board) {
-    // This needs to be fixed, if the updates are called in a specific order
-    // Pieces can tend to "glide" all the way to the end of a conveyor belt row
     if (hasPiece()) {
-        raylib::Vector2 tilePosition        = board.getTilePosition(this);
-        raylib::Vector2 destinationPosition = board.getTilePosition(this);
+		Cell cell = board.getTileCell(this);
+        Cell destinationCell;
 
         switch (direction) {
             case UP:
-                destinationPosition = tilePosition + raylib::Vector2(0, 1);
+				destinationCell = cell + Cell(1, 0);
                 break;
             case DOWN:
-                destinationPosition = tilePosition + raylib::Vector2(0, -1);
+                destinationCell = cell + Cell(-1, 0);
                 break;
             case LEFT:
-                destinationPosition = tilePosition + raylib::Vector2(-1, 0);
+                destinationCell = cell + Cell(0, -1);
                 break;
             case RIGHT:
-                destinationPosition = tilePosition + raylib::Vector2(1, 0);
+                destinationCell = cell + Cell(0, 1);
                 break;
         }
 
-        Tile* destinationTile = board.getTile(destinationPosition.x, destinationPosition.y);
+        Tile* destinationTile = board.getTile(destinationCell);
 
         if (destinationTile) {
             // Queue a movement to the destination tile
-            board.addQueuedMove({
-                board.getTileCell(destinationTile),
-                board.getTileCell(this),
+            board.queueMove({
+                destinationCell,
+                cell,
                 false,
                 createInstantAnimation()
             });
@@ -243,16 +241,16 @@ void PortalTile::updateState(Board& board) {
 
         if (destinationPortal) {
             // Get the positions of the current and destination portal tiles
-            raylib::Vector2 currentPosition = board.getTilePosition(this);
+			Cell cell = board.getTileCell(this);
 
-            raylib::Vector2 destinationPosition = board.getTilePosition(destinationPortal);
+            Cell destinationCell = board.getTileCell(destinationPortal);
 
             // Queue a movement to the destination portal tile
-            board.addQueuedMove({
+            board.queueMove({
                 board.getTileCell(destinationPortal),
                 board.getTileCell(this),
                 false,
-                createTeleportAnimation(raylib::Vector3(0, 0, 0), raylib::Vector3(destinationPosition.x - currentPosition.x, destinationPosition.y - currentPosition.y, 0))
+                createInstantAnimation()
             });
 
             lifetime = 0;

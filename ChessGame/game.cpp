@@ -83,10 +83,10 @@ void Game::update() {
 
 				// Create and queue a rook move
 				Move rookMove(rookTo, rookFrom, false, createInstantAnimation()); // or whatever animation you prefer
-				board.queuePlayerMove(rookMove);
+				board.queueMove(rookMove);
 			}
 
-			board.queuePlayerMove(playerMove); // Queue the player's move up
+			board.queueMove(playerMove); // Queue the player's move up
 
 			currentTurn++; // Next player's turn
 		}
