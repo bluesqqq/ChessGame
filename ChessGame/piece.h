@@ -91,6 +91,8 @@ class Piece {
 		/// <param name="offset">The offset position as a Vector3</param>
 		void setOffset(raylib::Vector3 offset);
         
+        virtual Animation createMoveAnimation(Board& board, Cell from, Cell to);
+
         /************************************|
                     MOVE FUNCTIONS
         |************************************/
@@ -184,18 +186,21 @@ class Bishop : public Piece {
     public:
         Bishop(raylib::Texture2D* texture, int player);
         std::vector<Cell> getValidMoves(Board& board) override;
+        Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class Rook : public Piece {
     public:
         Rook(raylib::Texture2D* texture, int player);
         std::vector<Cell> getValidMoves(Board& board) override;
+        Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class Queen : public Piece {
     public:
         Queen(raylib::Texture2D* texture, int player);
         std::vector<Cell> getValidMoves(Board& board) override;
+        Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class King : public Piece {

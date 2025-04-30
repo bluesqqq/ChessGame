@@ -54,6 +54,15 @@ void Piece::setOffset(raylib::Vector3 offset) {
 	this->offset = offset;
 }
 
+Animation Piece::createMoveAnimation(Board& board, Cell from, Cell to) {
+	raylib::Vector3 fromPos = board.getIsoPositionAtCell(from);
+    raylib::Vector3 toPos = board.getIsoPositionAtCell(to);
+
+	raylib::Vector3 offset = toPos - fromPos;
+
+    return createPickAndPlaceAnimation({ 0, 0, 0 }, offset);
+}
+
 void Piece::update() {
 
 }
@@ -263,6 +272,15 @@ std::vector<Cell> Bishop::getValidMoves(Board& board) {
     return moves;
 }
 
+Animation Bishop::createMoveAnimation(Board& board, Cell from, Cell to) {
+    raylib::Vector3 fromPos = board.getIsoPositionAtCell(from);
+    raylib::Vector3 toPos = board.getIsoPositionAtCell(to);
+
+    raylib::Vector3 offset = toPos - fromPos;
+
+    return createSlideAnimation({ 0, 0, 0 }, offset);
+}
+
 Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::ROOK) {
     spriteRect = pieceSprites[SPRITE_ROOK].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
@@ -302,6 +320,15 @@ std::vector<Cell> Rook::getValidMoves(Board& board) {
     return moves;
 }
 
+Animation Rook::createMoveAnimation(Board& board, Cell from, Cell to) {
+    raylib::Vector3 fromPos = board.getIsoPositionAtCell(from);
+    raylib::Vector3 toPos = board.getIsoPositionAtCell(to);
+
+    raylib::Vector3 offset = toPos - fromPos;
+
+    return createSlideAnimation({ 0, 0, 0 }, offset);
+}
+
 Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::QUEEN) {
     spriteRect = pieceSprites[SPRITE_QUEEN].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
@@ -339,6 +366,15 @@ std::vector<Cell> Queen::getValidMoves(Board& board) {
         }
     }
     return moves;
+}
+
+Animation Queen::createMoveAnimation(Board& board, Cell from, Cell to) {
+    raylib::Vector3 fromPos = board.getIsoPositionAtCell(from);
+    raylib::Vector3 toPos = board.getIsoPositionAtCell(to);
+
+    raylib::Vector3 offset = toPos - fromPos;
+
+    return createSlideAnimation({ 0, 0, 0 }, offset);
 }
 
 King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::KING) {

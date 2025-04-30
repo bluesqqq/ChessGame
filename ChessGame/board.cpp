@@ -243,7 +243,7 @@ bool Board::isPlayable() {
 void Board::queueMove(Move move) {
     Piece* animatingPiece = getTile(move.from)->getPiece();
 
-    animatingPiece->playAnimation(move.animation);
+    animatingPiece->playAnimation(animatingPiece->createMoveAnimation(*this, move.from, move.to));
 
     // It's debatable whether or not tiles that move the pieces should count as a piece move, but I'm going to say yes
 	getTile(move.from)->getPiece()->move();
