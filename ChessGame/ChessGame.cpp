@@ -170,8 +170,7 @@ int main() {
 							raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
 
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationCell, selectedCell, true, createSlideAnimation({0,0,0},differencePosition)
-                            };
+                                Move move = Move{ destinationCell, selectedCell, true };
                                 
                                 cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
@@ -191,7 +190,7 @@ int main() {
 
                     CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 5);
 
-                    Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
+                    Move move = Move(cellMove.to, cellMove.from, true);
 
                     currentPlayer.setMove(move);
                 }

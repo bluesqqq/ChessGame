@@ -82,7 +82,7 @@ void Game::update() {
 				Cell rookTo(playerMove.from.rank, rookEndFile);
 
 				// Create and queue a rook move
-				Move rookMove(rookTo, rookFrom, false, createInstantAnimation()); // or whatever animation you prefer
+				Move rookMove(rookTo, rookFrom, false); // or whatever animation you prefer
 				board.queueMove(rookMove);
 			}
 

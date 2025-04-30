@@ -11,9 +11,8 @@ struct Move {
     Cell to;
     Cell from;
     bool canOvertake;
-    Animation animation;
 
-    Move(Cell to, Cell from, bool canOvertake, Animation animation);
+    Move(Cell to, Cell from, bool canOvertake);
 
     bool overtakes(Board& board);
 };

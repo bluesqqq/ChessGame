@@ -236,13 +236,15 @@ void Board::removeExpiredTiles() {
     }
 }
 
-bool Board::isPlayable() {
-    return (queuedMoves.empty() && promotions.empty());
-}
+bool Board::isPlayable() { return (queuedMoves.empty() && promotions.empty()); }
 
 void Board::queueMove(Move move) {
     Piece* animatingPiece = getTile(move.from)->getPiece();
 
+    //TODO: need to change the animation for things like conveyor belts / portals
+    // The place to do it is here
+
+    // Play the default piece move animation
     animatingPiece->playAnimation(animatingPiece->createMoveAnimation(*this, move.from, move.to));
 
     // It's debatable whether or not tiles that move the pieces should count as a piece move, but I'm going to say yes
@@ -451,8 +453,7 @@ vector<Move> Board::getAllLegalMoves(int player) {
             Move m = {
                 move,
                 pieceLocation,
-                true,
-                createInstantAnimation()
+                true
             };
             allLegalMoves.push_back(m);
         }

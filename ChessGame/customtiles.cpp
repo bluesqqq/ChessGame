@@ -178,8 +178,7 @@ void ConveyorTile::updateState(Board& board) {
             board.queueMove({
                 destinationCell,
                 cell,
-                false,
-                createInstantAnimation()
+                false
             });
         }
     }
@@ -249,8 +248,7 @@ void PortalTile::updateState(Board& board) {
             board.queueMove({
                 board.getCell(destinationPortal),
                 board.getCell(this),
-                false,
-                createInstantAnimation()
+                false
             });
 
             lifetime = 0;
