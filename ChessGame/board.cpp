@@ -19,8 +19,8 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
 	// Place Pawns in the second and seventh ranks
     for (int file = 0; file < 8; file++) {
-        tiles[6][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
-        //tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
+        tiles[1][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
+        tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
     }
 
     // Place Rooks
@@ -129,6 +129,12 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
 raylib::Vector2 Board::cellToScreenPosition(Cell cell) {
 	raylib::Vector2 position = { (float)(cell.file - 1), (float)(8 - cell.rank) }; // Draws a1 to the left, h8 to the right
 	return position;
+}
+
+raylib::Vector3 Board::cellToIsoPosition(Cell cell)
+{
+    raylib::Vector3 position = { (float)(cell.file - 1), (float)(8 - cell.rank), 0 }; // Draws a1 to the left, h8 to the right
+    return position;
 }
 
 void Board::update() {

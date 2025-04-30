@@ -166,10 +166,14 @@ int main() {
                             // Check if the move is valid
 							Cell selectedCell    = Cell(game.getBoard().getTileCell(selectedTile));
                             Cell destinationCell = Cell(game.getBoard().getTileCell(destinationTile));
-
+                            //Get the iso positions of both cells and find the difference
+                            raylib::Vector3 selectedPosition = game.getBoard().cellToIsoPosition(selectedCell);
+                            raylib::Vector3 destinationPosition = game.getBoard().cellToIsoPosition(destinationCell);
+                            raylib::Vector3 differencePosition = destinationPosition - selectedPosition;
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationCell, selectedCell, true, createInstantAnimation()};
-
+                                Move move = Move{ destinationCell, selectedCell, true, createSlideAnimation({0,0,0},differencePosition)
+                            };
+                                
                                 cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
                             }
@@ -186,7 +190,7 @@ int main() {
                 } else { // AI's turn
                     MoveGenerator generator = MoveGenerator(game);
 
-                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 3);
+                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 4);
 
                     Move move = Move(cellMove.to, cellMove.from, true, createInstantAnimation());
 

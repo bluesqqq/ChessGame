@@ -199,6 +199,8 @@ class Board {
 
         raylib::Vector2 cellToScreenPosition(Cell cell);
 
+        raylib::Vector3 cellToIsoPosition(Cell cell);
+
 		Cell getCellAtIsoPosition(raylib::Vector3 isoPosition) {
             return Cell(8 - isoPosition.y, isoPosition.x + 1); // Ignore Z axis 
         }
