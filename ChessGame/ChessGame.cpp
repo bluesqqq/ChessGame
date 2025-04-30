@@ -167,6 +167,8 @@ int main() {
 							Cell selectedCell    = Cell(game.getBoard().getCell(selectedTile));
                             Cell destinationCell = Cell(game.getBoard().getCell(destinationTile));
 
+							raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
+
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
                                 Move move = Move{ destinationCell, selectedCell, true, createSlideAnimation({0,0,0},differencePosition)
                             };
