@@ -4,6 +4,8 @@
 #include "tile.h"
 #include "animation.h"
 #include "Cell.h"
+#include <optional>
+
 
 enum class MoveType {
     PLAYER_MOVE, // Moved by the player
@@ -11,16 +13,30 @@ enum class MoveType {
     PORTAL_MOVE // Move by a portal
 };
 
+enum class MoveFlag {
+	PROMOTION, // Pawn moving to be promoted
+	CASTLE, // King moving to castle
+	EN_PASSANT, // Pawn moving to capture en passant
+	EN_PASSANTABLE // Pawn moving to be able to capture en passant
+};
+
 class Board;
 
 struct Move {
-    Cell to;
     Cell from;
+    Cell to;
     bool canOvertake;
+	optional<MoveFlag> flag = nullopt;
 
-    Move(Cell to, Cell from, bool canOvertake);
+    Move(Cell from, Cell to, bool canOvertake = true, optional<MoveFlag> flag = nullopt);
 
     bool overtakes(Board& board);
+
+    bool operator==(const Cell& other) const {
+        // Add a breakpoint or print here
+		"HELLO! FIX ME";
+        return false;
+    }
 };
 
 #endif

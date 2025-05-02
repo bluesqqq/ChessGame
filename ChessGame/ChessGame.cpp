@@ -169,11 +169,16 @@ int main() {
 
 							raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
 
+
+							cout << "Testing for legal move on " << selectedCell.getAlgebraicNotation() << " to " << destinationCell.getAlgebraicNotation() << endl;
                             if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move{ destinationCell, selectedCell, true };
+                                Move move = Move(selectedCell, destinationCell, true);
                                 
                                 cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
                                 currentPlayer.setMove(move);
+                            }
+                            else {
+								cout << "Illegal move" << endl;
                             }
                         }
 
@@ -186,11 +191,12 @@ int main() {
                     }
 
                 } else { // AI's turn
+
                     MoveGenerator generator = MoveGenerator(game);
 
-                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 3);
+                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 2);
 
-                    Move move = Move(cellMove.to, cellMove.from, true);
+                    Move move = Move(cellMove.from, cellMove.to, true);
 
                     currentPlayer.setMove(move);
                 }

@@ -60,7 +60,14 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
         if (selectedCell.rank >= 0 && selectedCell.rank <= 7 && selectedCell.file >= 0 && selectedCell.file <= 7 && getTile(selectedCell)->hasPiece()) {
             if (getTile(selectedCell)->getPiece()->getPlayer() == player) {
                 hide = true;
-                highlightTiles = getTile(selectedCell)->getPiece()->getLegalMoves(*this);
+
+				vector<Move> legalMoves = getTile(selectedCell)->getPiece()->getLegalMoves(*this);
+
+				for (Move& move : legalMoves) {
+
+					highlightTiles.push_back(move.to);
+				}
+
                 hide = true;
             }
         }
@@ -338,6 +345,14 @@ Cell Board::getPromotionCell() {
     return cell;
 }
 
+bool Board::hasEnPassantableCell() { return enPassantableCell.has_value(); }
+
+Cell Board::getEnPassantableCell() { return enPassantableCell.value(); }
+
+void Board::setEnPassantableCell(Cell cell) { enPassantableCell = cell; }
+
+void Board::clearEnPassantableCell() { enPassantableCell.reset(); }
+
 Tile* Board::setTile(int rank, int file, Tile* newTile) {
     Tile* oldTile = tiles[rank][file];
     tiles[rank][file] = newTile;
@@ -444,18 +459,10 @@ vector<Move> Board::getAllLegalMoves(int player) {
 
         Piece* piece = tile->getPiece();
 
-        std::vector<Cell> pieceMoves = piece->getLegalMoves(*this);
+        std::vector<Move> pieceMoves = piece->getLegalMoves(*this);
 
-        for (Cell& move : pieceMoves) {
-            Tile* from = tile;
-            Tile* to = getTile(move);
-
-            Move m = {
-                move,
-                pieceLocation,
-                true
-            };
-            allLegalMoves.push_back(m);
+        for (Move& move : pieceMoves) {
+            allLegalMoves.push_back(move);
         }
     }
 
@@ -545,10 +552,10 @@ bool Board::isInCheck(int player) {
 
         Piece* piece = tile->getPiece();
 
-        std::vector<Cell> validMoves = piece->getMoves(*this);
+        std::vector<Move> moves = piece->getMoves(*this);
 
-        for (Cell& validMove : validMoves) {
-            if (validMove == kingsPosition) return true;
+        for (Move& move : moves) {
+            if (move.to == kingsPosition) return true;
         }
     }
 

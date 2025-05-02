@@ -75,19 +75,22 @@ void Piece::updateState() {
     if (frozen > 0) frozen--;
 }
 
-std::vector<Cell> Piece::getLegalMoves(Board& board) {
+std::vector<Move> Piece::getLegalMoves(Board& board) {
     if (getImmobile()) return {}; // If the piece is immobile, return an empty list
 
-    std::vector<Cell> validMoves = getMoves(board);
-    std::vector<Cell> legalMoves;
+    std::vector<Move> pseudoLegalMoves = getMoves(board);
+
+	if (pseudoLegalMoves.empty()) return {}; // If there are no moves, return an empty list
+
+    std::vector<Move> legalMoves;
 
     Cell pieceCell = board.getCell(this);
 
     Tile* originalTile = board.getTile(pieceCell);
 
-    for (Cell& move : validMoves) {
+    for (Move& move : pseudoLegalMoves) {
         // Save current state
-        Tile* moveToTile     = board.getTile(move);
+        Tile* moveToTile     = board.getTile(move.to);
 
         // Remove the captured piece from the tile
         Piece* capturedPiece = moveToTile->removePiece();
@@ -113,13 +116,13 @@ std::vector<Cell> Piece::getLegalMoves(Board& board) {
 }
 
 bool Piece::isLegalMove(Board& board, Cell move) {
-    std::vector<Cell> validMoves = getLegalMoves(board);
+    std::vector<Move> legalMoves = getLegalMoves(board);
 
-    if (validMoves.empty()) return false;
+    if (legalMoves.empty()) return false;
 
-    if (std::find(validMoves.begin(), validMoves.end(), move) != validMoves.end()) { return true; }
-
-    return false;
+    return std::any_of(legalMoves.begin(), legalMoves.end(), [&](const Move& m) {
+        return m.to == move;
+    });
 }
 
 Color Piece::getColor() const {
@@ -170,26 +173,26 @@ Pawn::Pawn(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_PAWN_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Pawn::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> Pawn::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
     int rank = pieceCell.rank;
     int file = pieceCell.file;
 
-    int direction = (player == 1 ? 1 : -1);
+    int direction = getDirection();
 
     Tile* forwardTile = board.getTile(Cell(rank + direction, file));
     Tile* doubleForwardTile = board.getTile(Cell(rank + direction * 2, file));
 
     // Move 1 forward
     if (forwardTile && !forwardTile->hasPiece()) {
-        moves.emplace_back(Cell(rank + direction, file));
+        moves.emplace_back(Move(pieceCell, Cell(rank + direction, file)));
 
         // Can move two squares on the first move
         if (forwardTile->isPassable() && this->moves == 0 && doubleForwardTile && !doubleForwardTile->hasPiece()) {
-            moves.emplace_back(Cell(rank + direction * 2, file));
+            moves.emplace_back(Move(pieceCell, Cell(rank + direction * 2, file), true, MoveFlag::EN_PASSANTABLE));
         }
     }
 
@@ -198,11 +201,11 @@ std::vector<Cell> Pawn::getMoves(Board& board) {
 
     // Capture up and left
     if (leftTile && leftTile->hasPiece() && leftTile->getPiece()->getPlayer() != player)
-        moves.emplace_back(Cell(rank + direction, file - 1));
+        moves.emplace_back(Move(pieceCell, Cell(rank + direction, file - 1)));
 
     // Capture up and right
     if (rightTile && rightTile->hasPiece() && rightTile->getPiece()->getPlayer() != player)
-        moves.emplace_back(Cell(rank + direction, file + 1));
+        moves.emplace_back(Move(pieceCell, Cell(rank + direction, file + 1)));
 
     // En passant
 
@@ -214,8 +217,8 @@ Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_KNIGHT_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Knight::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> Knight::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -229,7 +232,7 @@ std::vector<Cell> Knight::getMoves(Board& board) {
         if (tile) {
             Piece* piece = tile->getPiece();
             if (!piece || piece->getPlayer() != player) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
             }
         }
     }
@@ -242,8 +245,8 @@ Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_BISHOP_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Bishop::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> Bishop::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -262,9 +265,9 @@ std::vector<Cell> Bishop::getMoves(Board& board) {
             Piece* piece = tile->getPiece();
 
             if (!piece) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
             } else if (piece->getPlayer() != player) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
                 break;
             } else break;
 
@@ -288,8 +291,8 @@ Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Rook::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> Rook::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -308,10 +311,10 @@ std::vector<Cell> Rook::getMoves(Board& board) {
             Piece* piece = tile->getPiece();
 
             if (!piece) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
             }
             else if (piece->getPlayer() != player) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
                 break;
             }
             else break;
@@ -319,6 +322,7 @@ std::vector<Cell> Rook::getMoves(Board& board) {
             if (!tile->isPassable()) break;
         }
     }
+
     return moves;
 }
 
@@ -336,8 +340,8 @@ Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, Pi
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Queen::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> Queen::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -356,10 +360,10 @@ std::vector<Cell> Queen::getMoves(Board& board) {
             Piece* piece = tile->getPiece();
 
             if (!piece) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
             }
             else if (piece->getPlayer() != player) {
-                moves.emplace_back(_cell);
+                moves.emplace_back(Move(pieceCell, _cell));
                 break;
             }
             else break;
@@ -367,6 +371,7 @@ std::vector<Cell> Queen::getMoves(Board& board) {
             if (!tile->isPassable()) break;
         }
     }
+
     return moves;
 }
 
@@ -384,8 +389,8 @@ King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_KING_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> King::getMoves(Board& board) {
-    std::vector<Cell> moves;
+std::vector<Move> King::getMoves(Board& board) {
+    std::vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -405,7 +410,7 @@ std::vector<Cell> King::getMoves(Board& board) {
 
             // Add the move if there is no piece, or if the piece is the opponents
             if (!piece || piece->getPlayer() != player) {
-                moves.emplace_back(Cell(_rank, _file));
+                moves.emplace_back(Move(pieceCell, Cell(_rank, _file)));
             }
         }
     }
@@ -436,7 +441,7 @@ std::vector<Cell> King::getMoves(Board& board) {
                     if (!blockingPiece) {
                         int direction = (rookCell.file < pieceCell.file) ? -1 : 1;
                         // Add the tile the king would move to as a castling move
-                        moves.emplace_back(pieceCell + Cell(0, direction * 2));
+                        moves.emplace_back(Move(pieceCell, pieceCell + Cell(0, direction * 2), false, MoveFlag::CASTLE));
                     }
                 }
             }

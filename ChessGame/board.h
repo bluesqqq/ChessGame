@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <optional>
 
 #include "tile.h"
 #include "customtiles.h"
@@ -38,6 +39,11 @@ class Board {
         vector<Move> queuedMoves;
 
         queue<Cell> promotions;
+
+        /// <summary>
+		/// The cell of a pawn that can be captured en passant
+        /// </summary>
+        optional<Cell> enPassantableCell;
 
         bool updateStatePhase = false;
 
@@ -91,6 +97,18 @@ class Board {
         /// </summary>
         /// <returns>The cell with the pawn to be promoted</returns>
         Cell getPromotionCell();
+
+        /************************************|
+                EN PASSANT FUNCTIONS
+        |************************************/
+
+		bool hasEnPassantableCell();
+
+		Cell getEnPassantableCell();
+
+		void setEnPassantableCell(Cell cell);
+
+		void clearEnPassantableCell();
 
         /************************************|
                    TILE FUNCTIONS

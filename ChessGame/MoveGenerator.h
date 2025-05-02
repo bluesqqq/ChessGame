@@ -4,8 +4,10 @@
 #include "Move.h"
 #include <functional>
 #include <iostream>
+#include <cctype>
 #include "Cell.h"
 #include "Personality.h"
+#include <string>
 
 struct TileRepresentation {
 	/// <summary>
@@ -59,12 +61,102 @@ class MoveGenerator {
 						Piece* piece = tile->getPiece();
 
 						if (piece) {
-							board[rank][file] = { piece->getType(), (int8_t)(piece->getPlayer() - 1), piece->getNumberOfMoves() > 1};
+							PieceType type = piece->getType();
+							int8_t player = piece->getPlayer();
+							bool hasMoved = piece->getNumberOfMoves() > 0;
+							board[rank][file] = { type, player, hasMoved};
 						} else {
 							board[rank][file] = { PieceType::NO_PIECE, -1, false};
 						}
 					} else {
 						board[rank][file] = { PieceType::NO_PIECE, -1, false};
+					}
+				}
+			}
+
+			printBoard();
+		}
+
+		MoveGenerator(string fen) {
+
+			cout << "Constructing board representation from FEN: " << fen << endl;
+
+			int rank = 7;
+			int file = 0;
+
+			for (char c : fen) {
+				if (isdigit(c)) { // Number = skip that many files
+					int spaces = c - '0';
+					while (spaces > 0) {
+						board[rank][file] = { PieceType::NO_PIECE, -1, false };
+						file++;
+						spaces--;
+					}
+				} else if (c == '/') { // Slash = next rank
+					rank--;
+					file = 0;
+				}
+				else {
+					PieceType type = PieceType::NO_PIECE;
+					int8_t player = -1;
+					switch (c) {
+						case 'p': type = PieceType::PAWN;   player = 2; break;
+						case 'r': type = PieceType::ROOK;   player = 2; break;
+						case 'n': type = PieceType::KNIGHT; player = 2; break;
+						case 'b': type = PieceType::BISHOP; player = 2; break;
+						case 'q': type = PieceType::QUEEN;  player = 2; break;
+						case 'k': type = PieceType::KING;   player = 2; break;
+						case 'P': type = PieceType::PAWN;   player = 1; break;
+						case 'R': type = PieceType::ROOK;   player = 1; break;
+						case 'N': type = PieceType::KNIGHT; player = 1; break;
+						case 'B': type = PieceType::BISHOP; player = 1; break;
+						case 'Q': type = PieceType::QUEEN;  player = 1; break;
+						case 'K': type = PieceType::KING;   player = 1; break;
+					}
+					board[rank][file] = { type, player, false };
+					file++;
+				}
+			}
+
+			// Set moved for any piece out of place
+			for (int rank = 0; rank < 8; rank++) {
+				for (int file = 0; file < 8; file++) {
+					switch (board[rank][file].type) {
+						case PieceType::PAWN: {
+							if ((board[rank][file].player == 1 && rank != 1) || (board[rank][file].player == 2 && rank != 6))
+								board[rank][file].hasMoved = true;
+							break;
+						}
+						case PieceType::ROOK: {
+							if ((board[rank][file].player == 1 && (rank != 0 && file != 0) && (rank != 0 && file != 7)) ||
+								(board[rank][file].player == 2 && (rank != 7 && file != 0) && (rank != 7 && file != 7)))
+								board[rank][file].hasMoved = true;
+							break;
+						}
+						case PieceType::KNIGHT: {
+							if ((board[rank][file].player == 1 && (rank != 0 && file != 1) && (rank != 0 && file != 6)) ||
+								(board[rank][file].player == 2 && (rank != 7 && file != 1) && (rank != 7 && file != 6)))
+								board[rank][file].hasMoved = false;
+							break;
+						}
+						case PieceType::BISHOP: {
+							if ((board[rank][file].player == 1 && (rank != 0 && file != 2) && (rank != 0 && file != 5)) ||
+								(board[rank][file].player == 2 && (rank != 7 && file != 2) && (rank != 7 && file != 5)))
+								board[rank][file].hasMoved = false;
+							break;
+						}
+						case PieceType::QUEEN: {
+							if ((board[rank][file].player == 1 && rank != 0 && file != 3) ||
+								(board[rank][file].player == 2 && rank != 7 && file != 3))
+								board[rank][file].hasMoved = false;
+							break;
+						}
+						case PieceType::KING: {
+							if ((board[rank][file].player == 1 && rank != 0 && file != 4) ||
+								(board[rank][file].player == 2 && rank != 7 && file != 4))
+								board[rank][file].hasMoved = false;
+							break;
+						}
 					}
 				}
 			}
@@ -116,27 +208,33 @@ class MoveGenerator {
 		void printBoard() {
 			std::cout << std::endl << " BOARD REPRESENTATION: " << std::endl;
 
-			for (int rank = 0; rank < 8; rank++) {
+			for (int rank = 7; rank >= 0; rank--) {
 				for (int file = 0; file < 8; file++) {
-					std::cout << getPieceString(board[rank][file].type) << " ";
+					std::cout << getPieceString(board[rank][file].type, board[rank][file].player) << " ";
 				}
 				std::cout << std::endl;
 			}
 		}
 
-		string getPieceString(PieceType type) {
+		string getPieceString(PieceType type, int8_t player = 1) {
+			string pieceString = "-";
 			switch (type) {
-			case PieceType::PAWN: return "P";
-			case PieceType::KNIGHT: return "N";
-			case PieceType::BISHOP: return "B";
-			case PieceType::ROOK: return "R";
-			case PieceType::QUEEN: return "Q";
-			case PieceType::KING: return "K";
-			default: return "-";
+				case PieceType::PAWN: pieceString = "P"; break;
+				case PieceType::KNIGHT: pieceString = "N"; break;
+				case PieceType::BISHOP: pieceString = "B"; break;
+				case PieceType::ROOK: pieceString = "R"; break;
+				case PieceType::QUEEN: pieceString = "Q"; break;
+				case PieceType::KING: pieceString = "K"; break;
 			}
+
+			if (player != 1) {
+				pieceString = tolower(pieceString[0]);
+			}
+
+			return pieceString;
 		}
 
-		bool isInsideBoard(int rank, int file) { return rank >= 0 && rank < 8 && file >= 0 && file < 8; }
+		bool isInsideBoard(int rank, int file) { return rank >= 0 && rank <= 7 && file >= 0 && file <= 7; }
 
 		bool isEmpty(int rank, int file) { return board[rank][file].type == PieceType::NO_PIECE; }
 
@@ -145,7 +243,7 @@ class MoveGenerator {
 		bool isKingInCheck(int player) {
 			int kingRank = -1, kingFile = -1;
 
-			// Find the king
+			// Find the player's king
 			for (int rank = 0; rank < 8; rank++) {
 				for (int file = 0; file < 8; file++) {
 					if (board[rank][file].type == PieceType::KING && board[rank][file].player == player) {
@@ -156,7 +254,9 @@ class MoveGenerator {
 				}
 			}
 
-			if (kingRank == -1 || kingFile == -1) return true; // King not found = ????????
+			if (kingRank == -1 || kingFile == -1) {
+				return true; // King not found = ????????
+			}
 
 			// Check if any opponent piece can capture the king
 			for (int rank = 0; rank < 8; rank++) {
@@ -167,10 +267,7 @@ class MoveGenerator {
 						Cell kingCell = Cell(kingRank, kingFile);
 
 						for (const CellMove& move : pieceMoves) {
-							if (move.to == kingCell) {
-								// King is under attack
-								return true;
-							}
+							if (move.to == kingCell) return true; // King is under attack
 						}
 					}
 				}
@@ -190,7 +287,7 @@ class MoveGenerator {
 
 			switch (type) {
 				case PieceType::PAWN: {
-					int dir = (tile.player == 0) ? 1 : -1; // player 0 goes up, player 1 down
+					int dir = (tile.player == 1) ? 1 : -1; // player 1 goes up, player 2 down
 
 					// Forward move
 					int nextRank = rank + dir;
@@ -364,7 +461,7 @@ class MoveGenerator {
 					legalMoves.push_back(move);
 				}
 
-				undoMove(move, board[move.from.rank][move.from.file], board[move.to.rank][move.to.file]);
+				undoMove(move, previousFrom, previousTo);
 			}
 
 			return legalMoves;
@@ -394,14 +491,13 @@ class MoveGenerator {
 		CellMove chooseMove(int player, int ply) {
 			int movesCalculated = 0;
 
-			player -= 1;  // Adjust player number (assumes input is 1 or 2)
 			std::cout << "Attempting to find best move for player #" << player << std::endl;
-			std::vector<CellMove> allMoves = getAllMoves(player);
+			std::vector<CellMove> allMoves = getAllLegalMoves(player);
 			CellMove bestMove;
 			int bestScore = INT_MIN;
 
 			std::cout << "Number of found moves: " << allMoves.size() << std::endl;
-			std::cout << "Checking moves... " << std::endl;
+			std::cout << "Checking moves: ";
 
 			// Pure minimax (no alpha-beta)
 			std::function<int(int, int)> minimax = [&](int currentPlayer, int depth) {
@@ -410,7 +506,7 @@ class MoveGenerator {
 				}
 
 				int bestMoveValue = (currentPlayer == player) ? INT_MIN : INT_MAX;
-				std::vector<CellMove> moves = getAllMoves(currentPlayer);
+				std::vector<CellMove> moves = getAllLegalMoves(currentPlayer);
 
 				for (auto& move : moves) {
 					// Save current state
@@ -421,7 +517,7 @@ class MoveGenerator {
 					makeMove(move);
 
 					// Recurse
-					int score = minimax((currentPlayer + 1) % 2, depth - 1);
+					int score = minimax((currentPlayer) % 2 + 1, depth - 1);
 					movesCalculated++;
 
 					// Undo move
@@ -441,6 +537,7 @@ class MoveGenerator {
 
 			// Top level: check each move separately
 			for (auto& move : allMoves) {
+				cout << "#";
 				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
 				TileRepresentation previousTo = board[move.to.rank][move.to.file];
 
@@ -456,6 +553,8 @@ class MoveGenerator {
 					bestMove = move;
 				}
 			}
+
+			cout << " Done!" << endl;
 
 			printShannonNumber(movesCalculated, ply);
 

@@ -11,9 +11,9 @@ struct Cell {
 
     Cell(int rank, int file);
 
-    string getAlgebraicNotation();
+    string getAlgebraicNotation() const;
 
-    bool isInBounds() {
+    bool isInBounds() const {
         return (rank >= 0 && rank <= 7 && file >= 0 && file <= 7);
     }
 
