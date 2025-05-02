@@ -208,9 +208,20 @@ std::vector<Move> Pawn::getMoves(Board& board) {
         moves.emplace_back(Move(pieceCell, Cell(rank + direction, file + 1)));
 
     // En passant
+    if (board.hasEnPassantableCell()) {
+		Cell enPassantableCell = board.getEnPassantableCell();
+
+		if (enPassantableCell == Cell(rank, file - 1)) { // En passant left
+			moves.emplace_back(Move(pieceCell, Cell(rank + direction, file - 1), false, MoveFlag::EN_PASSANT));
+		} else if (enPassantableCell == Cell(rank, file + 1)) { // En passant right
+			moves.emplace_back(Move(pieceCell, Cell(rank + direction, file + 1), false, MoveFlag::EN_PASSANT));
+		}
+    }
 
     return moves;
 }
+
+string Pawn::getAlgebraicNotation() { return ""; }
 
 Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::KNIGHT) {
     spriteRect = pieceSprites[SPRITE_KNIGHT].toSpriteRect();
@@ -239,6 +250,8 @@ std::vector<Move> Knight::getMoves(Board& board) {
 
     return moves;
 }
+
+string Knight::getAlgebraicNotation() { return "N"; }
 
 Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::BISHOP) {
     spriteRect = pieceSprites[SPRITE_BISHOP].toSpriteRect();
@@ -285,6 +298,8 @@ Animation Bishop::createMoveAnimation(Board& board, Cell from, Cell to) {
 
     return createSlideAnimation({ 0, 0, 0 }, offset);
 }
+
+string Bishop::getAlgebraicNotation() { return "B"; }
 
 Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::ROOK) {
     spriteRect = pieceSprites[SPRITE_ROOK].toSpriteRect();
@@ -335,6 +350,8 @@ Animation Rook::createMoveAnimation(Board& board, Cell from, Cell to) {
     return createSlideAnimation({ 0, 0, 0 }, offset);
 }
 
+string Rook::getAlgebraicNotation() { return "R"; }
+
 Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::QUEEN) {
     spriteRect = pieceSprites[SPRITE_QUEEN].toSpriteRect();
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
@@ -383,6 +400,8 @@ Animation Queen::createMoveAnimation(Board& board, Cell from, Cell to) {
 
     return createSlideAnimation({ 0, 0, 0 }, offset);
 }
+
+string Queen::getAlgebraicNotation() { return "Q"; }
 
 King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::KING) {
     spriteRect = pieceSprites[SPRITE_KING].toSpriteRect();
@@ -451,3 +470,5 @@ std::vector<Move> King::getMoves(Board& board) {
 
     return moves;
 }
+
+string King::getAlgebraicNotation() { return "K"; }

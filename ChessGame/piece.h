@@ -12,6 +12,8 @@
 #include <optional>
 #include "Move.h"
 
+using namespace std;
+
 class Board;
 
 enum class PieceType {
@@ -118,14 +120,14 @@ class Piece {
         /// </summary>
         /// <param name="board">The board this piece is on</param>
         /// <returns>A vector of all cells this piece can move to</returns>
-        virtual std::vector<Move> getMoves(Board& board) = 0;
+        virtual vector<Move> getMoves(Board& board) = 0;
 
         /// <summary>
         /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
         /// </summary>
         /// <param name="board">The board this piece is on</param>
         /// <returns>>A vector of all cells this piece can legally move to</returns>
-        std::vector<Move> getLegalMoves(Board& board);
+        vector<Move> getLegalMoves(Board& board);
         
         /// <summary>
         /// Determines if a move is legal
@@ -169,48 +171,56 @@ class Piece {
         /// Gets the name of the piece
         /// </summary>
         /// <returns>The name of the piece as a string</returns>
-        std::string getName();
+        string getName();
 
         PieceType getType();
+
+        virtual string getAlgebraicNotation() = 0;
 };
 
 class Pawn : public Piece {
     public:
         Pawn(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
+        string getAlgebraicNotation() override;
 };
 
 class Knight : public Piece {
     public:
         Knight(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
+        string getAlgebraicNotation() override;
 };
 
 class Bishop : public Piece {
     public:
         Bishop(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
+        string getAlgebraicNotation() override;
 };
 
 class Rook : public Piece {
     public:
         Rook(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
+        string getAlgebraicNotation() override;
 };
 
 class Queen : public Piece {
     public:
         Queen(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
+        string getAlgebraicNotation() override;
 };
 
 class King : public Piece {
     public:
         King(raylib::Texture2D* texture, int player);
-        std::vector<Move> getMoves(Board& board) override;
+        vector<Move> getMoves(Board& board) override;
+        string getAlgebraicNotation() override;
 };
 
 #endif

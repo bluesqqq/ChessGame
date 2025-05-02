@@ -60,6 +60,7 @@ void Game::update() {
 
 		// Check if the current player has made a move
 		if (currentPlayer.hasMove()) {
+			cout << "PLAYER HAS A MOVE!" << endl;
 			Move playerMove = currentPlayer.getMove(); // Get the player's move
 			// Can add extra failsafe handling here if needed, but not for now
 
@@ -67,23 +68,44 @@ void Game::update() {
 
 			// Since castling is the only move that moves 2 pieces at the same time, i'm just handling it here.
 			// It might be a good idea to test this with interactions though.
-			
-			// Check if it's a castling move (king moves 2 spaces horizontally on the same rank)
-			if (dynamic_cast<King*>(piece) && abs(playerMove.to.file - playerMove.from.file) >= 2 &&
-				playerMove.to.rank == playerMove.from.rank) {
 
-				int direction = (playerMove.to.file > playerMove.from.file) ? 1 : -1;
+			// Handle specific move flags
+			if (playerMove.flag.has_value()) {
+				switch (playerMove.flag.value()) {
+					case MoveFlag::CASTLE: { // King castling
+						cout << "Castled!" << endl;
+						int direction = (playerMove.to.file > playerMove.from.file) ? 1 : -1;
 
-				// Rook starts on the edge of the board depending on direction
-				int rookStartFile = (direction == 1) ? 8 : 1;
-				int rookEndFile = playerMove.from.file + direction;
+						// Rook starts on the edge of the board depending on direction
+						int rookStartFile = (direction == 1) ? 7 : 0;
+						int rookEndFile = playerMove.from.file + direction;
 
-				Cell rookFrom(playerMove.from.rank, rookStartFile);
-				Cell rookTo(playerMove.from.rank, rookEndFile);
+						Cell rookFrom(playerMove.from.rank, rookStartFile);
+						Cell rookTo(playerMove.from.rank, rookEndFile);
 
-				// Create and queue a rook move
-				Move rookMove(rookTo, rookFrom, false); // or whatever animation you prefer
-				board.queueMove(rookMove);
+						// Create and queue a rook move
+						Move rookMove(rookFrom, rookTo, false); // or whatever animation you prefer
+						board.queueMove(rookMove);
+						board.clearEnPassantableCell();
+						break;
+					}
+					case MoveFlag::EN_PASSANTABLE: { // Pawn moving two tiles
+						cout << "Piece is en passantable!" << endl;
+						board.setEnPassantableCell(playerMove.to); // Set the en passantable cell
+						break;
+					}
+					case MoveFlag::EN_PASSANT: { // Pawn taking a pawn in en passant
+						cout << "Player used en passant!" << endl;
+						break;
+					}
+					case MoveFlag::PROMOTION: { // Pawm moving to be promoted
+						cout << "Pawn is to be promoted!" << endl;
+						board.clearEnPassantableCell();
+						break;
+					}
+				}
+			} else {
+				board.clearEnPassantableCell();
 			}
 
 			board.queueMove(playerMove); // Queue the player's move up

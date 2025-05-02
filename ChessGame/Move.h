@@ -5,7 +5,9 @@
 #include "animation.h"
 #include "Cell.h"
 #include <optional>
+#include <string>
 
+using namespace std;
 
 enum class MoveType {
     PLAYER_MOVE, // Moved by the player
@@ -30,7 +32,9 @@ struct Move {
 
     Move(Cell from, Cell to, bool canOvertake = true, optional<MoveFlag> flag = nullopt);
 
-    bool overtakes(Board& board);
+	string getAlgebraicNotation(Board& board) const;
+
+    bool overtakes(Board& board) const;
 
     bool operator==(const Cell& other) const {
         // Add a breakpoint or print here

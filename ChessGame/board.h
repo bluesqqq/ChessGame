@@ -294,6 +294,8 @@ class Board {
         /// <returns>true if it is a valid move, false if not</returns>
         bool isLegalMove(int player, Cell piece, Cell move);
 
+        Move getMove(Cell pieceCell, Cell moveCell);
+
         vector<Move> getAllLegalMoves(int player);
 
         /// <summary>

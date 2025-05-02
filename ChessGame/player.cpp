@@ -26,7 +26,6 @@ Move Player::getMove() {
 }
 
 void Player::setMove(Move move) {
-	cout << "setting move of player..." << endl;
 	nextMove = move;
 }
 

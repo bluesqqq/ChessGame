@@ -67,17 +67,17 @@ Animation createInstantAnimation() {
 
 Animation createSlideAnimation(raylib::Vector3 start, raylib::Vector3 end) {
 	return Animation({
-		Keyframe(0, start), 
-		Keyframe(1, end)
+		Keyframe(0, start, EASE_IN_OUT), 
+		Keyframe(0.5, end)
 	});
 }
 
 Animation createPickAndPlaceAnimation(raylib::Vector3 start, raylib::Vector3 end) {
 	return Animation({
 		Keyframe(0, start, EASE_OUT), // Starting Position
-		Keyframe(0.5, start + raylib::Vector3(0, 0, 2), EASE_IN_OUT), // Above Starting Position
-		Keyframe(1.5, end + raylib::Vector3(0, 0, 2), EASE_IN), // Above Ending Position
-		Keyframe(2, end) // Ending Position
+		Keyframe(0.3, start + raylib::Vector3(0, 0, 2), EASE_IN_OUT), // Above Starting Position
+		Keyframe(0.9, end + raylib::Vector3(0, 0, 2), EASE_IN), // Above Ending Position
+		Keyframe(1.2, end) // Ending Position
 	});
 }
 

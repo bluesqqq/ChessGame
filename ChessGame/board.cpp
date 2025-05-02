@@ -306,6 +306,13 @@ void Board::executeQueuedMoves() {
             cout << "ERROR: cannot find piece at location: " << move.from.rank << ", " << move.from.file << endl;
         }
 
+        // If the move is en passant, remove the overtaken piece manually
+        if (move.flag.has_value() && move.flag.value() == MoveFlag::EN_PASSANT) {
+            Piece* overtakenPiece = getTile(getEnPassantableCell())->removePiece();
+
+            // TODO: do something with this piece here so it doesn't cause a memory leak
+        }
+
         getTile(move.to)->queuePiece(getTile(move.from)->removePiece());
     }
 
@@ -446,6 +453,22 @@ bool Board::isLegalMove(int player, Cell piece, Cell move) {
     if (!movePiece->isLegalMove(*this, move)) return false;
 
     return true;
+}
+
+Move Board::getMove(Cell pieceCell, Cell moveCell) {
+	Piece* piece = getPiece(pieceCell);
+
+    if (!piece) throw std::runtime_error("Unable to find piece.");
+
+    // Get all legal moves for this piece
+	vector<Move> moves = piece->getLegalMoves(*this);
+
+    // Find the one that matches the move cell and return it (using find function)
+	auto it = std::find_if(moves.begin(), moves.end(), [&](const Move& move) { return move.to == moveCell; });
+
+	if (it != moves.end()) return *it; // Return the found move
+
+	throw std::runtime_error("Unable to find move.");
 }
 
 

@@ -158,28 +158,18 @@ int main() {
 
                     // LEFT RELEASE
                     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-                        Tile* destinationTile = board.getTile(board.getCellAtScreenPosition(mousePosition, camera));
+						// Get the cell at the mouse position
+                        Cell destinationCell = board.getCellAtScreenPosition(mousePosition, camera);
 
-                        // Check if tile exists
-                        if (destinationTile) {
+						Cell selectedCell = Cell(game.getBoard().getCell(selectedTile)); // Cell the user selected the piece from
 
-                            // Check if the move is valid
-							Cell selectedCell    = Cell(game.getBoard().getCell(selectedTile));
-                            Cell destinationCell = Cell(game.getBoard().getCell(destinationTile));
+						raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
 
-							raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
-
-
-							cout << "Testing for legal move on " << selectedCell.getAlgebraicNotation() << " to " << destinationCell.getAlgebraicNotation() << endl;
-                            if (game.getBoard().isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-                                Move move = Move(selectedCell, destinationCell, true);
+                        if (board.isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
+							Move move = board.getMove(selectedCell, destinationCell); // Get the move, with flags
                                 
-                                cout << "Setting Move: From: " << move.from.getAlgebraicNotation() << " To: " << move.to.getAlgebraicNotation() << endl;
-                                currentPlayer.setMove(move);
-                            }
-                            else {
-								cout << "Illegal move" << endl;
-                            }
+                            cout << "Setting Player Move: " << move.getAlgebraicNotation(board) << endl;
+                            currentPlayer.setMove(move);
                         }
 
                         selectedTile = nullptr;
@@ -196,9 +186,15 @@ int main() {
 
                     CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 2);
 
-                    Move move = Move(cellMove.from, cellMove.to, true);
+                    if (board.isLegalMove(game.getPlayerTurn(), cellMove.from, cellMove.to)) {
+                        Move move = board.getMove(cellMove.from, cellMove.to); // Get the move, with flags
 
-                    currentPlayer.setMove(move);
+                        cout << "Setting AI Move: " << move.getAlgebraicNotation(board) << endl;
+                        currentPlayer.setMove(move);
+                    } else {
+						cout << "AI move is illegal! Attempting to make move: " << endl;
+                    }
+
                 }
             }
         } else {
