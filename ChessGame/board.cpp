@@ -57,7 +57,7 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
 
     if (isPlayable()) { // Highlight selected tiles if in play
         // If piece is selected, hide the other pieces
-        if (selectedCell.rank > 0 && selectedCell.rank < 9 && selectedCell.file > 0 && selectedCell.file < 9 && getTile(selectedCell)->hasPiece()) {
+        if (selectedCell.rank >= 0 && selectedCell.rank <= 7 && selectedCell.file >= 0 && selectedCell.file <= 7 && getTile(selectedCell)->hasPiece()) {
             if (getTile(selectedCell)->getPiece()->getPlayer() == player) {
                 hide = true;
                 highlightTiles = getTile(selectedCell)->getPiece()->getLegalMoves(*this);
@@ -71,7 +71,7 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
     for (int rank = -1; rank <= 8; rank++) {
         for (int file = -1; file <= 8; file++) {
 
-			raylib::Vector3 tilePosition = getIsoPositionAtCell(Cell(rank + 1, file + 1));
+			raylib::Vector3 tilePosition = getIsoPositionAtCell(Cell(rank, file));
 
             if (rank == -1 && file == -1) {
                 drawTile(renderQueue, rank, file, TILE_SE_CORNER);
@@ -106,16 +106,16 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
                 continue;
             }
 
-            Cell currentCell = Cell(rank + 1, file + 1); // make this whole function more representative of this
+            Cell currentCell = Cell(rank, file); // make this whole function more representative of this
 
             auto it = std::find(highlightTiles.begin(), highlightTiles.end(), currentCell);
 
-            Tile* tile = tiles[rank][file];
+            Tile* tile = getTile(currentCell);
 
             // Apply sine wave for a wavy effect
             float waveOffset = std::max(sin(time + (rank + file) * 0.4f) * 0.2f, 0.0f);
 
-            if (selectedCell.rank - 1 == rank && selectedCell.file - 1 == file) { // Mouse is hovered
+            if (selectedCell.rank == rank && selectedCell.file == file) { // Mouse is hovered
                 tile->draw(theme, renderQueue, tilePosition.x, tilePosition.y, waveOffset, true, false);
             } else if (it != highlightTiles.end()) { // Possible moves on hovered piece
                 tile->draw(theme, renderQueue, tilePosition.x, tilePosition.y, waveOffset, true, false);
@@ -130,7 +130,7 @@ Cell Board::getCell(Piece* piece) {
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
             if (tiles[rank][file]->hasPiece() && tiles[rank][file]->getPiece() == piece) {
-                return Cell(rank + 1, file + 1);
+                return Cell(rank, file);
             }
         }
     }
@@ -151,7 +151,7 @@ Piece* Board::getPiece(Cell cell) {
 }
 
 raylib::Vector3 Board::getIsoPositionAtCell(Cell cell) {
-	raylib::Vector3 position = { (float)(cell.file - 1), (float)(8 - cell.rank), 0 }; // Draws a1 to the left, h8 to the right
+	raylib::Vector3 position = { (float)(cell.file), (float)(7 - cell.rank), 0 }; // Draws a1 to the left, h8 to the right
 	return position;
 }
 
@@ -160,7 +160,7 @@ raylib::Vector2 Board::getScreenPositionAtCell(Cell cell) {
 }
 
 Cell Board::getCellAtIsoPosition(raylib::Vector3 isoPosition) {
-    return Cell(8 - isoPosition.y, isoPosition.x + 1); // Ignore Z axis 
+    return Cell(7 - isoPosition.y, isoPosition.x); // Ignore Z axis 
 }
 
 Cell Board::getCellAtScreenPosition(raylib::Vector2 screenPosition, raylib::Camera2D camera) {
@@ -314,8 +314,8 @@ void Board::executeQueuedMoves() {
 
 void Board::promotePieces(int player) {
     // Add all promotions
-    for (int file = 1; file <= 8; file++) {
-        Cell cell = Cell(8, file); // Cells that a white pawn can get promoted on
+    for (int file = 0; file < 8; file++) {
+        Cell cell = Cell(7, file); // Cells that a white pawn can get promoted on
 
         Tile* tile = getTile(cell);
 
@@ -380,7 +380,7 @@ Cell Board::getCell(Tile* tile) {
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
             if (tiles[rank][file] == tile) {
-                return Cell(rank + 1, file + 1);
+                return Cell(rank, file);
             }
         }
     }
@@ -465,8 +465,8 @@ vector<Move> Board::getAllLegalMoves(int player) {
 std::vector<Cell> Board::getPlayersPieces(int player) {
     std::vector<Cell> locations;
 
-    for (int rank = 1; rank <= 8; rank++) {
-        for (int file = 1; file <= 8; file++) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
             Tile* tile = getTile(Cell(rank,file));
 
             if (tile) {
@@ -488,8 +488,8 @@ template <typename T>
 std::vector<Cell> Board::getPlayersPiecesOfType(int player) {
     std::vector<Cell> locations;
 
-    for (int rank = 1; rank <= 8; rank++) {
-        for (int file = 1; file <= 8; file++) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
             Tile* tile = getTile(Cell(rank, file));
 
             if (tile) {
@@ -545,7 +545,7 @@ bool Board::isInCheck(int player) {
 
         Piece* piece = tile->getPiece();
 
-        std::vector<Cell> validMoves = piece->getValidMoves(*this);
+        std::vector<Cell> validMoves = piece->getMoves(*this);
 
         for (Cell& validMove : validMoves) {
             if (validMove == kingsPosition) return true;

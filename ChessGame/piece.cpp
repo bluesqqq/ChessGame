@@ -78,7 +78,7 @@ void Piece::updateState() {
 std::vector<Cell> Piece::getLegalMoves(Board& board) {
     if (getImmobile()) return {}; // If the piece is immobile, return an empty list
 
-    std::vector<Cell> validMoves = getValidMoves(board);
+    std::vector<Cell> validMoves = getMoves(board);
     std::vector<Cell> legalMoves;
 
     Cell pieceCell = board.getCell(this);
@@ -170,7 +170,7 @@ Pawn::Pawn(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_PAWN_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Pawn::getValidMoves(Board& board) {
+std::vector<Cell> Pawn::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);
@@ -204,6 +204,8 @@ std::vector<Cell> Pawn::getValidMoves(Board& board) {
     if (rightTile && rightTile->hasPiece() && rightTile->getPiece()->getPlayer() != player)
         moves.emplace_back(Cell(rank + direction, file + 1));
 
+    // En passant
+
     return moves;
 }
 
@@ -212,7 +214,7 @@ Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_KNIGHT_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Knight::getValidMoves(Board& board) {
+std::vector<Cell> Knight::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);
@@ -240,7 +242,7 @@ Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_BISHOP_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Bishop::getValidMoves(Board& board) {
+std::vector<Cell> Bishop::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);
@@ -286,7 +288,7 @@ Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Rook::getValidMoves(Board& board) {
+std::vector<Cell> Rook::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);
@@ -334,7 +336,7 @@ Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, Pi
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> Queen::getValidMoves(Board& board) {
+std::vector<Cell> Queen::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);
@@ -382,7 +384,7 @@ King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_KING_FROZEN].toSpriteRect();
 }
 
-std::vector<Cell> King::getValidMoves(Board& board) {
+std::vector<Cell> King::getMoves(Board& board) {
     std::vector<Cell> moves;
 
     Cell pieceCell = board.getCell(this);

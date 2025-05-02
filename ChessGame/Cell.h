@@ -14,7 +14,7 @@ struct Cell {
     string getAlgebraicNotation();
 
     bool isInBounds() {
-        return (rank >= 1 && rank <= 8 && file >= 1 && file <= 8);
+        return (rank >= 0 && rank <= 7 && file >= 0 && file <= 7);
     }
 
     bool operator==(const Cell& other) const;

@@ -6,11 +6,9 @@ Cell::Cell(int rank, int file) : rank(rank), file(file) {}
 
 string Cell::getAlgebraicNotation() {
 
-    if (rank < 1 || rank > 8 || file < 1 || file > 8) {
-        return "Invalid";
-    }
-    char f = ('a' + (file - 1));
-    return f + to_string(rank);
+    if (!isInBounds()) return "Invalid";
+    char f = ('a' + file);
+    return f + to_string(rank + 1);
 }
 
 bool Cell::operator==(const Cell& other) const {

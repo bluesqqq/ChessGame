@@ -129,7 +129,7 @@ class Board {
         /// <returns>A pointer to the tile at the cell</returns>
         Tile* getTile(Cell cell) {
             if (!cell.isInBounds()) return nullptr;
-            return tiles[cell.rank - 1][cell.file - 1];
+            return tiles[cell.rank][cell.file];
         }
 
         /// <summary>

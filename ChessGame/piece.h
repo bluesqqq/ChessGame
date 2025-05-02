@@ -114,7 +114,7 @@ class Piece {
         /// </summary>
         /// <param name="board">The board this piece is on</param>
         /// <returns>A vector of all cells this piece can move to</returns>
-        virtual std::vector<Cell> getValidMoves(Board& board) = 0;
+        virtual std::vector<Cell> getMoves(Board& board) = 0;
 
         /// <summary>
         /// Returns a list of legal moves based on this piece's ruleset and the ruleset of the game.
@@ -173,40 +173,40 @@ class Piece {
 class Pawn : public Piece {
     public:
         Pawn(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
 };
 
 class Knight : public Piece {
     public:
         Knight(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
 };
 
 class Bishop : public Piece {
     public:
         Bishop(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class Rook : public Piece {
     public:
         Rook(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class Queen : public Piece {
     public:
         Queen(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
         Animation createMoveAnimation(Board& board, Cell from, Cell to) override;
 };
 
 class King : public Piece {
     public:
         King(raylib::Texture2D* texture, int player);
-        std::vector<Cell> getValidMoves(Board& board) override;
+        std::vector<Cell> getMoves(Board& board) override;
 };
 
 #endif

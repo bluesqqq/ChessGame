@@ -5,6 +5,12 @@
 #include "animation.h"
 #include "Cell.h"
 
+enum class MoveType {
+    PLAYER_MOVE, // Moved by the player
+    CONVEYOR_MOVE, // Moved by a conveyor
+    PORTAL_MOVE // Move by a portal
+};
+
 class Board;
 
 struct Move {
