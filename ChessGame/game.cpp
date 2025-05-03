@@ -60,7 +60,7 @@ void Game::update() {
 
 		// Check if the current player has made a move
 		if (currentPlayer.hasMove()) {
-			cout << "PLAYER HAS A MOVE!" << endl;
+			cout << endl <<"Player #" << getPlayerTurn() << " has made a move!" << endl;
 			Move playerMove = currentPlayer.getMove(); // Get the player's move
 			// Can add extra failsafe handling here if needed, but not for now
 
@@ -114,7 +114,8 @@ void Game::update() {
 		}
 	}
 
-	board.update(getPlayerTurn()); // Update the board
+	// TODO: fix this so i dont have to update it like this
+	board.update(getPlayerTurn() % 2 + 1); // Update the board
 }
 
 void Game::updateState() {

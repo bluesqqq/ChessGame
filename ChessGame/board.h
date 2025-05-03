@@ -89,7 +89,7 @@ class Board {
         /// <summary>
         /// Checks if there are any pawn promotions to handle
         /// </summary>
-        /// <returns>true if there are any pawns to promote, flse if not</returns>
+        /// <returns>true if there are any pawns to promote, false if not</returns>
         bool hasPromotion();
 
         /// <summary>
@@ -333,6 +333,22 @@ class Board {
         void spawnRandomTiles();
 
         void spawnRandomTiles(TileSpawnType type);
+
+        void printBoard() {
+            cout << endl << " BOARD: " << endl;
+
+            for (int rank = 7; rank >= 0; rank--) {
+                for (int file = 0; file < 8; file++) {
+					Piece* piece = tiles[rank][file]->getPiece();
+                    if (piece) {
+						cout << piece->getAlgebraicNotation() << " ";
+                    } else {
+						cout << "- ";
+                    }
+                }
+                cout << endl;
+            }
+        }
 };
 
 #endif // BOARD_H

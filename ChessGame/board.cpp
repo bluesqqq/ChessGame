@@ -32,18 +32,18 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
     // Place Knights
     tiles[0][1]->setPiece(new Knight(atlas, 1));
     tiles[0][6]->setPiece(new Knight(atlas, 1));
-    tiles[7][1]->setPiece(new Knight(atlas, 2));
-    tiles[7][6]->setPiece(new Knight(atlas, 2));
+    //tiles[7][1]->setPiece(new Knight(atlas, 2));
+    //tiles[7][6]->setPiece(new Knight(atlas, 2));
 
     // Place Bishops
     tiles[0][2]->setPiece(new Bishop(atlas, 1));
     tiles[0][5]->setPiece(new Bishop(atlas, 1));
     tiles[7][2]->setPiece(new Bishop(atlas, 2));
-    tiles[7][5]->setPiece(new Bishop(atlas, 2));
+    //tiles[7][5]->setPiece(new Bishop(atlas, 2));
 
     // Place Queens
     tiles[0][3]->setPiece(new Queen(atlas, 1)); 
-    tiles[7][3]->setPiece(new Queen(atlas, 2)); 
+    //tiles[7][3]->setPiece(new Queen(atlas, 2)); 
 
     // Place Kings
     tiles[0][4]->setPiece(new King(atlas, 1));
@@ -190,7 +190,6 @@ void Board::update(int player) {
     double currentTime = GetTime();
 
     if (!queuedMoves.empty()) { // Continued unfinished moves until all are gone
-
         bool unfinishedAnimations = false;
 
         // Check if any moves have unfinished animations
@@ -243,7 +242,7 @@ void Board::removeExpiredTiles() {
     }
 }
 
-bool Board::isPlayable() { return (queuedMoves.empty() && promotions.empty()); }
+bool Board::isPlayable() { return (queuedMoves.empty() && !hasPromotion()); }
 
 void Board::queueMove(Move move) {
     Piece* animatingPiece = getTile(move.from)->getPiece();
@@ -297,6 +296,7 @@ void Board::removeConflictingMoves() {
 }
 
 void Board::executeQueuedMoves() {
+	cout << "Executing queued moves" << endl;
     for (auto& move : queuedMoves) {
         Piece* animatingPiece = getTile(move.from)->getPiece();
 
@@ -327,17 +327,22 @@ void Board::executeQueuedMoves() {
 }
 
 void Board::promotePieces(int player) {
+    int piecesPromoted = 0;
     // Add all promotions
     for (int file = 0; file < 8; file++) {
-        Cell cell = Cell(7, file); // Cells that a white pawn can get promoted on
+        int rank = player == 1 ? 7 : 0;
+        Cell promotionCell = Cell(rank, file); // Cells that a white pawn can get promoted on
 
-        Tile* tile = getTile(cell);
+        Piece* promotionPiece = getPiece(promotionCell);
 
-        Piece* piece = tile->getPiece();
-
-        if (piece && piece->getPlayer() == player && dynamic_cast<Pawn*>(piece) != nullptr) {
-            promotions.push(cell);
+        if (promotionPiece && promotionPiece->getPlayer() == player && promotionPiece->getType() == PieceType::PAWN) {
+            promotions.push(promotionCell);
+			piecesPromoted++;
         }
+    }
+
+    if (piecesPromoted > 0) {
+		cout << "Promoting " << piecesPromoted << " pieces!" << endl;
     }
 }
 

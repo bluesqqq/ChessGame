@@ -121,7 +121,6 @@ int main() {
         if (!game.queuedForUpdate) {
 
             if (game.isPlayable()) {
-                
                 if (game.getPlayerTurn() == 1) {
 
                     // LEFT CLICK
@@ -184,17 +183,17 @@ int main() {
 
                     MoveGenerator generator = MoveGenerator(game);
 
-                    CellMove cellMove = generator.chooseMove(game.getPlayerTurn(), 2);
+                    Move aiMove = generator.chooseMove(game.getPlayerTurn(), 3);
 
-                    if (board.isLegalMove(game.getPlayerTurn(), cellMove.from, cellMove.to)) {
-                        Move move = board.getMove(cellMove.from, cellMove.to); // Get the move, with flags
+                    if (board.isLegalMove(game.getPlayerTurn(), aiMove.from, aiMove.to)) {
+                        Move move = board.getMove(aiMove.from, aiMove.to); // Get the move, with flags
+                        // NOTE: this might not be necessary now that i changed from cellmove to move, idk yet
 
                         cout << "Setting AI Move: " << move.getAlgebraicNotation(board) << endl;
                         currentPlayer.setMove(move);
                     } else {
 						cout << "AI move is illegal! Attempting to make move: " << endl;
                     }
-
                 }
             }
         } else {

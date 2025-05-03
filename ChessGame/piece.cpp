@@ -221,7 +221,7 @@ std::vector<Move> Pawn::getMoves(Board& board) {
     return moves;
 }
 
-string Pawn::getAlgebraicNotation() { return ""; }
+string Pawn::getAlgebraicNotation() { return "P"; }
 
 Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, PieceType::KNIGHT) {
     spriteRect = pieceSprites[SPRITE_KNIGHT].toSpriteRect();

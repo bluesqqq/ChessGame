@@ -8,6 +8,9 @@
 #include "Cell.h"
 #include "Personality.h"
 #include <string>
+#include <optional>
+
+using namespace std;
 
 struct TileRepresentation {
 	/// <summary>
@@ -21,14 +24,6 @@ struct TileRepresentation {
 	int8_t player;
 
 	bool hasMoved;
-};
-
-struct CellMove {
-	Cell from;
-	Cell to;
-	CellMove() : from(-1, -1), to(-1, -1) {}
-	CellMove(Cell to, Cell from) : from(from), to(to) {}
-	CellMove(int fromRank, int fromFile, int toRank, int toFile) : from(fromRank, fromFile), to(toRank, toFile) {}
 };
 
 class MoveGenerator {
@@ -45,6 +40,8 @@ class MoveGenerator {
 			1.3, 1.5, 1.7, 1.7, 1.7, 1.7, 1.5, 1.3,
 			1.1, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.1
 		};
+
+		optional<Cell> enPassantableCell = nullopt; // The cell of a pawn that can be captured en passant
 
 	public:
 		MoveGenerator(Game& game) {
@@ -74,11 +71,15 @@ class MoveGenerator {
 				}
 			}
 
+			if (gameBoard.hasEnPassantableCell()) {
+				enPassantableCell = gameBoard.getEnPassantableCell();
+			}
+
 			printBoard();
 		}
 
 		MoveGenerator(string fen) {
-
+			// I might use this for unit testing with stockfish later
 			cout << "Constructing board representation from FEN: " << fen << endl;
 
 			int rank = 7;
@@ -206,14 +207,15 @@ class MoveGenerator {
 		}
 
 		void printBoard() {
-			std::cout << std::endl << " BOARD REPRESENTATION: " << std::endl;
+			cout << endl << "BOARD REPRESENTATION: " << endl;
 
 			for (int rank = 7; rank >= 0; rank--) {
 				for (int file = 0; file < 8; file++) {
-					std::cout << getPieceString(board[rank][file].type, board[rank][file].player) << " ";
+					cout << " " << getPieceString(board[rank][file].type, board[rank][file].player);
 				}
-				std::cout << std::endl;
+				cout << endl;
 			}
+			cout << endl;
 		}
 
 		string getPieceString(PieceType type, int8_t player = 1) {
@@ -262,11 +264,11 @@ class MoveGenerator {
 			for (int rank = 0; rank < 8; rank++) {
 				for (int file = 0; file < 8; file++) {
 					if (isOpponent(rank, file, player)) {
-						vector<CellMove> pieceMoves = getMovesForPiece(rank, file);
+						vector<Move> pieceMoves = getMovesForPiece(rank, file);
 
 						Cell kingCell = Cell(kingRank, kingFile);
 
-						for (const CellMove& move : pieceMoves) {
+						for (const Move& move : pieceMoves) {
 							if (move.to == kingCell) return true; // King is under attack
 						}
 					}
@@ -276,14 +278,14 @@ class MoveGenerator {
 			return false; // King is safe
 		}
 
-		std::vector<CellMove> getMovesForPiece(int rank, int file) {
+		std::vector<Move> getMovesForPiece(int rank, int file) {
 			TileRepresentation tile = board[rank][file];
 
 			PieceType type = tile.type;
 
 			if (type == PieceType::NO_PIECE) return {};
 
-			std::vector<CellMove> moves;
+			std::vector<Move> moves;
 
 			switch (type) {
 				case PieceType::PAWN: {
@@ -292,13 +294,13 @@ class MoveGenerator {
 					// Forward move
 					int nextRank = rank + dir;
 					if (isInsideBoard(nextRank, file) && isEmpty(nextRank, file)) {
-						moves.push_back({ rank, file, nextRank, file });
+						moves.push_back(Move(Cell(rank, file), Cell(nextRank, file)));
 
 						// Double move from starting rank
 						if (!tile.hasMoved) {
 							int jumpRank = rank + 2 * dir;
 							if (isInsideBoard(jumpRank, file) && isEmpty(jumpRank, file)) {
-								moves.push_back({ rank, file, jumpRank, file });
+								moves.push_back(Move(Cell(rank, file), Cell(jumpRank, file), true, MoveFlag::EN_PASSANTABLE));
 							}
 						}
 					}
@@ -307,7 +309,17 @@ class MoveGenerator {
 					for (int dFile = -1; dFile <= 1; dFile += 2) {
 						int attackFile = file + dFile;
 						if (isInsideBoard(nextRank, attackFile) && isOpponent(nextRank, attackFile, tile.player)) {
-							moves.push_back({ rank, file, nextRank, attackFile });
+							moves.push_back(Move(Cell(rank, file), Cell(nextRank, attackFile)));
+						}
+					}
+
+					// En passant
+					if (enPassantableCell.has_value()) {
+						Cell enPassantCell = enPassantableCell.value();
+						if (enPassantCell == Cell(rank, file - 1)) { // En passant left
+							moves.push_back(Move(Cell(rank + dir, file - 1), enPassantCell, true, MoveFlag::EN_PASSANT));
+						} else if (enPassantCell == Cell(rank, file + 1)) { // En passant left
+							moves.push_back(Move(Cell(rank + dir, file + 1), enPassantCell, true, MoveFlag::EN_PASSANT));
 						}
 					}
 
@@ -327,7 +339,7 @@ class MoveGenerator {
 						int newFile = file + offset[1];
 						if (isInsideBoard(newRank, newFile) &&
 							(isEmpty(newRank, newFile) || isOpponent(newRank, newFile, tile.player))) {
-							moves.push_back({ rank, file, newRank, newFile });
+							moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 						}
 					}
 					break;
@@ -340,11 +352,11 @@ class MoveGenerator {
 						int newRank = rank + dir[0], newFile = file + dir[1];
 						while (isInsideBoard(newRank, newFile)) {
 							if (isEmpty(newRank, newFile)) {
-								moves.push_back({ rank, file, newRank, newFile });
+								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 							}
 							else {
 								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back({ rank, file, newRank, newFile });
+									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 								}
 								break;
 							}
@@ -362,11 +374,11 @@ class MoveGenerator {
 						int newRank = rank + dir[0], newFile = file + dir[1];
 						while (isInsideBoard(newRank, newFile)) {
 							if (isEmpty(newRank, newFile)) {
-								moves.push_back({ rank, file, newRank, newFile });
+								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 							}
 							else {
 								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back({ rank, file, newRank, newFile });
+									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 								}
 								break;
 							}
@@ -387,11 +399,11 @@ class MoveGenerator {
 						int newRank = rank + dir[0], newFile = file + dir[1];
 						while (isInsideBoard(newRank, newFile)) {
 							if (isEmpty(newRank, newFile)) {
-								moves.push_back({ rank, file, newRank, newFile });
+								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 							}
 							else {
 								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back({ rank, file, newRank, newFile });
+									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 								}
 								break;
 							}
@@ -412,9 +424,42 @@ class MoveGenerator {
 						int newRank = rank + dir[0], newFile = file + dir[1];
 						if (isInsideBoard(newRank, newFile) &&
 							(isEmpty(newRank, newFile) || isOpponent(newRank, newFile, tile.player))) {
-							moves.push_back({ rank, file, newRank, newFile });
+							moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
 						}
 					}
+
+					// Castling
+					if (!tile.hasMoved) {
+						TileRepresentation leftRook = board[rank][0];
+						TileRepresentation rightRook = board[rank][7];
+
+						if (leftRook.type == PieceType::ROOK && leftRook.hasMoved == false) {
+							bool blocked = false;
+							// Check if the squares between the king and rook are empty
+							for (int i = file - 1; i > 0; i--) {
+								if (!isEmpty(rank, i)) {
+									blocked = true;
+									break;
+								}
+							}
+
+							if (!blocked) moves.push_back(Move(Cell(rank, file), Cell(rank, file - 2), false, MoveFlag::CASTLE));
+						}
+
+						if (rightRook.type == PieceType::ROOK && rightRook.hasMoved == false) {
+							bool blocked = false;
+							// Check if the squares between the king and rook are empty
+							for (int i = file + 1; i < 7; i++) {
+								if (!isEmpty(rank, i)) {
+									blocked = true;
+									break;
+								}
+							}
+
+							if (!blocked) moves.push_back(Move(Cell(rank, file), Cell(rank, file + 2), false, MoveFlag::CASTLE));
+						}
+					}
+
 					break;
 				}
 			}
@@ -427,15 +472,15 @@ class MoveGenerator {
 		/// </summary>
 		/// <param name="player">The player to generate moves for</param>
 		/// <returns>A vector of all moves for the player specified</returns>
-		std::vector<CellMove> getAllMoves(int player) {
-			std::vector<CellMove> moves;
+		std::vector<Move> getAllMoves(int player) {
+			std::vector<Move> moves;
 
 			for (int rank = 0; rank < 8; ++rank) {
 				for (int file = 0; file < 8; ++file) {
 					TileRepresentation tile = board[rank][file];
 
 					if (tile.player == player) {
-						vector<CellMove> pieceMoves = getMovesForPiece(rank, file);
+						vector<Move> pieceMoves = getMovesForPiece(rank, file);
 
 						for (auto& move : pieceMoves) moves.push_back(move);
 					}
@@ -445,14 +490,16 @@ class MoveGenerator {
 			return moves;
 		}
 
-		std::vector<CellMove> getAllLegalMoves(int player) {
-			std::vector<CellMove> pseudoLegalMoves = getAllMoves(player);
-			std::vector<CellMove> legalMoves;
+		std::vector<Move> getAllLegalMoves(int player) {
+			std::vector<Move> pseudoLegalMoves = getAllMoves(player);
+			std::vector<Move> legalMoves;
 
-			for (CellMove& move : pseudoLegalMoves) {
+			for (Move& move : pseudoLegalMoves) {
 				// Save current state
 				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
 				TileRepresentation previousTo = board[move.to.rank][move.to.file];
+
+				optional<Cell> previousEnPassantableCell = enPassantableCell;
 
 				makeMove(move);
 
@@ -461,43 +508,115 @@ class MoveGenerator {
 					legalMoves.push_back(move);
 				}
 
-				undoMove(move, previousFrom, previousTo);
+				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
 			}
 
 			return legalMoves;
 		}
 
 		// Function to make a move
-		void makeMove(CellMove move) {
-			TileRepresentation& fromTile = board[move.from.rank][move.from.file];
-			TileRepresentation& toTile = board[move.to.rank][move.to.file];
-
-			// Move the piece
-			toTile = fromTile;
-			fromTile = { PieceType::NO_PIECE, -1, false };
+		void makeMove(Move move) {
+			movePiece(move.from, move.to, true);
 
 			// Mark the piece as moved if necessary
-			if (toTile.type != PieceType::NO_PIECE) {
-				toTile.hasMoved = true;
+			if (getPiece(move.to).type != PieceType::NO_PIECE) {
+				getPiece(move.to).hasMoved = true;
+			}
+
+			if (move.flag.has_value()) {
+				switch (move.flag.value()) {
+					case MoveFlag::EN_PASSANTABLE: {
+						enPassantableCell = move.to;
+						break;
+					}
+					case MoveFlag::EN_PASSANT: {
+						removePiece(enPassantableCell.value());
+						break;
+					}
+					case MoveFlag::CASTLE: {
+						int8_t player = getPiece(move.to).player;
+
+						if (move.to.file < move.from.file) { // Left castle
+							// Move the rook
+							Cell leftRookCell = Cell(move.from.rank, 0);
+							Cell leftRookTargetCell = Cell(move.to) + Cell(0, 1);
+
+							movePiece(leftRookCell, leftRookTargetCell);
+						} else { // Right castle
+							// Move the rook
+							Cell rightRookCell = Cell(move.from.rank, 7);
+							Cell rightRookTargetCell = Cell(move.to) + Cell(0, -1);
+
+							movePiece(rightRookCell, rightRookTargetCell);
+						}
+						break;
+					}
+				}
+			} else {
+				enPassantableCell = nullopt;
 			}
 		}
 
-		// Function to undo a move
-		void undoMove(CellMove move, TileRepresentation previousFrom, TileRepresentation previousTo) {
-			board[move.from.rank][move.from.file] = previousFrom;
-			board[move.to.rank][move.to.file] = previousTo;
+		void movePiece(Cell from, Cell to, bool moved = true) {
+			setPiece(to, getPiece(from));
+			getPiece(to).hasMoved = moved; // Set the piece (at the new destination cell) to moved
+			removePiece(from);
 		}
 
-		CellMove chooseMove(int player, int ply) {
+		// Function to undo a move
+		void undoMove(Move move, TileRepresentation previousFrom, TileRepresentation previousTo, optional<Cell> previousEnPassant) {
+			setPiece(move.from, previousFrom);
+			setPiece(move.to, previousTo);
+
+			enPassantableCell = previousEnPassant;
+
+			if (move.flag.has_value()) {
+				switch (move.flag.value()) {
+					case MoveFlag::EN_PASSANT: {
+						// Put the piece captured in en passant back
+						setPiece(enPassantableCell.value(), { PieceType::PAWN, (int8_t)(getPiece(move.from).player % 2 + 1), true });
+						break;
+					}
+					case MoveFlag::CASTLE: {
+						int8_t player = previousFrom.player;
+
+						if (move.to.file < move.from.file) { // Left castle
+							// Move the rook back
+							movePiece(move.to + Cell(0, 1), Cell(move.to.rank, 0), false);
+						}
+						else { // Right castle
+							// Move the rook back
+							movePiece(move.to + Cell(0, -1), Cell(move.to.rank, 7), false);
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		void removePiece(Cell cell) {
+			board[cell.rank][cell.file] = { PieceType::NO_PIECE, -1, false };
+		}
+
+		void setPiece(Cell cell, TileRepresentation tile) {
+			board[cell.rank][cell.file] = tile;
+		}
+
+		TileRepresentation& getPiece(Cell cell) {
+			return board[cell.rank][cell.file];
+		}
+
+		Move chooseMove(int player, int ply) {
 			int movesCalculated = 0;
 
-			std::cout << "Attempting to find best move for player #" << player << std::endl;
-			std::vector<CellMove> allMoves = getAllLegalMoves(player);
-			CellMove bestMove;
+			std::cout << "Searching moves for player #" << player << "..." << std::endl;
+			std::vector<Move> allMoves = getAllLegalMoves(player);
+			Move bestMove;
 			int bestScore = INT_MIN;
 
-			std::cout << "Number of found moves: " << allMoves.size() << std::endl;
-			std::cout << "Checking moves: ";
+			std::cout << "Number of possible moves: " << allMoves.size() << std::endl;
+			std::cout << "Checking follow-up moves (with a depth of " << ply << " plies)..." << endl;
 
 			// Pure minimax (no alpha-beta)
 			std::function<int(int, int)> minimax = [&](int currentPlayer, int depth) {
@@ -506,12 +625,14 @@ class MoveGenerator {
 				}
 
 				int bestMoveValue = (currentPlayer == player) ? INT_MIN : INT_MAX;
-				std::vector<CellMove> moves = getAllLegalMoves(currentPlayer);
+				std::vector<Move> moves = getAllLegalMoves(currentPlayer);
 
 				for (auto& move : moves) {
 					// Save current state
 					TileRepresentation previousFrom = board[move.from.rank][move.from.file];
 					TileRepresentation previousTo = board[move.to.rank][move.to.file];
+
+					optional<Cell> previousEnPassantableCell = enPassantableCell;
 
 					// Make move
 					makeMove(move);
@@ -521,7 +642,7 @@ class MoveGenerator {
 					movesCalculated++;
 
 					// Undo move
-					undoMove(move, previousFrom, previousTo);
+					undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
 
 					// Maximizing or minimizing
 					if (currentPlayer == player) {
@@ -533,20 +654,29 @@ class MoveGenerator {
 				}
 
 				return bestMoveValue;
-				};
+			};
+
+			double startTime = GetTime();
 
 			// Top level: check each move separately
 			for (auto& move : allMoves) {
-				cout << "#";
 				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
 				TileRepresentation previousTo = board[move.to.rank][move.to.file];
 
+				optional<Cell> previousEnPassantableCell = enPassantableCell;
+
 				makeMove(move);
 
-				int score = minimax((player + 1) % 2, ply - 1);
+				float multiplier = 1;
+
+				if (move.flag.has_value() && move.flag.value() == MoveFlag::EN_PASSANT) {
+					multiplier = -1000;
+				}
+
+				int score = minimax((player + 1) % 2, ply - 1) * multiplier;
 				movesCalculated++;
 
-				undoMove(move, previousFrom, previousTo);
+				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
 
 				if (score > bestScore) {
 					bestScore = score;
@@ -554,7 +684,9 @@ class MoveGenerator {
 				}
 			}
 
-			cout << " Done!" << endl;
+			double elapsedTime = GetTime() - startTime;
+
+			cout << " Done! Took: " << elapsedTime << " seconds" << endl;
 
 			printShannonNumber(movesCalculated, ply);
 
@@ -564,7 +696,7 @@ class MoveGenerator {
 		void printShannonNumber(int calculatedMoves, int plies) { // https://en.wikipedia.org/wiki/Shannon_number
 			std::vector<long long> shannonNumbers = { 20, 400, 8902, 197281, 4865609, 119060324, 2863350967, 69586103104, 1669531250000 };
 
-			std::cout << "Total moves calculated: " << calculatedMoves << std::endl;
+			std::cout << endl << "Total moves calculated: " << calculatedMoves << std::endl;
 
 			int expectedMoves = 0;
 				

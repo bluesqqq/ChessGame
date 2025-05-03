@@ -19,7 +19,7 @@ enum class MoveFlag {
 	PROMOTION, // Pawn moving to be promoted
 	CASTLE, // King moving to castle
 	EN_PASSANT, // Pawn moving to capture en passant
-	EN_PASSANTABLE // Pawn moving to be able to capture en passant
+	EN_PASSANTABLE, // Pawn moving to be able to capture en passant
 };
 
 class Board;
@@ -29,6 +29,8 @@ struct Move {
     Cell to;
     bool canOvertake;
 	optional<MoveFlag> flag = nullopt;
+
+    Move();
 
     Move(Cell from, Cell to, bool canOvertake = true, optional<MoveFlag> flag = nullopt);
 
