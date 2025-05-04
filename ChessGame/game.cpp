@@ -41,7 +41,7 @@ void Game::draw(raylib::Texture2D* atlas) {
 	}
 }
 
-void Game::update() {
+void Game::update(raylib::Texture2D* atlas) {
 	theme.updateBackground(); // Update the theme
 
 	if (promotionMenu.has_value()) {
@@ -51,7 +51,14 @@ void Game::update() {
 	}
 	
 	if (board.hasPromotion() && !promotionMenu.has_value()) {
-		promotionMenu = PromotionMenu(board.getPromotionCell());
+		Cell promotionCell = board.getPromotionCell();
+
+		if (board.getPiece(promotionCell)->getPlayer() == 1) {
+			promotionMenu = PromotionMenu(promotionCell);
+		} else {
+			// TODO: actually let the AI choose the piece to promote to, if it desires to underpromote for any reason
+			board.getTile(promotionCell)->setPiece(new Queen(atlas, 2)); // Automatically promote to queen for player 2
+		}
 	}
 
 	// Check if the board is ready to play

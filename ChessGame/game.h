@@ -48,7 +48,7 @@ class Game {
 		/// <summary>
 		/// Update called every frame
 		/// </summary>
-		void update();
+		void update(raylib::Texture2D* atlas);
 
 		void updateState();
 

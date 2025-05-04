@@ -205,7 +205,7 @@ int main() {
             }
         }
 
-        game.update();
+        game.update(atlas);
 
         UpdateDrawFrame(camera, game);
 
