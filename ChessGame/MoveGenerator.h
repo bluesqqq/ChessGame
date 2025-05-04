@@ -317,9 +317,9 @@ class MoveGenerator {
 					if (enPassantableCell.has_value()) {
 						Cell enPassantCell = enPassantableCell.value();
 						if (enPassantCell == Cell(rank, file - 1)) { // En passant left
-							moves.push_back(Move(Cell(rank + dir, file - 1), enPassantCell, true, MoveFlag::EN_PASSANT));
+							moves.push_back(Move(Cell(rank, file), Cell(rank + dir, file - 1), true, MoveFlag::EN_PASSANT));
 						} else if (enPassantCell == Cell(rank, file + 1)) { // En passant left
-							moves.push_back(Move(Cell(rank + dir, file + 1), enPassantCell, true, MoveFlag::EN_PASSANT));
+							moves.push_back(Move(Cell(rank, file), Cell(rank + dir, file + 1), true, MoveFlag::EN_PASSANT));
 						}
 					}
 
@@ -667,13 +667,7 @@ class MoveGenerator {
 
 				makeMove(move);
 
-				float multiplier = 1;
-
-				if (move.flag.has_value() && move.flag.value() == MoveFlag::EN_PASSANT) {
-					multiplier = -1000;
-				}
-
-				int score = minimax((player + 1) % 2, ply - 1) * multiplier;
+				int score = minimax((player + 1) % 2, ply - 1);
 				movesCalculated++;
 
 				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
@@ -689,6 +683,8 @@ class MoveGenerator {
 			cout << " Done! Took: " << elapsedTime << " seconds" << endl;
 
 			printShannonNumber(movesCalculated, ply);
+
+			cout << "Move chosen: " << bestMove.from.getAlgebraicNotation() << " to " << bestMove.to.getAlgebraicNotation() << endl;
 
 			return bestMove;
 		}
