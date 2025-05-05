@@ -52,6 +52,8 @@ class MoveGenerator {
 
 		optional<Cell> enPassantableCell = nullopt; // The cell of a pawn that can be captured en passant
 
+		int currentPlayer;
+
 	public:
 		MoveGenerator(Game& game) {
 			Personality personality = Personality{ 50, 50, 50, 50 };
@@ -83,6 +85,8 @@ class MoveGenerator {
 			if (gameBoard.hasEnPassantableCell()) {
 				enPassantableCell = gameBoard.getEnPassantableCell();
 			}
+
+			currentPlayer = game.getPlayerTurn();
 
 			printBoard();
 		}
@@ -180,22 +184,23 @@ class MoveGenerator {
 		/// <param name="player">Player to consider</param>
 		/// <returns>A score where higher is better for the specificed player</returns>
 		int evaluateBoard(int player) {
-			int score = 0;
-			int pieces = 0;
+			int evaluation = 0;
 
 			for (int rank = 0; rank < 8; rank++) {
 				for (int file = 0; file < 8; file++) {
 					TileRepresentation& tile = board[rank][file];
 
-					if (tile.type != PieceType::NO_PIECE) {
-						int value = getPieceValue(tile.type) * 1; //positionalStrengthMultipliers[rank][file];
+					int pieceScore = getPieceValue(tile.type);
 
-						score += (tile.player == player) ? value : -value;
+					if (tile.player == player) {
+						evaluation += pieceScore;
+					} else {
+						evaluation -= pieceScore;
 					}
 				}
 			}
 
-			return score;
+			return evaluation;
 		}
 
 		/// <summary>
@@ -615,6 +620,8 @@ class MoveGenerator {
 			} else {
 				enPassantableCell = nullopt;
 			}
+
+			currentPlayer = (currentPlayer % 2) + 1; // Switch players
 		}
 
 		void movePiece(Cell from, Cell to, bool moved = true) {
@@ -653,6 +660,8 @@ class MoveGenerator {
 					}
 				}
 			}
+
+			currentPlayer = (currentPlayer % 2) + 1; // Switch players
 		}
 
 		void removePiece(Cell cell) { board[cell.rank][cell.file] = { PieceType::NO_PIECE, -1, false }; }
@@ -661,11 +670,29 @@ class MoveGenerator {
 
 		TileRepresentation& getPiece(Cell cell) { return board[cell.rank][cell.file]; }
 
+		void sortMoves(std::vector<Move>& moves) {
+			for (Move& move : moves) {
+				int moveScoreGuess = 0;
+				PieceType movePieceType = getPiece(move.from).type;
+				PieceType capturePieceType = getPiece(move.to).type;
+
+				if (capturePieceType != PieceType::NO_PIECE) {
+					moveScoreGuess = 10 * getPieceValue(capturePieceType) - getPieceValue(movePieceType);
+				}
+
+				if (move.flag == MoveFlag::PROMOTION) {
+					// TODO: change this when i let the AI choose which promotion
+					moveScoreGuess += getPieceValue(PieceType::QUEEN);
+				}
+			}
+		}
+
 		Move chooseMove(int player, int ply) {
 			int movesCalculated = 0;
 
 			std::cout << "Searching moves for player #" << player << "..." << std::endl;
 			std::vector<Move> allMoves = getAllLegalMoves(player);
+
 			Move bestMove;
 			int bestScore = INT_MIN;
 
