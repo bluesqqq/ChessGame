@@ -199,7 +199,6 @@ class MoveGenerator {
 					}
 				}
 			}
-
 			return evaluation;
 		}
 
@@ -687,9 +686,32 @@ class MoveGenerator {
 			}
 		}
 
-		Move chooseMove(int player, int ply) {
-			int movesCalculated = 0;
+		int search(int depth) {
+			if (depth == 0) return evaluateBoard(currentPlayer);
 
+			vector<Move> moves = getAllMoves(currentPlayer);
+			if (moves.empty()) {
+				return INT_MIN; // Nothing is worse than losing
+			}
+
+			int bestScore = INT_MIN;
+
+			for (Move& move : moves) {
+				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
+				TileRepresentation previousTo = board[move.to.rank][move.to.file];
+				optional<Cell> previousEnPassantableCell = enPassantableCell;
+
+				makeMove(move);
+				int score = -search(depth - 1); // Move thats good for opponent is bad for us
+				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
+
+				bestScore = max(bestScore, score);
+			}
+
+			return bestScore;
+		}
+
+		Move chooseMove(int player, int ply) {
 			std::cout << "Searching moves for player #" << player << "..." << std::endl;
 			std::vector<Move> allMoves = getAllLegalMoves(player);
 
@@ -698,44 +720,6 @@ class MoveGenerator {
 
 			std::cout << "Number of possible moves: " << allMoves.size() << std::endl;
 			std::cout << "Checking follow-up moves (with a depth of " << ply << " plies)..." << endl;
-
-			// Pure minimax (no alpha-beta)
-			std::function<int(int, int)> minimax = [&](int currentPlayer, int depth) {
-				if (depth == 0) {
-					return evaluateBoard(player); // Always evaluate from original player's perspective
-				}
-
-				int bestMoveValue = (currentPlayer == player) ? INT_MIN : INT_MAX;
-				std::vector<Move> moves = getAllLegalMoves(currentPlayer);
-
-				for (auto& move : moves) {
-					// Save current state
-					TileRepresentation previousFrom = board[move.from.rank][move.from.file];
-					TileRepresentation previousTo = board[move.to.rank][move.to.file];
-
-					optional<Cell> previousEnPassantableCell = enPassantableCell;
-
-					// Make move
-					makeMove(move);
-
-					// Recurse
-					int score = minimax((currentPlayer) % 2 + 1, depth - 1);
-					movesCalculated++;
-
-					// Undo move
-					undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
-
-					// Maximizing or minimizing
-					if (currentPlayer == player) {
-						bestMoveValue = std::max(bestMoveValue, score);
-					}
-					else {
-						bestMoveValue = std::min(bestMoveValue, score);
-					}
-				}
-
-				return bestMoveValue;
-			};
 
 			double startTime = GetTime();
 
@@ -748,8 +732,8 @@ class MoveGenerator {
 
 				makeMove(move);
 
-				int score = minimax((player + 1) % 2, ply - 1);
-				movesCalculated++;
+				int score = -search(ply - 1);
+				cout << "Score for move " << move.from.getAlgebraicNotation() << " to " << move.to.getAlgebraicNotation() << ": " << score << endl;
 
 				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
 
@@ -762,8 +746,6 @@ class MoveGenerator {
 			double elapsedTime = GetTime() - startTime;
 
 			cout << " Done! Took: " << elapsedTime << " seconds" << endl;
-
-			printShannonNumber(movesCalculated, ply);
 
 			cout << "Move chosen: " << bestMove.from.getAlgebraicNotation() << " to " << bestMove.to.getAlgebraicNotation() << endl;
 
