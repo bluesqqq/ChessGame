@@ -24,4 +24,6 @@ struct Cell {
     Cell operator+(const Cell& other) const;
 
     Cell& operator+=(const Cell& other);
+
+    Cell operator-(const Cell& other) const;
 };

@@ -19,8 +19,8 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
 	// Place Pawns in the second and seventh ranks
     for (int file = 0; file < 8; file++) {
-        //tiles[1][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
-        tiles[1][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
+        tiles[1][file]->setPiece(new Pawn(atlas, 1)); // Player 1 Pawns
+        tiles[6][file]->setPiece(new Pawn(atlas, 2)); // Player 2 Pawns
     }
 
     // Place Rooks
@@ -43,7 +43,7 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 
     // Place Queens
     tiles[0][3]->setPiece(new Queen(atlas, 1)); 
-    //tiles[7][3]->setPiece(new Queen(atlas, 2)); 
+    tiles[7][3]->setPiece(new Queen(atlas, 2)); 
 
     // Place Kings
     tiles[0][4]->setPiece(new King(atlas, 1));

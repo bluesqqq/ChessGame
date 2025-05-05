@@ -11,20 +11,16 @@ string Cell::getAlgebraicNotation() const {
     return f + to_string(rank + 1);
 }
 
-bool Cell::operator==(const Cell& other) const {
-    return (rank == other.rank && file == other.file);
-}
+bool Cell::operator==(const Cell& other) const { return (rank == other.rank && file == other.file); }
 
-bool Cell::operator!=(const Cell& other) const {
-    return (rank != other.rank || file != other.file);
-}
+bool Cell::operator!=(const Cell& other) const { return (rank != other.rank || file != other.file); }
 
-Cell Cell::operator+(const Cell& other) const {
-    return { rank + other.rank, file + other.file };
-}
+Cell Cell::operator+(const Cell& other) const { return { rank + other.rank, file + other.file }; }
 
 Cell& Cell::operator+=(const Cell& other) {
     rank += other.rank;
     file += other.file;
     return *this;
 }
+
+Cell Cell::operator-(const Cell& other) const { return { rank - other.rank, file - other.file }; }

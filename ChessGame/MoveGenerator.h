@@ -26,6 +26,15 @@ struct TileRepresentation {
 	bool hasMoved;
 };
 
+struct PinAndCheckBlockCell {
+	vector<Cell> pinnedCells;
+	vector<Cell> checkBlockCells;
+
+	bool hasPinnedCells() { return !pinnedCells.empty(); }
+
+	bool hasCheckBlockCells() { return !checkBlockCells.empty(); }
+};
+
 class MoveGenerator {
 	private:
 		TileRepresentation board[8][8];
@@ -201,7 +210,7 @@ class MoveGenerator {
 				case PieceType::BISHOP: return 330;
 				case PieceType::ROOK: return 500;
 				case PieceType::QUEEN: return 900;
-				case PieceType::KING: return 20000;
+				case PieceType::KING: return 0;
 				default: return 0;
 			}
 		}
@@ -236,50 +245,63 @@ class MoveGenerator {
 			return pieceString;
 		}
 
-		bool isInsideBoard(int rank, int file) { return rank >= 0 && rank <= 7 && file >= 0 && file <= 7; }
 
-		bool isEmpty(int rank, int file) { return board[rank][file].type == PieceType::NO_PIECE; }
+		bool isInsideBoard(int rank, int file) const { return rank >= 0 && rank <= 7 && file >= 0 && file <= 7; }
 
-		bool isOpponent(int rank, int file, int player) { return board[rank][file].player != player && board[rank][file].player != -1; }
+		bool isInsideBoard(Cell cell) const { return isInsideBoard(cell.rank, cell.file); }
 
-		bool isKingInCheck(int player) {
-			int kingRank = -1, kingFile = -1;
+		bool isEmpty(int rank, int file) const { return board[rank][file].type == PieceType::NO_PIECE; }
 
-			// Find the player's king
-			for (int rank = 0; rank < 8; rank++) {
-				for (int file = 0; file < 8; file++) {
-					if (board[rank][file].type == PieceType::KING && board[rank][file].player == player) {
-						kingRank = rank;
-						kingFile = file;
-						break;
-					}
-				}
-			}
+		bool isEmpty(Cell cell) const { return isEmpty(cell.rank, cell.file); }
 
-			if (kingRank == -1 || kingFile == -1) {
-				return true; // King not found = ????????
-			}
-
-			// Check if any opponent piece can capture the king
-			for (int rank = 0; rank < 8; rank++) {
-				for (int file = 0; file < 8; file++) {
-					if (isOpponent(rank, file, player)) {
-						vector<Move> pieceMoves = getMovesForPiece(rank, file);
-
-						Cell kingCell = Cell(kingRank, kingFile);
-
-						for (const Move& move : pieceMoves) {
-							if (move.to == kingCell) return true; // King is under attack
-						}
-					}
-				}
-			}
-
-			return false; // King is safe
+		bool isEnemyKing(Cell cell, int player) {
+			TileRepresentation piece = getPiece(cell);
+			return piece.type == PieceType::KING && piece.player != player;
 		}
 
-		std::vector<Move> getMovesForPiece(int rank, int file) {
-			TileRepresentation tile = board[rank][file];
+		bool isOpponent(int rank, int file, int player) const { return board[rank][file].player != player && board[rank][file].player != -1; }
+
+		bool isOpponent(Cell cell, int player) const { return isOpponent(cell.rank, cell.file, player);  }
+
+		void addSlidingMoves(const Cell& start, const std::vector<Cell>& directions, int player, std::vector<Move>& moves, bool attacksOnly = false) {
+			for (const Cell& dir : directions) {
+				Cell newCell = start + dir;
+				while (isInsideBoard(newCell)) {
+					if (isEmpty(newCell)) {
+						moves.push_back(Move(start, newCell));
+					} else {
+						if (attacksOnly || isOpponent(newCell, player)) {
+							moves.push_back(Move(start, newCell));
+						}
+						if (!(attacksOnly && isEnemyKing(newCell, player))) break; // Stop if the path is blocked (unless were getting the attacks and this is enemy king)
+					}
+					newCell += dir;
+				}
+			}
+		}
+
+		void addOffsetMoves(const Cell& start, const std::vector<Cell>& offsets, int player, std::vector<Move>& moves, bool attacksOnly = false) {
+			for (const Cell& offset : offsets) {
+				Cell newCell = start + offset;
+				if (attacksOnly || (isInsideBoard(newCell) && (isEmpty(newCell) || isOpponent(newCell, player)))) {
+					moves.push_back(Move(start, newCell));
+				}
+			}
+		}
+
+		Cell findKing(int player) {
+			for (int rank = 0; rank < 8; ++rank) {
+				for (int file = 0; file < 8; ++file) {
+					if (board[rank][file].type == PieceType::KING && board[rank][file].player == player) {
+						return Cell(rank, file);
+					}
+				}
+			}
+			return Cell(-1, -1); // King not found
+		}
+
+		std::vector<Move> getMovesForPiece(Cell cell, bool attacksOnly = false) {
+			TileRepresentation tile = getPiece(cell);
 
 			PieceType type = tile.type;
 
@@ -292,34 +314,35 @@ class MoveGenerator {
 					int dir = (tile.player == 1) ? 1 : -1; // player 1 goes up, player 2 down
 
 					// Forward move
-					int nextRank = rank + dir;
-					if (isInsideBoard(nextRank, file) && isEmpty(nextRank, file)) {
-						moves.push_back(Move(Cell(rank, file), Cell(nextRank, file)));
+					Cell nextCell = cell + Cell(dir, 0);
+
+					if (!attacksOnly && isInsideBoard(nextCell) && isEmpty(nextCell)) {
+						moves.push_back(Move(cell, nextCell));
 
 						// Double move from starting rank
 						if (!tile.hasMoved) {
-							int jumpRank = rank + 2 * dir;
-							if (isInsideBoard(jumpRank, file) && isEmpty(jumpRank, file)) {
-								moves.push_back(Move(Cell(rank, file), Cell(jumpRank, file), true, MoveFlag::EN_PASSANTABLE));
+							nextCell += Cell(dir, 0);
+							if (isInsideBoard(nextCell) && isEmpty(nextCell)) {
+								moves.push_back(Move(cell, nextCell, true, MoveFlag::EN_PASSANTABLE));
 							}
 						}
 					}
 
 					// Diagonal captures
 					for (int dFile = -1; dFile <= 1; dFile += 2) {
-						int attackFile = file + dFile;
-						if (isInsideBoard(nextRank, attackFile) && isOpponent(nextRank, attackFile, tile.player)) {
-							moves.push_back(Move(Cell(rank, file), Cell(nextRank, attackFile)));
+						Cell attackCell = cell + Cell(dir, dFile);
+						if (attacksOnly || (isInsideBoard(attackCell) && isOpponent(attackCell, tile.player))) {
+							moves.push_back(Move(cell, attackCell));
 						}
 					}
 
 					// En passant
 					if (enPassantableCell.has_value()) {
 						Cell enPassantCell = enPassantableCell.value();
-						if (enPassantCell == Cell(rank, file - 1)) { // En passant left
-							moves.push_back(Move(Cell(rank, file), Cell(rank + dir, file - 1), true, MoveFlag::EN_PASSANT));
-						} else if (enPassantCell == Cell(rank, file + 1)) { // En passant left
-							moves.push_back(Move(Cell(rank, file), Cell(rank + dir, file + 1), true, MoveFlag::EN_PASSANT));
+						if (enPassantCell == cell + Cell(0, -1)) { // En passant left
+							moves.push_back(Move(cell, cell + Cell(dir, -1), true, MoveFlag::EN_PASSANT));
+						} else if (enPassantCell == cell + Cell(0, 1)) { // En passant right
+							moves.push_back(Move(cell, cell + Cell(dir, 1), true, MoveFlag::EN_PASSANT));
 						}
 					}
 
@@ -327,136 +350,63 @@ class MoveGenerator {
 				}
 
 				case PieceType::KNIGHT: {
-					int offsets[8][2] = {
-						{ -2, -1 }, { -2, 1 },
-						{ -1, -2 }, { -1, 2 },
-						{ 1, -2 }, { 1, 2 },
-						{ 2, -1 }, { 2, 1 }
-					};
-
-					for (auto& offset : offsets) {
-						int newRank = rank + offset[0];
-						int newFile = file + offset[1];
-						if (isInsideBoard(newRank, newFile) &&
-							(isEmpty(newRank, newFile) || isOpponent(newRank, newFile, tile.player))) {
-							moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-						}
-					}
+					vector<Cell> offsets = { { -2,-1 }, { -2,1 }, { -1,-2 }, { -1,2 }, { 1,-2 }, { 1,2 }, { 2,-1 }, { 2,1 } };
+					addOffsetMoves(cell, offsets, tile.player, moves, attacksOnly);
 					break;
 				}
 
 				case PieceType::BISHOP: {
-					int directions[4][2] = { {1,1}, {1,-1}, {-1,1}, {-1,-1} };
-
-					for (auto& dir : directions) {
-						int newRank = rank + dir[0], newFile = file + dir[1];
-						while (isInsideBoard(newRank, newFile)) {
-							if (isEmpty(newRank, newFile)) {
-								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-							}
-							else {
-								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-								}
-								break;
-							}
-							newRank += dir[0];
-							newFile += dir[1];
-						}
-					}
+					vector<Cell> directions = { {1,1}, {1,-1}, {-1,1}, {-1,-1} };
+					addSlidingMoves(cell, directions, tile.player, moves, attacksOnly);
 					break;
 				}
 
 				case PieceType::ROOK: {
-					int directions[4][2] = { {0,1}, {0,-1}, {-1,0}, {1,0} };
-
-					for (auto& dir : directions) {
-						int newRank = rank + dir[0], newFile = file + dir[1];
-						while (isInsideBoard(newRank, newFile)) {
-							if (isEmpty(newRank, newFile)) {
-								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-							}
-							else {
-								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-								}
-								break;
-							}
-							newRank += dir[0];
-							newFile += dir[1];
-						}
-					}
+					vector<Cell> directions = { {0,1}, {0,-1}, {-1,0}, {1,0} };
+					addSlidingMoves(cell, directions, tile.player, moves, attacksOnly);
 					break;
 				}
 
 				case PieceType::QUEEN: {
-					int directions[8][2] = {
-						{1,0}, {-1,0}, {0,1}, {0,-1},
-						{1,1}, {1,-1}, {-1,1}, {-1,-1}
-					};
-
-					for (auto& dir : directions) {
-						int newRank = rank + dir[0], newFile = file + dir[1];
-						while (isInsideBoard(newRank, newFile)) {
-							if (isEmpty(newRank, newFile)) {
-								moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-							}
-							else {
-								if (isOpponent(newRank, newFile, tile.player)) {
-									moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-								}
-								break;
-							}
-							newRank += dir[0];
-							newFile += dir[1];
-						}
-					}
+					vector<Cell> directions = { {1,0}, {-1,0}, {0,1}, {0,-1}, {1,1}, {1,-1}, {-1,1}, {-1,-1} };
+					addSlidingMoves(cell, directions, tile.player, moves, attacksOnly);
 					break;
 				}
 
 				case PieceType::KING: {
-					int directions[8][2] = {
-						{1,0}, {-1,0}, {0,1}, {0,-1},
-						{1,1}, {1,-1}, {-1,1}, {-1,-1}
-					};
+					vector<Cell> offsets = { {1,0}, {-1,0}, {0,1}, {0,-1}, {1,1}, {1,-1}, {-1,1}, {-1,-1} };
 
-					for (auto& dir : directions) {
-						int newRank = rank + dir[0], newFile = file + dir[1];
-						if (isInsideBoard(newRank, newFile) &&
-							(isEmpty(newRank, newFile) || isOpponent(newRank, newFile, tile.player))) {
-							moves.push_back(Move(Cell(rank, file), Cell(newRank, newFile)));
-						}
-					}
+					addOffsetMoves(cell, offsets, tile.player, moves, attacksOnly);
 
 					// Castling
 					if (!tile.hasMoved) {
-						TileRepresentation leftRook = board[rank][0];
-						TileRepresentation rightRook = board[rank][7];
+						TileRepresentation leftRook = getPiece(Cell(cell.rank, 0));
+						TileRepresentation rightRook = getPiece(Cell(cell.rank, 7));
 
 						if (leftRook.type == PieceType::ROOK && leftRook.hasMoved == false) {
 							bool blocked = false;
 							// Check if the squares between the king and rook are empty
-							for (int i = file - 1; i > 0; i--) {
-								if (!isEmpty(rank, i)) {
+							for (int i = cell.file - 1; i > 0; i--) {
+								if (!isEmpty(cell.rank, i)) {
 									blocked = true;
 									break;
 								}
 							}
 
-							if (!blocked) moves.push_back(Move(Cell(rank, file), Cell(rank, file - 2), false, MoveFlag::CASTLE));
+							if (!blocked) moves.push_back(Move(cell, cell + Cell(0, -2), false, MoveFlag::CASTLE));
 						}
 
 						if (rightRook.type == PieceType::ROOK && rightRook.hasMoved == false) {
 							bool blocked = false;
 							// Check if the squares between the king and rook are empty
-							for (int i = file + 1; i < 7; i++) {
-								if (!isEmpty(rank, i)) {
+							for (int i = cell.file + 1; i < 7; i++) {
+								if (!isEmpty(cell.rank, i)) {
 									blocked = true;
 									break;
 								}
 							}
 
-							if (!blocked) moves.push_back(Move(Cell(rank, file), Cell(rank, file + 2), false, MoveFlag::CASTLE));
+							if (!blocked) moves.push_back(Move(cell, cell + Cell(0, 2), false, MoveFlag::CASTLE));
 						}
 					}
 
@@ -472,15 +422,17 @@ class MoveGenerator {
 		/// </summary>
 		/// <param name="player">The player to generate moves for</param>
 		/// <returns>A vector of all moves for the player specified</returns>
-		std::vector<Move> getAllMoves(int player) {
+		std::vector<Move> getAllMoves(int player, bool attacksOnly = false) {
 			std::vector<Move> moves;
 
 			for (int rank = 0; rank < 8; ++rank) {
 				for (int file = 0; file < 8; ++file) {
-					TileRepresentation tile = board[rank][file];
+					Cell cell = Cell(rank, file);
+
+					TileRepresentation tile = getPiece(cell);
 
 					if (tile.player == player) {
-						vector<Move> pieceMoves = getMovesForPiece(rank, file);
+						vector<Move> pieceMoves = getMovesForPiece(cell, attacksOnly);
 
 						for (auto& move : pieceMoves) moves.push_back(move);
 					}
@@ -491,27 +443,135 @@ class MoveGenerator {
 		}
 
 		std::vector<Move> getAllLegalMoves(int player) {
+			// Get all of the players moves
 			std::vector<Move> pseudoLegalMoves = getAllMoves(player);
 			std::vector<Move> legalMoves;
 
+			Cell kingCell = findKing(player); // Get the player's king's cell
+
+			// Get the cells that are pinned and the cells that can block checks
+			PinAndCheckBlockCell cellData = getPinnedAndCheckBlockingCells(player);
+
+			// Get the cells that the opponent can attack
+			vector<Move> opponentAttackingMoves = getAllMoves((player % 2) + 1, true);
+
+			vector<Cell> opponentAttackingCells;
+
+			// Count how many pieces are attacking the king
+			int checkingPieces = 0;
+
+			for (const Move& attackingMove : opponentAttackingMoves) {
+				if (attackingMove.to == kingCell) {
+					checkingPieces++;
+					cellData.checkBlockCells.push_back(attackingMove.from); // Add the piece that is attacking the king to the check block cells
+				}
+				opponentAttackingCells.push_back(attackingMove.to);
+			}
+
+			bool hasPinnedCells = cellData.hasPinnedCells();
+			bool hasCheckBlockCells = cellData.hasCheckBlockCells();
+
+			if (!hasPinnedCells && !hasCheckBlockCells) return pseudoLegalMoves;
+
 			for (Move& move : pseudoLegalMoves) {
-				// Save current state
-				TileRepresentation previousFrom = board[move.from.rank][move.from.file];
-				TileRepresentation previousTo = board[move.to.rank][move.to.file];
+				Cell from = move.from;
+				Cell to = move.to;
+				bool isKingMove = (from == kingCell); // This move is the king moving
 
-				optional<Cell> previousEnPassantableCell = enPassantableCell;
+				if (checkingPieces > 1) { // Double check forces king to move to an unattacked cell
 
-				makeMove(move);
+					if (!isKingMove) continue; // Only allow king moves
 
-				// Check if making the move leaves the player's king in check
-				if (!isKingInCheck(player)) {
+					// Only allow the king to move to cells not attacked by the opponent
+					if (find(opponentAttackingCells.begin(), opponentAttackingCells.end(), to) == opponentAttackingCells.end()) {
+						legalMoves.push_back(move);
+					}
+
+				} else if (checkingPieces == 1) { // Single check, either king can move, or a piece can block if possible
+
+					// Only allow the king to move to cells not attacked by the opponent
+					if (isKingMove) {
+						if (find(opponentAttackingCells.begin(), opponentAttackingCells.end(), to) == opponentAttackingCells.end()) {
+							legalMoves.push_back(move);
+						}
+					} else { // Not a king move, so it can only be a piece move that blocks the check
+						if (find(cellData.checkBlockCells.begin(), cellData.checkBlockCells.end(), to) != cellData.checkBlockCells.end()) {
+							if (find(cellData.pinnedCells.begin(), cellData.pinnedCells.end(), from) != cellData.pinnedCells.end()) { // Piece we're trying to move is pinned
+								if (std::find(cellData.pinnedCells.begin(), cellData.pinnedCells.end(), to) == cellData.pinnedCells.end()) {
+									continue; // Skip this move, it puts the king in check
+								}
+							}
+
+							legalMoves.push_back(move);
+						}
+					}
+
+				} else {
+
+					if (find(cellData.pinnedCells.begin(), cellData.pinnedCells.end(), from) != cellData.pinnedCells.end()) { // Piece we're trying to move is pinned
+						if (std::find(cellData.pinnedCells.begin(), cellData.pinnedCells.end(), to) == cellData.pinnedCells.end()) {
+							continue; // Skip this move, it puts the king in check
+						}
+					}
+
 					legalMoves.push_back(move);
 				}
-
-				undoMove(move, previousFrom, previousTo, previousEnPassantableCell);
 			}
 
 			return legalMoves;
+		}
+
+		PinAndCheckBlockCell getPinnedAndCheckBlockingCells(int player) {
+			PinAndCheckBlockCell result;
+
+			Cell kingCell = findKing(player);
+
+			if (kingCell == Cell(-1, -1)) return {}; // King not found
+
+			const vector<Cell> directions = { {1,0}, {-1,0}, {0,1}, {0,-1}, {1,1}, {1,-1}, {-1,1}, {-1,-1} };
+
+			for (auto& dir : directions) {
+				vector<Cell> ray; // Similar to raycasing
+
+				Cell newCell = kingCell;
+
+				bool foundFriendly = false;
+
+				while (newCell.isInBounds()) {
+					newCell += dir;
+					TileRepresentation piece = getPiece(newCell);
+
+					if (piece.player == player) {
+						if (foundFriendly) break; // Two friendly pieces = not pinned
+
+						foundFriendly = true; // One friendly piece = pinned
+					} else if (piece.player != -1) { // Enemy!
+						bool isDiagonal = abs(dir.rank) == abs(dir.file);
+						bool isStraight = dir.rank == 0 || dir.file == 0;
+
+						bool canPin = piece.type == PieceType::QUEEN || (isDiagonal && piece.type == PieceType::BISHOP) || (isStraight && piece.type == PieceType::ROOK);
+
+						if (!canPin) break;
+
+						ray.push_back(newCell);
+
+						if (foundFriendly) {
+							result.pinnedCells.insert(result.pinnedCells.end(), ray.begin(), ray.end());
+						} else {
+							result.checkBlockCells.insert(result.checkBlockCells.end(), ray.begin(), ray.end());
+						}
+
+						break;
+					}
+
+					ray.push_back(newCell); // Continue ray until we collide or go out of bounds
+				}
+			}
+
+			if (!result.pinnedCells.empty()) result.pinnedCells.push_back(kingCell); // Add the king to the list of pinned pieces
+			if (!result.checkBlockCells.empty()) result.checkBlockCells.push_back(kingCell); // Add the king to the list of pinned pieces
+
+			return result;
 		}
 
 		// Function to make a move
@@ -595,17 +655,11 @@ class MoveGenerator {
 			}
 		}
 
-		void removePiece(Cell cell) {
-			board[cell.rank][cell.file] = { PieceType::NO_PIECE, -1, false };
-		}
+		void removePiece(Cell cell) { board[cell.rank][cell.file] = { PieceType::NO_PIECE, -1, false }; }
 
-		void setPiece(Cell cell, TileRepresentation tile) {
-			board[cell.rank][cell.file] = tile;
-		}
+		void setPiece(Cell cell, TileRepresentation tile) { board[cell.rank][cell.file] = tile; }
 
-		TileRepresentation& getPiece(Cell cell) {
-			return board[cell.rank][cell.file];
-		}
+		TileRepresentation& getPiece(Cell cell) { return board[cell.rank][cell.file]; }
 
 		Move chooseMove(int player, int ply) {
 			int movesCalculated = 0;
