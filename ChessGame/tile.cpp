@@ -10,24 +10,19 @@ void Tile::update() {
 	}
 }
 
-int Tile::getLifetime() {
-    return lifetime;
-}
+void Tile::updateState(Board& board) { if (hasPiece()) currentPiece->updateState(); }
 
-void Tile::setLifetime(int _lifetime) {
-    lifetime = _lifetime;
-}
+void Tile::applyTileEffect(Board& board) { }
 
-void Tile::setPiece(Piece* piece) {
-    currentPiece = piece;
-}
+int Tile::getLifetime() { return lifetime; }
 
-void Tile::queuePiece(Piece* piece) {
-    queuedPiece = piece;
-}
+void Tile::setLifetime(int _lifetime) { lifetime = _lifetime; }
+
+void Tile::setPiece(Piece* piece) { currentPiece = piece; }
+
+void Tile::queuePiece(Piece* piece) { queuedPiece = piece; }
 
 Piece* Tile::dequeuePiece() {
-    
     Piece* removedPiece = nullptr; 
 
     if (queuedPiece) {
@@ -46,18 +41,10 @@ Piece* Tile::removePiece() {
     return tempPiece;
 }
 
-bool Tile::hasPiece() {
-    return currentPiece != nullptr;
-}
+bool Tile::hasPiece() { return currentPiece != nullptr; }
 
-Piece* Tile::getPiece() {
-    return currentPiece;
-}
+Piece* Tile::getPiece() { return currentPiece; }
 
-bool Tile::isSelectable() {
-    return true; // Base tile is always selectable
-}
+bool Tile::isSelectable() { return true; }
 
-bool Tile::isPassable() {
-    return true;
-}
+bool Tile::isPassable() { return true; }

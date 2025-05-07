@@ -24,16 +24,9 @@ void BasicTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float
     }
 }
 
-void BasicTile::updateState(Board& board) {
-    // Update the piece on this tile
-    if (hasPiece()) {
-        currentPiece->updateState();
-    }
-}
 
 
-
-IceTile::IceTile(raylib::Texture2D* texture) : Tile(1), atlas(texture) {}
+IceTile::IceTile(raylib::Texture2D* texture) : Tile(), atlas(texture) {}
 
 void IceTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) {
     TilePosition tile = tileData[TILE_ICE];
@@ -50,36 +43,12 @@ void IceTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z
     }
 }
 
-void IceTile::updateState(Board& board) {
-    // Update the piece on this tile
+void IceTile::applyTileEffect(Board& board) {
     if (hasPiece()) {
-
-        switch (lifetime) {
-            case 6: {
-                Sound fxThaw = LoadSound("resources/icefrozen.wav");
-                PlaySound(fxThaw);
-                break;
-            }
-            case 4: {
-                Sound fxThaw = LoadSound("resources/icethaw1.wav");
-                PlaySound(fxThaw);
-                break;
-            }
-            case 2: {
-                Sound fxThaw = LoadSound("resources/icethaw2.wav");
-                PlaySound(fxThaw);
-                break;
-            }
-            case 0: {
-                Sound fxThaw = LoadSound("resources/icebreak.wav");
-                PlaySound(fxThaw);
-                break;
-            }
-        }
-
         currentPiece->setFrozen(6);
-        currentPiece->updateState();
 
+        lifetime = 0;
+    } else {
         lifetime--;
     }
 }
@@ -119,13 +88,11 @@ void BreakingTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, fl
     }
 }
 
-void BreakingTile::updateState(Board& board) {
-    // Update the piece on this tile
+void BreakingTile::applyTileEffect(Board& board) {
     if (hasPiece()) {
         lifetime--;
-        if (!lifetime) {
-            removePiece();
-        }
+
+        if (lifetime == 0) removePiece();
     }
 }
 
@@ -151,14 +118,16 @@ void ConveyorTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, fl
     }
 }
 
-void ConveyorTile::updateState(Board& board) {
+void ConveyorTile::applyTileEffect(Board& board) {
+    lifetime--;
+
     if (hasPiece()) {
-		Cell cell = board.getCell(this);
+        Cell cell = board.getCell(this);
         Cell destinationCell;
 
         switch (direction) {
             case UP:
-				destinationCell = cell + Cell(1, 0);
+                destinationCell = cell + Cell(1, 0);
                 break;
             case DOWN:
                 destinationCell = cell + Cell(-1, 0);
@@ -175,15 +144,9 @@ void ConveyorTile::updateState(Board& board) {
 
         if (destinationTile) {
             // Queue a movement to the destination tile
-            board.queueMove({
-                destinationCell,
-                cell,
-                false
-            });
+            board.queueMove(Move(cell, destinationCell, false));
         }
     }
-
-    lifetime--;
 }
 
 
@@ -223,15 +186,16 @@ void PortalTile::draw(Theme& theme, RenderQueue& renderQueue, int x, int y, floa
     }
 }
 
-void PortalTile::updateState(Board& board) {
+void PortalTile::applyTileEffect(Board& board) {
     if (hasPiece()) {
-		// Get a list of all portal tiles
+        // Get a list of all portal tiles
         vector<Tile*> portalTiles = board.getTilesOfType<PortalTile>();
 
         // Find the destination portal tile with the same portal number
         PortalTile* destinationPortal = nullptr;
+
         for (Tile* portalTile : portalTiles) {
-			PortalTile* portal = dynamic_cast<PortalTile*>(portalTile);
+            PortalTile* portal = dynamic_cast<PortalTile*>(portalTile);
             if (portal != this && portal->portalNumber == this->portalNumber) {
                 destinationPortal = portal;
                 break;
@@ -240,19 +204,17 @@ void PortalTile::updateState(Board& board) {
 
         if (destinationPortal) {
             // Get the positions of the current and destination portal tiles
-			Cell cell = board.getCell(this);
+            Cell cell = board.getCell(this);
 
             Cell destinationCell = board.getCell(destinationPortal);
 
             // Queue a movement to the destination portal tile
-            board.queueMove({
-                board.getCell(destinationPortal),
-                board.getCell(this),
-                false
-            });
+            board.queueMove(Move(board.getCell(destinationPortal), board.getCell(this), false));
 
             lifetime = 0;
-			destinationPortal->setLifetime(0);
+            destinationPortal->setLifetime(0);
         }
+    } else {
+        lifetime--;
     }
 }

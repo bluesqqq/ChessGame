@@ -4,6 +4,7 @@
 #include "tile.h"
 #include "RenderQueue.h"
 #include "Theme.h"
+#include "include/raylib-cpp.hpp"
 
 class BasicTile : public Tile {
     private:
@@ -13,8 +14,6 @@ class BasicTile : public Tile {
         BasicTile(raylib::Texture2D* texture);
 
         void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
-
-        void updateState(Board& board) override;
 };
 
 class IceTile : public Tile {
@@ -26,7 +25,7 @@ class IceTile : public Tile {
 
         void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
-        void updateState(Board& board) override;
+        void applyTileEffect(Board& board) override;
 };
 
 class BreakingTile : public Tile {
@@ -38,7 +37,7 @@ class BreakingTile : public Tile {
 
         void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
-        void updateState(Board& board) override;
+        void applyTileEffect(Board& board) override;
 };
 
 enum Direction {
@@ -58,7 +57,7 @@ class ConveyorTile : public Tile {
 
         void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
-        void updateState(Board& board) override;
+        void applyTileEffect(Board& board) override;
 };
 
 class PortalTile : public Tile {
@@ -71,7 +70,7 @@ class PortalTile : public Tile {
 
         void draw(Theme& theme, RenderQueue& renderQueue, int x, int y, float z, bool selected, bool hide) override;
 
-        void updateState(Board& board) override;
+        void applyTileEffect(Board& board) override;
 };
 
 #endif

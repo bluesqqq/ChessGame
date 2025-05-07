@@ -44,12 +44,14 @@ void Game::draw(raylib::Texture2D* atlas) {
 void Game::update(raylib::Texture2D* atlas) {
 	theme.updateBackground(); // Update the theme
 
+	// Remove finished promotion menus
 	if (promotionMenu.has_value()) {
 		if (promotionMenu.value().finished()) {
-			promotionMenu = nullopt; // Remove the finished promotion menu
+			promotionMenu = nullopt;
 		}
 	}
 	
+	// Add a new promotion menu if needed
 	if (board.hasPromotion() && !promotionMenu.has_value()) {
 		Cell promotionCell = board.getPromotionCell();
 
@@ -61,24 +63,28 @@ void Game::update(raylib::Texture2D* atlas) {
 		}
 	}
 
-	// Check if the board is ready to play
-	if (board.isPlayable() && !promotionMenu) {
-		Player& currentPlayer = getCurrentPlayer();
+	if (!promotionMenu) {
+		if (!board.isPlayable()) {
+			if (board.handlingStateUpdate) {
+				updateState();
+			}
+		} else { // Wait for player to make a move
+			Player& currentPlayer = getCurrentPlayer();
 
-		// Check if the current player has made a move
-		if (currentPlayer.hasMove()) {
-			cout << endl <<"Player #" << getPlayerTurn() << " has made a move!" << endl;
-			Move playerMove = currentPlayer.getMove(); // Get the player's move
-			// Can add extra failsafe handling here if needed, but not for now
+			// Check if the current player has made a move
+			if (currentPlayer.hasMove()) {
+				cout << endl << "Player #" << getPlayerTurn() << " has made a move!" << endl;
+				Move playerMove = currentPlayer.getMove(); // Get the player's move
+				// Can add extra failsafe handling here if needed, but not for now
 
-			Piece* piece = board.getTile(playerMove.from)->getPiece(); // Get the piece the player is moving
+				Piece* piece = board.getTile(playerMove.from)->getPiece(); // Get the piece the player is moving
 
-			// Since castling is the only move that moves 2 pieces at the same time, i'm just handling it here.
-			// It might be a good idea to test this with interactions though.
+				// Since castling is the only move that moves 2 pieces at the same time, i'm just handling it here.
+				// It might be a good idea to test this with interactions though.
 
-			// Handle specific move flags
-			if (playerMove.flag.has_value()) {
-				switch (playerMove.flag.value()) {
+				// Handle specific move flags
+				if (playerMove.flag.has_value()) {
+					switch (playerMove.flag.value()) {
 					case MoveFlag::CASTLE: { // King castling
 						cout << "Castled!" << endl;
 						int direction = (playerMove.to.file > playerMove.from.file) ? 1 : -1;
@@ -110,24 +116,29 @@ void Game::update(raylib::Texture2D* atlas) {
 						board.clearEnPassantableCell();
 						break;
 					}
+					}
 				}
-			} else {
-				board.clearEnPassantableCell();
+				else {
+					board.clearEnPassantableCell();
+				}
+
+				board.queueMove(playerMove); // Queue the player's move up
+
+				board.handlingPlayerTurn = true;
 			}
-
-			board.queueMove(playerMove); // Queue the player's move up
-
-			currentTurn++; // Next player's turn
 		}
 	}
 
 	// TODO: fix this so i dont have to update it like this
-	board.update(getPlayerTurn() % 2 + 1); // Update the board
+	board.update(getPlayerTurn()); // Update the board
 }
 
 void Game::updateState() {
 	updateWaitFrames = 60;
 	queuedForUpdate = false;
+
+	currentTurn++; // Next player's turn
+
 	// Check if the game ended
 	int currentPlayer = getPlayerTurn();
 

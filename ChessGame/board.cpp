@@ -189,36 +189,37 @@ void Board::update(int player) {
 
     double currentTime = GetTime();
 
-    if (!queuedMoves.empty()) { // Continued unfinished moves until all are gone
-        bool unfinishedAnimations = false;
+    if (handlingPlayerTurn) {
+        if (allMoveAnimationsFinished()) {
+            executeQueuedMoves();
 
-        // Check if any moves have unfinished animations
-		for (auto& move : queuedMoves) {
-			Piece* animatingPiece = getTile(move.from)->getPiece();
+            applyAllTileEffects(); // Apply tile effects
 
-            if (!animatingPiece->animationFinished()) {
-                unfinishedAnimations = true;
-            }
-		}
+            removeConflictingMoves(); // Remove any conflicting tile moves
 
-        if (!unfinishedAnimations) {
-			executeQueuedMoves();
+            handlingPlayerTurn = false;
+            handlingTileEffects = true;
+        }
+    } else if (handlingTileEffects) {
+        if (allMoveAnimationsFinished()) {
+            executeQueuedMoves();
 
             promotePieces(player);
+
+            handlingPiecePromotion = true;
+            handlingTileEffects = false;
         }
-    } else if (hasPromotion()) { // Continued unfinished promotions until all are gone
+    } else if (handlingPiecePromotion) { // Continued unfinished promotions until all are gone
+        if (!hasPromotion()) { // No more promotions left
+            handlingStateUpdate = true;
 
-    } else if (updateStatePhase) { // Finish up
-        removeExpiredTiles();
-		spawnRandomTiles();
-
-        // Finish update state phase
-		updateStatePhase = false;
+            handlingPiecePromotion = false;
+        }
     }
 }
 
 void Board::updateState() {
-    updateStatePhase = true;
+    cout << "Updated board state..." << endl;
     // Update the state of every tile
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
@@ -226,8 +227,11 @@ void Board::updateState() {
         }
     }
 
-    // Remove any conflicting moves added to the queuedMoves
-	removeConflictingMoves();
+    removeExpiredTiles(); // Remove any tiles that expired
+
+    spawnRandomTiles(); // Spawn random tiles;
+
+    handlingStateUpdate = false;
 }
 
 void Board::removeExpiredTiles() {
@@ -242,7 +246,7 @@ void Board::removeExpiredTiles() {
     }
 }
 
-bool Board::isPlayable() { return (queuedMoves.empty() && !hasPromotion()); }
+bool Board::isPlayable() { return (!handlingPlayerTurn && !handlingTileEffects && !handlingPiecePromotion && !handlingStateUpdate); }
 
 void Board::queueMove(Move move) {
     Piece* animatingPiece = getTile(move.from)->getPiece();
@@ -264,6 +268,7 @@ void Board::removeConflictingMoves() {
     for (auto it = queuedMoves.begin(); it != queuedMoves.end(); ++it) {
         for (auto jt = next(it); jt != queuedMoves.end();) {
             if (jt->to == it->to) {
+                getPiece(jt->from)->removeAnimation();
                 jt = queuedMoves.erase(jt); // Remove conflicting move
                 continue;
             }
@@ -285,6 +290,7 @@ void Board::removeConflictingMoves() {
                     });
 
                 if (blockingMove == queuedMoves.end()) {
+                    getPiece(it->from)->removeAnimation();
                     it = queuedMoves.erase(it);
                     removedMove = true;
                     continue;
@@ -327,6 +333,8 @@ void Board::executeQueuedMoves() {
 }
 
 void Board::promotePieces(int player) {
+    cout << "Promoting pieces..." << endl;
+
     int piecesPromoted = 0;
     // Add all promotions
     for (int file = 0; file < 8; file++) {
@@ -339,10 +347,6 @@ void Board::promotePieces(int player) {
             promotions.push(promotionCell);
 			piecesPromoted++;
         }
-    }
-
-    if (piecesPromoted > 0) {
-		cout << "Promoting " << piecesPromoted << " pieces!" << endl;
     }
 }
 
@@ -708,7 +712,7 @@ void Board::spawnRandomTiles(TileSpawnType type) {
         case TileSpawnType::CONVEYOR_ROW_SPAWN: {
             int rank = rand() % 4 + 2; // can only spawn on ranks 3 - 6
             for (int i = 0; i < 8; i++) {
-                changeTile(i, rank, new ConveyorTile(atlas, RIGHT));
+                changeTile(rank, i, new ConveyorTile(atlas, RIGHT));
             }
             break;
         }

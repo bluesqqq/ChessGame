@@ -118,90 +118,80 @@ int main() {
 
         Player& currentPlayer = game.getCurrentPlayer();
 
-        if (!game.queuedForUpdate) {
+        if (game.isPlayable()) {
+            if (game.getPlayerTurn() == 1) {
 
-            if (game.isPlayable()) {
-                if (game.getPlayerTurn() == 1) {
+                // LEFT CLICK
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    Cell targetCell = board.getCellAtScreenPosition(mousePosition, camera);
+                    Tile* targetTile = board.getTile(targetCell);
 
-                    // LEFT CLICK
-                    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                        Cell targetCell = board.getCellAtScreenPosition(mousePosition, camera);
-                        Tile* targetTile = board.getTile(targetCell);
+                    // Check if tile exists
+                    if (targetTile) {
+                        Piece* targetPiece = targetTile->getPiece();
 
-                        // Check if tile exists
-                        if (targetTile) {
-                            Piece* targetPiece = targetTile->getPiece();
+                        // Check if piece exists on tile and if it is the current player's
+                        if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(game.getBoard()).empty()) {
+                            selectedTile = targetTile;
+                            selectedPiece = targetPiece;
 
-                            // Check if piece exists on tile and if it is the current player's
-                            if (targetPiece && targetPiece->isSelectable() && targetPiece->getPlayer() == game.getPlayerTurn() && !targetPiece->getLegalMoves(game.getBoard()).empty()) {
-                                selectedTile = targetTile;
-                                selectedPiece = targetPiece;
+							Vector2 position = game.getBoard().getTilePosition(selectedTile);
 
-								Vector2 position = game.getBoard().getTilePosition(selectedTile);
+                            interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
 
-                                interpolatedCursorIsoPositionFloat = { position.x, position.y, 0.0f };
-
-                                Sound fxPickup = LoadSound("resources/pickup.wav");
-                                PlaySound(fxPickup);
-                            }
+                            Sound fxPickup = LoadSound("resources/pickup.wav");
+                            PlaySound(fxPickup);
                         }
-                    }
-
-                    /* This looks ugly at low resolution
-                    if (selectedPiece) {
-					    camera.zoom = Lerp(camera.zoom, 1.2f, 0.1f);
-                    } else {
-                        camera.zoom = Lerp(camera.zoom, 1.0f, 0.1f);
-                    }
-                    */
-
-                    // LEFT RELEASE
-                    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
-						// Get the cell at the mouse position
-                        Cell destinationCell = board.getCellAtScreenPosition(mousePosition, camera);
-
-						Cell selectedCell = Cell(game.getBoard().getCell(selectedTile)); // Cell the user selected the piece from
-
-						raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
-
-                        if (board.isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
-							Move move = board.getMove(selectedCell, destinationCell); // Get the move, with flags
-                                
-                            cout << "Setting Player Move: " << move.getAlgebraicNotation(board) << endl;
-                            currentPlayer.setMove(move);
-                        }
-
-                        selectedTile = nullptr;
-                        selectedPiece = nullptr;
-
-                        Sound fxPutdown = LoadSound("resources/putdown.wav");
-
-                        PlaySound(fxPutdown);
-                    }
-
-                } else { // AI's turn
-
-                    MoveGenerator generator = MoveGenerator(game);
-
-                    Move aiMove = generator.chooseMove(4);
-
-                    if (board.isLegalMove(game.getPlayerTurn(), aiMove.from, aiMove.to)) {
-                        Move move = board.getMove(aiMove.from, aiMove.to); // Get the move, with flags
-                        // NOTE: this might not be necessary now that i changed from cellmove to move, idk yet
-
-                        cout << "Setting AI Move: " << move.getAlgebraicNotation(board) << endl;
-                        currentPlayer.setMove(move);
-                    } else {
-						cout << "AI move is illegal! Attempting to make move: " << endl;
                     }
                 }
-            }
-        } else {
-            if (game.updateWaitFrames == 0) {
-                game.updateState();
-            }
-            else {
-                game.updateWaitFrames--;
+
+                /* This looks ugly at low resolution
+                if (selectedPiece) {
+					camera.zoom = Lerp(camera.zoom, 1.2f, 0.1f);
+                } else {
+                    camera.zoom = Lerp(camera.zoom, 1.0f, 0.1f);
+                }
+                */
+
+                // LEFT RELEASE
+                if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && (selectedTile)) {
+					// Get the cell at the mouse position
+                    Cell destinationCell = board.getCellAtScreenPosition(mousePosition, camera);
+
+					Cell selectedCell = Cell(game.getBoard().getCell(selectedTile)); // Cell the user selected the piece from
+
+					raylib::Vector3 differencePosition = game.getBoard().getIsoPositionAtCell(destinationCell) - game.getBoard().getIsoPositionAtCell(selectedCell);
+
+                    if (board.isLegalMove(game.getPlayerTurn(), selectedCell, destinationCell)) {
+						Move move = board.getMove(selectedCell, destinationCell); // Get the move, with flags
+                                
+                        cout << "Setting Player Move: " << move.getAlgebraicNotation(board) << endl;
+                        currentPlayer.setMove(move);
+                    }
+
+                    selectedTile = nullptr;
+                    selectedPiece = nullptr;
+
+                    Sound fxPutdown = LoadSound("resources/putdown.wav");
+
+                    PlaySound(fxPutdown);
+                }
+
+            } else { // AI's turn
+
+                MoveGenerator generator = MoveGenerator(game);
+
+                Move aiMove = generator.chooseMove(4);
+
+                if (board.isLegalMove(game.getPlayerTurn(), aiMove.from, aiMove.to)) {
+                    Move move = board.getMove(aiMove.from, aiMove.to); // Get the move, with flags
+                    // NOTE: this might not be necessary now that i changed from cellmove to move, idk yet
+
+                    cout << "Setting AI Move: " << move.getAlgebraicNotation(board) << endl;
+                    currentPlayer.setMove(move);
+                } else {
+					cout << "AI move is illegal! Attempting to make move: " << endl;
+                }
             }
         }
 

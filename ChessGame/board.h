@@ -45,13 +45,16 @@ class Board {
         /// </summary>
         optional<Cell> enPassantableCell;
 
-        bool updateStatePhase = false;
-
         int portalCounter = 0;
 
         void drawTile(RenderQueue& renderQueue, int rank, int file, TileType type);
 
     public:
+        bool handlingPlayerTurn = false;
+        bool handlingTileEffects = false;
+        bool handlingPiecePromotion = false;
+        bool handlingStateUpdate = false;
+
         Board(raylib::Texture2D* texture, vector<Player>& players);
 
         /************************************|
@@ -267,11 +270,36 @@ class Board {
                    MOVE FUNCTIONS
         |************************************/
 
+        bool hasMoves() {
+            return (!queuedMoves.empty());
+        }
+
+        bool allMoveAnimationsFinished() {
+            for (auto& move : queuedMoves) {
+                Piece* animatingPiece = getTile(move.from)->getPiece();
+
+                if (!animatingPiece->animationFinished()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Adds a move to the queue
         /// </summary>
         /// <param name="move">The move to add to the queue</param>
         void queueMove(Move move);
+
+        void applyAllTileEffects() {
+            cout << "Applying tile effects..." << endl;
+            for (int rank = 0; rank < 8; rank++) {
+                for (int file = 0; file < 8; file++) {
+                    tiles[rank][file]->applyTileEffect(*this);
+                }
+            }
+        }
 
         /// <summary>
         /// Removes all conflicting moves from the queue

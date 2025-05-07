@@ -33,7 +33,9 @@ class Tile {
         /// <summary>
         /// Updates the tile, called after every move
         /// </summary>
-        virtual void updateState(Board& board) = 0;
+        virtual void updateState(Board& board);
+
+        virtual void applyTileEffect(Board& board);
 
         /************************************|
                    PIECE FUNCTIONS
