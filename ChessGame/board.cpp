@@ -53,7 +53,7 @@ Board::Board(raylib::Texture2D* texture, vector<Player>& players) : atlas(textur
 void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell selectedCell) {
     bool hide = false; 
 
-    std::vector<Cell> highlightTiles; // List of tiles to be highlighted
+    vector<Cell> highlightTiles; // List of tiles to be highlighted
 
     if (isPlayable()) { // Highlight selected tiles if in play
         // If piece is selected, hide the other pieces
@@ -115,12 +115,12 @@ void Board::draw(Theme& theme, RenderQueue& renderQueue, int player, Cell select
 
             Cell currentCell = Cell(rank, file); // make this whole function more representative of this
 
-            auto it = std::find(highlightTiles.begin(), highlightTiles.end(), currentCell);
+            auto it = find(highlightTiles.begin(), highlightTiles.end(), currentCell);
 
             Tile* tile = getTile(currentCell);
 
             // Apply sine wave for a wavy effect
-            float waveOffset = std::max(sin(time + (rank + file) * 0.4f) * 0.2f, 0.0f);
+            float waveOffset = max(sin(time + (rank + file) * 0.4f) * 0.2f, 0.0f);
 
             if (selectedCell.rank == rank && selectedCell.file == file) { // Mouse is hovered
                 tile->draw(theme, renderQueue, tilePosition.x, tilePosition.y, waveOffset, true, false);
@@ -262,7 +262,7 @@ void Board::queueMove(Move move) {
 void Board::removeConflictingMoves() {
     // Remove conflicting moves (moves with the same destination)
     for (auto it = queuedMoves.begin(); it != queuedMoves.end(); ++it) {
-        for (auto jt = std::next(it); jt != queuedMoves.end();) {
+        for (auto jt = next(it); jt != queuedMoves.end();) {
             if (jt->to == it->to) {
                 jt = queuedMoves.erase(jt); // Remove conflicting move
                 continue;
@@ -280,7 +280,7 @@ void Board::removeConflictingMoves() {
         for (auto it = queuedMoves.begin(); it != queuedMoves.end();) {
 			Cell to = it->to;
             if (!it->canOvertake && getTile(to)->hasPiece()) {
-                auto blockingMove = std::find_if(queuedMoves.begin(), queuedMoves.end(), [it](const Move& other) {
+                auto blockingMove = find_if(queuedMoves.begin(), queuedMoves.end(), [it](const Move& other) {
                     return (other.from == it->to) && (other.to != it->to);
                     });
 
@@ -349,7 +349,7 @@ void Board::promotePieces(int player) {
 bool Board::hasPromotion() { return !promotions.empty(); }
 
 Cell Board::getPromotionCell() {
-    if (promotions.empty()) throw std::runtime_error("promotions is empty!");
+    if (promotions.empty()) throw runtime_error("promotions is empty!");
 
     Cell cell = promotions.front();
     promotions.pop();
@@ -463,31 +463,31 @@ bool Board::isLegalMove(int player, Cell piece, Cell move) {
 Move Board::getMove(Cell pieceCell, Cell moveCell) {
 	Piece* piece = getPiece(pieceCell);
 
-    if (!piece) throw std::runtime_error("Unable to find piece.");
+    if (!piece) throw runtime_error("Unable to find piece.");
 
     // Get all legal moves for this piece
 	vector<Move> moves = piece->getLegalMoves(*this);
 
     // Find the one that matches the move cell and return it (using find function)
-	auto it = std::find_if(moves.begin(), moves.end(), [&](const Move& move) { return move.to == moveCell; });
+	auto it = find_if(moves.begin(), moves.end(), [&](const Move& move) { return move.to == moveCell; });
 
 	if (it != moves.end()) return *it; // Return the found move
 
-	throw std::runtime_error("Unable to find move.");
+	throw runtime_error("Unable to find move.");
 }
 
 
 vector<Move> Board::getAllLegalMoves(int player) {
     vector<Move> allLegalMoves;
 
-    std::vector<Cell> pieceLocations = getPlayersPieces(player);
+    vector<Cell> pieceLocations = getPlayersPieces(player);
 
     for (Cell& pieceLocation : pieceLocations) {
         Tile* tile = getTile(pieceLocation);
 
         Piece* piece = tile->getPiece();
 
-        std::vector<Move> pieceMoves = piece->getLegalMoves(*this);
+        vector<Move> pieceMoves = piece->getLegalMoves(*this);
 
         for (Move& move : pieceMoves) {
             allLegalMoves.push_back(move);
@@ -497,8 +497,8 @@ vector<Move> Board::getAllLegalMoves(int player) {
     return allLegalMoves;
 }
 
-std::vector<Cell> Board::getPlayersPieces(int player) {
-    std::vector<Cell> locations;
+vector<Cell> Board::getPlayersPieces(int player) {
+    vector<Cell> locations;
 
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
@@ -520,8 +520,8 @@ std::vector<Cell> Board::getPlayersPieces(int player) {
 }
 
 template <typename T>
-std::vector<Cell> Board::getPlayersPiecesOfType(int player) {
-    std::vector<Cell> locations;
+vector<Cell> Board::getPlayersPiecesOfType(int player) {
+    vector<Cell> locations;
 
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
@@ -566,21 +566,21 @@ vector<Tile*> Board::getTilesOfType() {
 
 bool Board::isInCheck(int player) {
     // Find the position of the player's king
-    std::vector<Cell> kings = getPlayersPiecesOfType<King>(player);
+    vector<Cell> kings = getPlayersPiecesOfType<King>(player);
 
     if (kings.empty()) return false; // Should not happen in a normal game
 
     Cell kingsPosition = kings[0];
 
     // Get all the possible moves of the opposing player's pieces
-    std::vector<Cell> opponentPiecesLocations = getPlayersPieces((player % 2) + 1);
+    vector<Cell> opponentPiecesLocations = getPlayersPieces((player % 2) + 1);
 
     for (Cell& location : opponentPiecesLocations) {
         Tile* tile = getTile(location);
 
         Piece* piece = tile->getPiece();
 
-        std::vector<Move> moves = piece->getMoves(*this);
+        vector<Move> moves = piece->getMoves(*this);
 
         for (Move& move : moves) {
             if (move.to == kingsPosition) return true;
@@ -591,7 +591,7 @@ bool Board::isInCheck(int player) {
 }
 
 bool Board::canMove(int player) {
-    std::vector<Cell> playerPieceLocations = getPlayersPieces(player);
+    vector<Cell> playerPieceLocations = getPlayersPieces(player);
 
     for (Cell& location : playerPieceLocations) {
         Tile* tile = getTile(location);
@@ -768,7 +768,7 @@ template int Board::getTileCount<IceTile>();
 template int Board::getTileCount<BreakingTile>();
 template int Board::getTileCount<PortalTile>();
 
-template std::vector<Tile*> Board::getTilesOfType<PortalTile>();
+template vector<Tile*> Board::getTilesOfType<PortalTile>();
 
 
-template std::vector<Cell> Board::getPlayersPiecesOfType<Rook>(int player);
+template vector<Cell> Board::getPlayersPiecesOfType<Rook>(int player);

@@ -4,7 +4,7 @@ Keyframe::Keyframe(double time, raylib::Vector3 position, EasingType easing) : t
 
 }
 
-Animation::Animation(std::vector<Keyframe> keyframes) : keyframes(keyframes) {
+Animation::Animation(vector<Keyframe> keyframes) : keyframes(keyframes) {
 
 }
 

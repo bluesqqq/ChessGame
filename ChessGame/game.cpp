@@ -189,7 +189,7 @@ bool Game::playerIsInCheck(int player) { return board.isInCheck(player); }
 
 Player& Game::getPlayer(int player) {
 	if (player <= 0 || player > players.size()) {
-		throw std::runtime_error("Player index out of bounds");
+		throw runtime_error("Player index out of bounds");
 	}
 	return players[player - 1];
 }

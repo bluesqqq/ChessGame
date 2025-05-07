@@ -11,14 +11,11 @@
 #include "animation.h"
 #include <optional>
 #include "Move.h"
+#include "PieceType.h"
 
 using namespace std;
 
 class Board;
-
-enum class PieceType {
-    NO_PIECE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING 
-};
 
 class Piece {
     protected:

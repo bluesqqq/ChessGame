@@ -32,9 +32,9 @@ struct Animation {
     /// <summary>
 	/// The keyframes of the animation
     /// </summary>
-    std::vector<Keyframe> keyframes;
+    vector<Keyframe> keyframes;
 
-	Animation(std::vector<Keyframe> keyframes);
+	Animation(vector<Keyframe> keyframes);
 
 	void startAnimation();
 

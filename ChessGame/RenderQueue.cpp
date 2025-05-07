@@ -11,7 +11,7 @@ float SpriteObject::getDepth() {
 
 
 RenderQueue::RenderQueue() {
-	queue = std::vector<SpriteObject>();
+	queue = vector<SpriteObject>();
 }
 
 void RenderQueue::draw() {
@@ -27,7 +27,7 @@ void RenderQueue::addSpriteObject(SpriteObject spriteObject) {
 }
 
 void RenderQueue::sortQueue() {
-	std::sort(queue.begin(), queue.end(), [](SpriteObject a, SpriteObject b) {
+	sort(queue.begin(), queue.end(), [](SpriteObject a, SpriteObject b) {
 		return a.getDepth() < b.getDepth();
 	});
 }

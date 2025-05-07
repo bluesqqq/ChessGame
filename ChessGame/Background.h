@@ -5,7 +5,10 @@
 #include <vector>
 #include <random>
 
+using namespace std;
+
 float random_float(float min, float max);
+
 
 
 class Background {
@@ -25,7 +28,7 @@ struct Star {
 class SpaceBackground : public Background {
 	private:
 		Color backgroundColor = BLACK;
-		std::vector<Star> stars;
+		vector<Star> stars;
 
 	public:
 		void draw() override;

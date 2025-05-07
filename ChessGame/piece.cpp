@@ -75,14 +75,14 @@ void Piece::updateState() {
     if (frozen > 0) frozen--;
 }
 
-std::vector<Move> Piece::getLegalMoves(Board& board) {
+vector<Move> Piece::getLegalMoves(Board& board) {
     if (getImmobile()) return {}; // If the piece is immobile, return an empty list
 
-    std::vector<Move> pseudoLegalMoves = getMoves(board);
+    vector<Move> pseudoLegalMoves = getMoves(board);
 
 	if (pseudoLegalMoves.empty()) return {}; // If there are no moves, return an empty list
 
-    std::vector<Move> legalMoves;
+    vector<Move> legalMoves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -116,11 +116,11 @@ std::vector<Move> Piece::getLegalMoves(Board& board) {
 }
 
 bool Piece::isLegalMove(Board& board, Cell move) {
-    std::vector<Move> legalMoves = getLegalMoves(board);
+    vector<Move> legalMoves = getLegalMoves(board);
 
     if (legalMoves.empty()) return false;
 
-    return std::any_of(legalMoves.begin(), legalMoves.end(), [&](const Move& m) {
+    return any_of(legalMoves.begin(), legalMoves.end(), [&](const Move& m) {
         return m.to == move;
     });
 }
@@ -149,8 +149,8 @@ bool Piece::isSelectable() {
     return !getImmobile();
 }
 
-std::string Piece::getName() {
-    std::vector<std::string> names{
+string Piece::getName() {
+    vector<string> names{
         "None",
         "Pawn",
         "Knight",
@@ -173,8 +173,8 @@ Pawn::Pawn(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_PAWN_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> Pawn::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> Pawn::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -228,12 +228,12 @@ Knight::Knight(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_KNIGHT_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> Knight::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> Knight::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
-    const std::vector<Cell> offsets = { {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2} };
+    const vector<Cell> offsets = { {2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2} };
 
     for (const Cell& offset : offsets) {
         const Cell _cell = pieceCell + offset;
@@ -258,12 +258,12 @@ Bishop::Bishop(raylib::Texture2D* texture, int player) : Piece(texture, player, 
     frozenSpriteRect = pieceSprites[SPRITE_BISHOP_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> Bishop::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> Bishop::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
-    const std::vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1} };
+    const vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1} };
 
     for (const Cell& direction : directions) {
         Cell _cell = pieceCell;
@@ -306,12 +306,12 @@ Rook::Rook(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_ROOK_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> Rook::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> Rook::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
-    const std::vector<Cell> directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+    const vector<Cell> directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
     for (const Cell& direction : directions) {
         Cell _cell = pieceCell;
@@ -357,12 +357,12 @@ Queen::Queen(raylib::Texture2D* texture, int player) : Piece(texture, player, Pi
     frozenSpriteRect = pieceSprites[SPRITE_QUEEN_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> Queen::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> Queen::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
-    const std::vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+    const vector<Cell> directions = { {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
     for (const Cell& direction : directions) {
         Cell _cell = pieceCell;
@@ -408,8 +408,8 @@ King::King(raylib::Texture2D* texture, int player) : Piece(texture, player, Piec
     frozenSpriteRect = pieceSprites[SPRITE_KING_FROZEN].toSpriteRect();
 }
 
-std::vector<Move> King::getMoves(Board& board) {
-    std::vector<Move> moves;
+vector<Move> King::getMoves(Board& board) {
+    vector<Move> moves;
 
     Cell pieceCell = board.getCell(this);
 
@@ -417,8 +417,8 @@ std::vector<Move> King::getMoves(Board& board) {
     int file = pieceCell.file;
 
     // Check a 3x3 box with the King in the center (except for out-of-bounds)
-    for (int _rank = std::max(rank - 1, 0); _rank <= std::min(rank + 1, 7); _rank++) {
-        for (int _file = std::max(file - 1, 0); _file <= std::min(file + 1, 7); _file++) {
+    for (int _rank = max(rank - 1, 0); _rank <= min(rank + 1, 7); _rank++) {
+        for (int _file = max(file - 1, 0); _file <= min(file + 1, 7); _file++) {
             // Get the tile at the current location
             Tile* tile = board.getTile(Cell(_rank, _file));
 
@@ -436,7 +436,7 @@ std::vector<Move> King::getMoves(Board& board) {
 
     // CASTLING
     if (getNumberOfMoves() <= 0) { // King has not moved
-        std::vector<Cell> rookCells = board.getPlayersPiecesOfType<Rook>(player);
+        vector<Cell> rookCells = board.getPlayersPiecesOfType<Rook>(player);
 
         for (Cell& rookCell : rookCells) {
             if (rookCell.rank == pieceCell.rank) { // Same rank as king
@@ -446,8 +446,8 @@ std::vector<Move> King::getMoves(Board& board) {
                 if (rookPiece->getNumberOfMoves() <= 0) { // Rook has not moved
                     bool blockingPiece = false;
 
-                    int start = std::min(pieceCell.file, rookCell.file) + 1;
-                    int end = std::max(pieceCell.file, rookCell.file);
+                    int start = min(pieceCell.file, rookCell.file) + 1;
+                    int end = max(pieceCell.file, rookCell.file);
 
                     for (int i = start; i < end; i++) {
                         Tile* tile = board.getTile(Cell(pieceCell.rank, i));

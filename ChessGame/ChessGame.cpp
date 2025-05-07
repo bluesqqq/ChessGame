@@ -183,7 +183,7 @@ int main() {
 
                     MoveGenerator generator = MoveGenerator(game);
 
-                    Move aiMove = generator.chooseMove(game.getPlayerTurn(), 4);
+                    Move aiMove = generator.chooseMove(4);
 
                     if (board.isLegalMove(game.getPlayerTurn(), aiMove.from, aiMove.to)) {
                         Move move = board.getMove(aiMove.from, aiMove.to); // Get the move, with flags

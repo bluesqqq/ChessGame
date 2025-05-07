@@ -142,6 +142,7 @@
     <ClCompile Include="MoveGenerator.cpp" />
     <ClCompile Include="Personality.cpp" />
     <ClCompile Include="piece.cpp" />
+    <ClCompile Include="PieceType.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="PromotionMenu.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="MoveGenerator.h" />
     <ClInclude Include="Personality.h" />
     <ClInclude Include="piece.h" />
+    <ClInclude Include="PieceType.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="PromotionMenu.h" />
     <ClInclude Include="RenderQueue.h" />

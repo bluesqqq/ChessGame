@@ -205,7 +205,7 @@ class Board {
         /// </summary>
         /// <param name="player">The player to get the pieces of</param>
         /// <returns>A vector of cell positions of the player's pieces</returns>
-        std::vector<Cell> getPlayersPieces(int player);
+        vector<Cell> getPlayersPieces(int player);
 
         /// <summary>
         /// Gets the cell positions of all of the specified player's pieces of a certain type
@@ -214,7 +214,7 @@ class Board {
         /// <param name="player">The player to get the pieces of</param>
         /// <returns>A vector of cell positions of the player's pieces of type T</returns>
         template <typename T>
-        std::vector<Cell> getPlayersPiecesOfType(int player);
+        vector<Cell> getPlayersPiecesOfType(int player);
 
         /************************************|
                    CELL FUNCTIONS

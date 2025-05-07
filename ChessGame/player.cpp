@@ -22,7 +22,7 @@ Move Player::getMove() {
 		return tempMove;
 	}
 
-	throw std::runtime_error("Player has no move.");
+	throw runtime_error("Player has no move.");
 }
 
 void Player::setMove(Move move) {

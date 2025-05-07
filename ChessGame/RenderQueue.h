@@ -4,6 +4,8 @@
 #include "include/raylib-cpp.hpp"
 #include <vector>
 
+using namespace std;
+
 struct SpriteObject {
 	raylib::Vector3 position; // Position of the object in 3D space
 	raylib::Texture2D* atlas; // Texture Atlasof the object
@@ -18,7 +20,7 @@ struct SpriteObject {
 
 class RenderQueue {
 	private:
-		std::vector<SpriteObject> queue;
+		vector<SpriteObject> queue;
 
 	public:
 		RenderQueue();

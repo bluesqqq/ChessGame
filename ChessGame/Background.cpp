@@ -3,9 +3,9 @@
 #include "isometric.h"
 
 float random_float(float min, float max) {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(min, max);
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_real_distribution<> dis(min, max);
 	return dis(gen);
 }
 
@@ -35,7 +35,7 @@ void SpaceBackground::update() {
 	}
 
 	// Remove any stars that have gone off the screen
-	stars.erase(std::remove_if(stars.begin(), stars.end(), [](Star& a) { return a.position.y > 20; }), stars.end());
+	stars.erase(remove_if(stars.begin(), stars.end(), [](Star& a) { return a.position.y > 20; }), stars.end());
 }
 
 
