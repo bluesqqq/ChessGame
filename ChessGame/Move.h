@@ -29,10 +29,11 @@ struct Move {
     Cell to;
     bool canOvertake;
 	optional<MoveFlag> flag = nullopt;
+    MoveType type;
 
     Move();
 
-    Move(Cell from, Cell to, bool canOvertake = true, optional<MoveFlag> flag = nullopt);
+    Move(Cell from, Cell to, bool canOvertake = true, optional<MoveFlag> flag = nullopt, MoveType type = MoveType::PLAYER_MOVE);
 
 	string getAlgebraicNotation(Board& board) const;
 

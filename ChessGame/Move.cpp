@@ -3,7 +3,7 @@
 
 Move::Move() : from(-1, -1), to(-1, -1), canOvertake(false), flag(nullopt) {}
 
-Move::Move(Cell from, Cell to, bool canOvertake, optional<MoveFlag> flag) : from(from), to(to), canOvertake(canOvertake), flag(flag) {}
+Move::Move(Cell from, Cell to, bool canOvertake, optional<MoveFlag> flag, MoveType type) : from(from), to(to), canOvertake(canOvertake), flag(flag), type(type) {}
 
 string Move::getAlgebraicNotation(Board& board) const {
 	Piece* piece = board.getPiece(from);

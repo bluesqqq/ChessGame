@@ -144,7 +144,7 @@ void ConveyorTile::applyTileEffect(Board& board) {
 
         if (destinationTile) {
             // Queue a movement to the destination tile
-            board.queueMove(Move(cell, destinationCell, false));
+            board.queueMove(Move(cell, destinationCell, false, nullopt, MoveType::CONVEYOR_MOVE));
         }
     }
 }
@@ -209,7 +209,7 @@ void PortalTile::applyTileEffect(Board& board) {
             Cell destinationCell = board.getCell(destinationPortal);
 
             // Queue a movement to the destination portal tile
-            board.queueMove(Move(board.getCell(destinationPortal), board.getCell(this), false));
+            board.queueMove(Move(cell, destinationCell, false, nullopt, MoveType::PORTAL_MOVE));
 
             lifetime = 0;
             destinationPortal->setLifetime(0);

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include "Theme.h"
+#include "animation.h"
 
 void Board::drawTile(RenderQueue& renderQueue, int rank, int file, TileType type) {
     TilePosition tile = tileData[type];
@@ -254,8 +255,30 @@ void Board::queueMove(Move move) {
     //TODO: need to change the animation for things like conveyor belts / portals
     // The place to do it is here
 
-    // Play the default piece move animation
-    animatingPiece->playAnimation(animatingPiece->createMoveAnimation(*this, move.from, move.to));
+    switch (move.type) {
+        case MoveType::CONVEYOR_MOVE: {
+            cout << "CONVEYOR MOVE FOUND!" << endl;
+            raylib::Vector3 fromPos = getIsoPositionAtCell(move.from);
+            raylib::Vector3 toPos = getIsoPositionAtCell(move.to);
+
+            raylib::Vector3 offset = toPos - fromPos;
+
+            animatingPiece->playAnimation(createSlideAnimation({ 0, 0, 0 }, offset));
+            break;
+        }
+        case MoveType::PORTAL_MOVE: {
+            raylib::Vector3 fromPos = getIsoPositionAtCell(move.from);
+            raylib::Vector3 toPos = getIsoPositionAtCell(move.to);
+
+            raylib::Vector3 offset = toPos - fromPos;
+
+            animatingPiece->playAnimation(createTeleportAnimation({ 0, 0, 0 }, offset));
+            break;
+        }
+        default:
+            animatingPiece->playAnimation(animatingPiece->createMoveAnimation(*this, move.from, move.to));
+            break;
+    }
 
     // It's debatable whether or not tiles that move the pieces should count as a piece move, but I'm going to say yes
 	getTile(move.from)->getPiece()->move();
